@@ -1,27 +1,24 @@
-interface NavbarLinks {
-  name: string;
-  id: string;
-}
+import { NavbarLinks } from "@/types/shared";
 
 export const navlinks: NavbarLinks[] = [
   {
-    name: "About Me",
-    id: "about-me",
+    label: "About Me",
+    href: "/about-me",
   },
   {
-    name: "Experience",
-    id: "experience",
+    label: "Experience",
+    href: "/experience",
   },
   {
-    name: "Education",
-    id: "education",
+    label: "Education",
+    href: "/education",
   },
   {
-    name: "Current Projects",
-    id: "current-projects",
+    label: "Current Projects",
+    href: "/current-projects",
   },
   {
-    name: "Contact",
-    id: "contact",
+    label: "Contact",
+    href: "/contact",
   },
 ];

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { RiMenu5Fill } from "react-icons/ri";
 import { navlinks } from "@/data/navlinks";
+import { NavbarLinks } from "@/types/shared";
 
 const Navbar: FC = () => {
   return (
@@ -18,11 +19,11 @@ const Navbar: FC = () => {
         </SheetTrigger>
         <SheetContent side="left" className="transition-all duration-300">
           <div className="grid gap-2 py-6 text-center lg:text-left">
-            {navlinks.map((navlink) => (
+            {navlinks.map((navlink: NavbarLinks) => (
               <MobileNavbarLinks
-                key={navlink.id}
-                href={navlink.id}
-                label={navlink.name}
+                key={navlink.href}
+                href={navlink.href}
+                label={navlink.label}
               />
             ))}
           </div>
@@ -31,11 +32,11 @@ const Navbar: FC = () => {
 
       {/* Desktop Navigation */}
       <nav className="hidden lg:flex gap-6 mx-auto" id="desktop-nav">
-        {navlinks.map((navlink) => (
+        {navlinks.map((navlink: NavbarLinks) => (
           <DesktopNavbarLinks
-            key={navlink.id}
-            href={navlink.id}
-            label={navlink.name}
+            key={navlink.href}
+            href={navlink.href}
+            label={navlink.label}
           />
         ))}
       </nav>
@@ -45,13 +46,7 @@ const Navbar: FC = () => {
 
 export default Navbar;
 
-const DesktopNavbarLinks = ({
-  href,
-  label,
-}: {
-  href: string;
-  label: string;
-}) => {
+const DesktopNavbarLinks = ({ href, label }: NavbarLinks) => {
   return (
     <Link
       href={href}
@@ -63,13 +58,7 @@ const DesktopNavbarLinks = ({
   );
 };
 
-const MobileNavbarLinks = ({
-  href,
-  label,
-}: {
-  href: string;
-  label: string;
-}) => {
+const MobileNavbarLinks = ({ href, label }: NavbarLinks) => {
   return (
     <Link
       href={href}
