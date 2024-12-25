@@ -68,6 +68,26 @@ body {
   }
 }
 
+/* Headings color using custom primary color */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--primary-color);
+}
+
+/* Link styles */
+a {
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
 @layer base {
   * {
     @apply border-border;
