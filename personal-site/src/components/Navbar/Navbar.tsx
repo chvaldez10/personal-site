@@ -2,7 +2,8 @@ import { FC } from "react";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import MenuIcon from "./MenuIcon";
+import { RiMenu5Fill } from "react-icons/ri";
+import { navlinks } from "@/data/navlinks";
 
 const Navbar: FC = () => {
   return (
@@ -11,7 +12,7 @@ const Navbar: FC = () => {
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="lg:hidden">
-            <MenuIcon className="h-6 w-6" />
+            <RiMenu5Fill className="h-6 w-6" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
@@ -51,37 +52,34 @@ const Navbar: FC = () => {
 
       {/* Desktop Navigation */}
       <nav className="hidden lg:flex gap-6 mx-auto">
-        <Link
-          href="#"
-          className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50"
-          prefetch={false}
-        >
-          Home
-        </Link>
-        <Link
-          href="#"
-          className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50"
-          prefetch={false}
-        >
-          About
-        </Link>
-        <Link
-          href="#"
-          className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50"
-          prefetch={false}
-        >
-          Services
-        </Link>
-        <Link
-          href="#"
-          className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50"
-          prefetch={false}
-        >
-          Contact
-        </Link>
+        {navlinks.map((navlink) => (
+          <DesktopNavbarLinks
+            key={navlink.id}
+            href={navlink.id}
+            label={navlink.name}
+          />
+        ))}
       </nav>
     </header>
   );
 };
 
 export default Navbar;
+
+const DesktopNavbarLinks = ({
+  href,
+  label,
+}: {
+  href: string;
+  label: string;
+}) => {
+  return (
+    <Link
+      href={href}
+      className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50"
+      prefetch={false}
+    >
+      {label}
+    </Link>
+  );
+};
