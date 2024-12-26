@@ -8,7 +8,7 @@ const MainHeader: React.FC = () => {
         className="text-6xl font-extrabold text-white"
         style={{ textShadow: "0 0 10px rgba(104, 109, 118, 0.7)" }}
       >
-        I&apos;m Christian
+        Hi, I&apos;m Christian
       </h1>
       <p
         className="text-xl text-white mt-2"
