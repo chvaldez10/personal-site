@@ -27,16 +27,21 @@ const MainHeader: React.FC = () => {
 
       {/* Buttons */}
       <div className="flex flex-col md:flex-row gap-4">
+        {/* GitHub */}
         <SocialButton
           variant="outline"
           icon={<FaGithub />}
           href="https://github.com/chvaldez10"
         >
-          Button 1
+          GitHub
         </SocialButton>
-        <PdfDialogButton pdfUrl="/Christian-Valdez_Resume.pdf">
-          View Resume
-        </PdfDialogButton>
+
+        {/* Resume */}
+        <PdfDialogButton
+          pdfUrl="/Christian-Valdez_Resume.pdf"
+          label="Resume"
+          description="View my resume below."
+        />
       </div>
     </div>
   );

@@ -10,14 +10,9 @@ interface SocialButtonProps extends ButtonProps {
 const SocialButton = React.forwardRef<HTMLButtonElement, SocialButtonProps>(
   ({ icon, className, href, ...props }, ref) => {
     return (
-      <Link
-        href={href}
-        target="_blank"
-        className="hover-scale-effect"
-        style={{ textDecoration: "none" }}
-      >
+      <Link href={href} target="_blank" style={{ textDecoration: "none" }}>
         <Button
-          className={`flex items-center gap-2 rounded-full ${className}`}
+          className={`flex items-center gap-2 rounded-full hover-scale-effect ${className}`}
           ref={ref}
           {...props}
         >
