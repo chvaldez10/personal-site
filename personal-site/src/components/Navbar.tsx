@@ -15,6 +15,9 @@ import { NavbarLinks } from "@/types/shared";
 // Data
 import { navlinks } from "@/data/navlinks";
 
+// Styles
+import "@/styles/navbar.css";
+
 const Navbar: FC = () => {
   return (
     <header className="fixed top-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6">
@@ -29,8 +32,8 @@ const Navbar: FC = () => {
         </SheetTrigger>
 
         {/* Mobile Navigation */}
-        <SheetContent side="left" className="transition-all duration-300">
-          <div className="grid gap-2 py-6 text-center md:text-left">
+        <SheetContent side="left">
+          <div className="grid gap-4 py-6 text-center md:text-left">
             {navlinks.map((navlink: NavbarLinks) => (
               <MobileNavbarLinkItem
                 key={navlink.href}
@@ -46,7 +49,7 @@ const Navbar: FC = () => {
       <div className="flex items-center mx-auto gap-4">
         <Link
           to="main-header"
-          className="hidden md:flex cursor-pointer transform transition-transform duration-300 hover:scale-110"
+          className="hidden md:flex cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-110"
         >
           <Image
             src="/rice-bowl.png"
@@ -80,9 +83,11 @@ const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       smooth={true}
       duration={300}
       offset={-50}
-      className="group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 cursor-pointer"
+      className="group inline-flex w-max items-center justify-center rounded-md px-4 text-sm font-medium transition-colors cursor-pointer text-center"
+      id="style-4"
+      data-replace={label}
     >
-      {label}
+      <span>{label}</span>
     </Link>
   );
 };
@@ -94,9 +99,11 @@ const MobileNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       smooth={true}
       duration={300}
       offset={-80}
-      className="flex w-full items-center py-2 text-lg font-semibold cursor-pointer"
+      className="flex w-full items-center text-lg font-semibold cursor-pointer"
+      id="style-4"
+      data-replace={label}
     >
-      {label}
+      <span>{label}</span>
     </Link>
   );
 };

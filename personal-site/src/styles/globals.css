@@ -39,6 +39,9 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    /* brand colors */
+    --brand-secondary-300: #d20062;
   }
   .dark {
     --background: 240 10% 3.9%;
@@ -66,6 +69,15 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 /* Headings color using custom primary color */
@@ -75,24 +87,15 @@ h3,
 h4,
 h5,
 h6 {
-  color: var(--primary-color);
+  color: var(--primary);
 }
 
 /* Link styles */
 a {
-  color: var(--secondary-color);
+  color: var(--secondary);
   text-decoration: none;
 }
 
 a:hover {
   text-decoration: underline;
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }

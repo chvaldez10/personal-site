@@ -4,10 +4,16 @@ import "@/styles/main-header.css";
 const MainHeader: React.FC = () => {
   return (
     <div className="h-screen gradient-background flex flex-col justify-center items-center text-center">
-      <h1 className="text-6xl font-extrabold text-white drop-shadow-lg">
+      <h1
+        className="text-6xl font-extrabold text-white"
+        style={{ textShadow: "0 0 10px rgba(104, 109, 118, 0.7)" }}
+      >
         I&apos;m Christian
       </h1>
-      <p className="text-xl text-white mt-2 drop-shadow-md">
+      <p
+        className="text-xl text-white mt-2"
+        style={{ textShadow: "0 0 10px rgba(104, 109, 118, 0.7)" }}
+      >
         I like to build things
       </p>
       <div className="mt-4">
