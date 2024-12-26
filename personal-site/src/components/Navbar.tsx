@@ -2,25 +2,35 @@
 
 import { FC } from "react";
 import { Link } from "react-scroll";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
+import Image from "next/image";
+
+// Components
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { RiMenu5Fill } from "react-icons/ri";
-import { navlinks } from "@/data/navlinks";
+
+// Types
 import { NavbarLinks } from "@/types/shared";
+
+// Data
+import { navlinks } from "@/data/navlinks";
 
 const Navbar: FC = () => {
   return (
-    <header className="sticky top-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6 ">
+    <header className="sticky top-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6">
       {/* Mobile Navigation Sheet */}
       <Sheet>
+        {/* Menu Button */}
         <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="lg:hidden">
+          <Button variant="outline" size="icon" className="md:hidden">
             <RiMenu5Fill className="h-6 w-6" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
+
+        {/* Mobile Navigation */}
         <SheetContent side="left" className="transition-all duration-300">
-          <div className="grid gap-2 py-6 text-center lg:text-left">
+          <div className="grid gap-2 py-6 text-center md:text-left">
             {navlinks.map((navlink: NavbarLinks) => (
               <MobileNavbarLinkItem
                 key={navlink.href}
@@ -32,20 +42,32 @@ const Navbar: FC = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Desktop Navigation */}
-      <nav className="hidden lg:flex gap-6 mx-auto" id="desktop-nav">
-        {navlinks.map((navlink: NavbarLinks) => (
-          <DesktopNavbarLinkItem
-            key={navlink.href}
-            href={navlink.href}
-            label={navlink.label}
+      {/* Logo */}
+      <div className="flex items-center mx-auto gap-4">
+        <Link to="main-header" className="hidden md:flex cursor-pointer">
+          <Image
+            src="/rice-bowl.png"
+            alt="Logo"
+            width={48}
+            height={48}
+            quality={100}
           />
-        ))}
-      </nav>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex gap-6" id="desktop-nav">
+          {navlinks.map((navlink: NavbarLinks) => (
+            <DesktopNavbarLinkItem
+              key={navlink.href}
+              href={navlink.href}
+              label={navlink.label}
+            />
+          ))}
+        </nav>
+      </div>
     </header>
   );
 };
-
 export default Navbar;
 
 const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
