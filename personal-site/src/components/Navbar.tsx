@@ -10,7 +10,7 @@ import { NavbarLinks } from "@/types/shared";
 
 const Navbar: FC = () => {
   return (
-    <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6 ">
+    <header className="sticky top-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6 ">
       {/* Mobile Navigation Sheet */}
       <Sheet>
         <SheetTrigger asChild>
@@ -24,7 +24,7 @@ const Navbar: FC = () => {
             {navlinks.map((navlink: NavbarLinks) => (
               <MobileNavbarLinks
                 key={navlink.href}
-                href={navlink.href}
+                href={`#${navlink.href}`}
                 label={navlink.label}
               />
             ))}
@@ -37,7 +37,7 @@ const Navbar: FC = () => {
         {navlinks.map((navlink: NavbarLinks) => (
           <DesktopNavbarLinks
             key={navlink.href}
-            href={navlink.href}
+            href={`#${navlink.href}`}
             label={navlink.label}
           />
         ))}

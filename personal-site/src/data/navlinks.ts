@@ -3,22 +3,22 @@ import { NavbarLinks } from "@/types/shared";
 export const navlinks: NavbarLinks[] = [
   {
     label: "About Me",
-    href: "#about-me",
+    href: "about-me",
   },
   {
     label: "Experience",
-    href: "#experience",
+    href: "experience",
   },
   {
     label: "Education",
-    href: "#education",
+    href: "education",
   },
   {
     label: "Current Projects",
-    href: "#current-projects",
+    href: "current-projects",
   },
   {
     label: "Contact",
-    href: "#contact",
+    href: "contact",
   },
 ];
