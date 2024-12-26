@@ -4,7 +4,7 @@ import { FaGithub } from "react-icons/fa";
 
 // Components
 import { SocialButton } from "@/components/ui/buttons";
-import { PillButton } from "@/components/ui/buttons";
+import { PdfDialogButton } from "@/components/ui/buttons";
 
 const MainHeader: React.FC = () => {
   return (
@@ -34,7 +34,9 @@ const MainHeader: React.FC = () => {
         >
           Button 1
         </SocialButton>
-        <PillButton variant="outline">Button 2</PillButton>
+        <PdfDialogButton pdfUrl="/Christian-Valdez_Resume.pdf">
+          View Resume
+        </PdfDialogButton>
       </div>
     </div>
   );
