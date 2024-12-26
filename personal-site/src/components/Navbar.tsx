@@ -44,7 +44,10 @@ const Navbar: FC = () => {
 
       {/* Logo */}
       <div className="flex items-center mx-auto gap-4">
-        <Link to="main-header" className="hidden md:flex cursor-pointer">
+        <Link
+          to="main-header"
+          className="hidden md:flex cursor-pointer transform transition-transform duration-300 hover:scale-110"
+        >
           <Image
             src="/rice-bowl.png"
             alt="Logo"
@@ -77,7 +80,7 @@ const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       smooth={true}
       duration={300}
       offset={-50}
-      className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 cursor-pointer"
+      className="group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 cursor-pointer"
     >
       {label}
     </Link>
