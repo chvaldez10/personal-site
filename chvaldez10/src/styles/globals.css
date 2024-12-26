@@ -41,6 +41,8 @@ body {
     --radius: 0.5rem;
 
     /* brand colors */
+    --brand-primary-100: #fffbf5;
+    --brand-primary-200: #fffef4;
     --brand-secondary-300: #d20062;
   }
   .dark {

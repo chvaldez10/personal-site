@@ -1,9 +1,10 @@
-import MainHeader from "@/components/core/MainHeader";
+import { AboutMe } from "@/components/core/hero";
 
 export default function Home() {
   return (
     <>
-      <MainHeader />
+      {/* <MainHeader /> */}
+      <AboutMe />
     </>
   );
 }
