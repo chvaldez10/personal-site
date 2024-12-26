@@ -5,7 +5,7 @@ import { Link } from "react-scroll";
 import Image from "next/image";
 
 // Components
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/buttons/button";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { RiMenu5Fill } from "react-icons/ri";
 
@@ -47,10 +47,7 @@ const Navbar: FC = () => {
 
       {/* Logo */}
       <div className="flex items-center mx-auto gap-4">
-        <Link
-          to="main-header"
-          className="hidden md:flex cursor-pointer transform transition-all duration-300 ease-in-out hover:scale-110"
-        >
+        <Link to="main-header" className="hidden md:flex  hover-scale-effect">
           <Image
             src="/rice-bowl.png"
             alt="Logo"

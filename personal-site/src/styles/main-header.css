@@ -20,3 +20,11 @@
     background-position: 50% 0%;
   }
 }
+
+.icon {
+  transition: color 0.3s ease-in-out;
+}
+
+.icon:hover {
+  color: var(--brand-secondary-300);
+}

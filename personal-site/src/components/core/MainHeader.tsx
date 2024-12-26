@@ -1,24 +1,40 @@
 import React from "react";
 import "@/styles/main-header.css";
+import { FaGithub } from "react-icons/fa";
+
+// Components
+import { SocialButton } from "@/components/ui/buttons";
+import { PillButton } from "@/components/ui/buttons";
 
 const MainHeader: React.FC = () => {
   return (
-    <div className="h-screen gradient-background flex flex-col justify-center items-center text-center">
+    <div className="h-screen gradient-background flex flex-col justify-center items-center text-center space-y-4">
+      {/* Header */}
       <h1
-        className="text-6xl font-extrabold text-white"
+        className="text-4xl md:text-6xl font-extrabold text-white"
         style={{ textShadow: "0 0 10px rgba(104, 109, 118, 0.7)" }}
       >
         Hi, I&apos;m Christian
       </h1>
-      <p
-        className="text-xl text-white mt-2"
+
+      {/* Subheader */}
+      <h3
+        className="text-xl md:text-2xl text-white"
         style={{ textShadow: "0 0 10px rgba(104, 109, 118, 0.7)" }}
       >
-        I like to build things
-      </p>
-      <div className="mt-4">
-        <button className="btn">Button 1</button>
-        <button className="btn ml-4">Button 2</button>
+        Transforming Ideas into Solutions
+      </h3>
+
+      {/* Buttons */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <SocialButton
+          variant="outline"
+          icon={<FaGithub />}
+          href="https://github.com/chvaldez10"
+        >
+          Button 1
+        </SocialButton>
+        <PillButton variant="outline">Button 2</PillButton>
       </div>
     </div>
   );
