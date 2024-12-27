@@ -21,44 +21,22 @@ import styles from "./navbar.module.css";
 const Navbar: FC = () => {
   return (
     <header className="fixed top-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6">
-      {/* Mobile Navigation Sheet */}
-      <Sheet>
-        {/* Menu Button */}
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="md:hidden">
-            <RiMenu5Fill className="h-6 w-6" />
-            <span className="sr-only">Toggle navigation menu</span>
-          </Button>
-        </SheetTrigger>
+      <MobileNavbar />
+      <DesktopNavbar />
+    </header>
+  );
+};
+export default Navbar;
 
-        {/* Mobile Navigation */}
-        <SheetContent side="left">
-          <div className="grid gap-4 py-6 text-center md:text-left">
-            {navlinks.map((navlink: NavbarLinks) => (
-              <MobileNavbarLinkItem
-                key={navlink.href}
-                href={navlink.href}
-                label={navlink.label}
-              />
-            ))}
-          </div>
-        </SheetContent>
-      </Sheet>
-
+const DesktopNavbar = () => {
+  return (
+    <>
       {/* Logo */}
-      <div className="flex items-center mx-auto gap-4">
-        <Link to="main-header" className="hidden md:flex  hover-scale-effect">
-          <Image
-            src="/rice-bowl.png"
-            alt="Logo"
-            width={48}
-            height={48}
-            quality={100}
-          />
-        </Link>
+      <div className="hidden md:flex items-center mx-auto gap-4">
+        <NavbarLogo />
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-6" id="desktop-nav">
+        {/* Desktop items */}
+        <nav className="gap-6" id="desktop-nav">
           {navlinks.map((navlink: NavbarLinks) => (
             <DesktopNavbarLinkItem
               key={navlink.href}
@@ -68,10 +46,9 @@ const Navbar: FC = () => {
           ))}
         </nav>
       </div>
-    </header>
+    </>
   );
 };
-export default Navbar;
 
 const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
   return (
@@ -89,6 +66,36 @@ const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
   );
 };
 
+const MobileNavbar = () => {
+  return (
+    <Sheet>
+      {/* Menu Button */}
+      <SheetTrigger asChild>
+        <Button variant="outline" size="icon" className="md:hidden">
+          <RiMenu5Fill className="h-6 w-6" />
+          <span className="sr-only">Toggle navigation menu</span>
+        </Button>
+      </SheetTrigger>
+
+      {/* Mobile Navigation */}
+      <SheetContent side="left">
+        <NavbarLogo />
+
+        {/* Navbar items */}
+        <div className="grid gap-4 py-6 text-center md:text-left">
+          {navlinks.map((navlink: NavbarLinks) => (
+            <MobileNavbarLinkItem
+              key={navlink.href}
+              href={navlink.href}
+              label={navlink.label}
+            />
+          ))}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
 const MobileNavbarLinkItem = ({ href, label }: NavbarLinks) => {
   return (
     <Link
@@ -101,6 +108,20 @@ const MobileNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       style={{ textDecoration: "none" }}
     >
       <span>{label}</span>
+    </Link>
+  );
+};
+
+const NavbarLogo = () => {
+  return (
+    <Link to="main-header" className="hover-scale-effect">
+      <Image
+        src="/rice-bowl.png"
+        alt="Logo"
+        width={48}
+        height={48}
+        quality={100}
+      />
     </Link>
   );
 };
