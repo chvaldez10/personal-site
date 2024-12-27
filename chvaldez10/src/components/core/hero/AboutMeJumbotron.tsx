@@ -13,17 +13,17 @@ const AboutMeJumbotron = () => {
     <div
       className={`${styles.gradientBackground} h-screen flex flex-col justify-center items-center`}
     >
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 items-center md:gap-20">
+      <div className="container grid grid-cols-1 md:grid-cols-2 items-center md:gap-4">
         <AboutDescription />
 
-        {/* Right side */}
-        <div className="relative sm:mt-0 mt-10 px-6 sm:px-0">
+        {/* Image  */}
+        <div className="relative mt-10 md:mt-0 px-6 md:px-0 mx-auto">
           <Image
-            className="w-[600px] animate__animated animate__fadeInRight animate__delay-.5s"
-            src="https://images.unsplash.com/photo-1624628639856-100bf817fd35?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8M2QlMjBpbWFnZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60"
+            src="/sandbox-no-bg.gif"
             width={600}
             height={600}
             alt=""
+            className="w-full h-auto max-w-xs md:max-w-md lg:max-w-lg"
           />
         </div>
       </div>
