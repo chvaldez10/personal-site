@@ -4,13 +4,16 @@ import Image from "next/image";
 
 // Icons
 import { FaGithub } from "react-icons/fa";
-import { FaFilePdf } from "react-icons/fa";
 
 // Styles
 import styles from "./hero.module.css";
 
 // Components
-import { BrandButton } from "@/components/ui/buttons";
+import {
+  BrandButton,
+  SocialButton,
+  PdfDialogButton,
+} from "@/components/ui/buttons";
 
 const AboutMeJumbotron = () => {
   return (
@@ -21,7 +24,7 @@ const AboutMeJumbotron = () => {
         <AboutDescription />
 
         {/* Image  */}
-        <div className="relative mt-10 md:mt-0 px-6 md:px-0 mx-auto">
+        <div className="mt-12 mx-auto">
           <Image
             src="/sandbox-no-bg.gif"
             width={600}
@@ -55,17 +58,30 @@ const AboutDescription = () => {
 
       {/* Subheader */}
       <p className="mt-4 md:text-base">
-        What does that mean? I&apos;m someone who is eager to tackle challenges
-        in software, from designing and developing to testing and shipping
-        products. It may take years, but I&apos;m committed to the journey.
+        What does that mean? I am someone who is eager to tackle challenges in
+        software, from design and development to testing and shipping products.
+        Why a sandbox? Because in a sandbox, you can experiment, fail, and
+        learn.
       </p>
 
       {/* Buttons */}
-      <div className="flex gap-4 mt-8">
+      <div className="flex gap-2 mt-8">
         <BrandButton>Get In Touch</BrandButton>
 
-        <FaGithub />
-        <FaFilePdf />
+        <SocialButton
+          icon={<FaGithub />}
+          variant="link"
+          size="iconFit"
+          href="https://github.com/chvaldez10"
+        ></SocialButton>
+
+        <PdfDialogButton
+          variant="link"
+          size="iconFit"
+          pdfUrl="/Christian-Valdez_Resume.pdf"
+          className="items-start hover-scale-effect"
+          label="Resume"
+        ></PdfDialogButton>
       </div>
     </div>
   );

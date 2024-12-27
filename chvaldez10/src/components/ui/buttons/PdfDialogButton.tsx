@@ -26,14 +26,9 @@ const PdfDialogButton = React.forwardRef<
     <Dialog>
       {/* Button Text */}
       <DialogTrigger asChild>
-        <Button
-          className="hover-scale-effect rounded-full"
-          variant="outline"
-          {...props}
-          ref={ref}
-        >
+        <Button {...props} ref={ref}>
           <FaFilePdf />
-          {label}
+          {props.children}
         </Button>
       </DialogTrigger>
 

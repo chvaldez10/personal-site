@@ -106,5 +106,5 @@ a:hover {
 
 /* hover effect */
 .hover-scale-effect {
-  @apply transform hover:scale-110;
+  @apply transform hover:scale-110 transition-all duration-300 ease-in-out;
 }

@@ -1,4 +1,4 @@
-import { AboutMeJumbotron } from "@/components/core/hero";
+import { AboutMeJumbotron, MainHeader } from "@/components/core/hero";
 
 export default function Home() {
   return (
