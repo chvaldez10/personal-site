@@ -6,7 +6,7 @@ import { SocialButton } from "@/components/ui/buttons";
 import { PdfDialogButton } from "@/components/ui/buttons";
 
 // Styles
-import styles from "./hero.module.css";
+import styles from "./Hero.module.css";
 
 // Note: Depreciate this component once all components are migrated to AboutJumbotron
 
