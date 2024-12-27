@@ -41,9 +41,10 @@ body {
     --radius: 0.5rem;
 
     /* brand colors */
-    --brand-primary-100: #fffbf5;
-    --brand-primary-200: #fffef4;
-    --brand-secondary-300: #d20062;
+    --brand-secondary-100: #fffbf5;
+    --brand-secondary-200: #f9e6cf;
+
+    --brand-primary-300: #d20062;
   }
   .dark {
     --background: 240 10% 3.9%;

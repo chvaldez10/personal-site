@@ -1,21 +1,21 @@
 /* style 4 from codepen found here: https://codepen.io/adipurdila/pen/MWpELyG */
 
-#style-4 {
+.clientNavbar {
   overflow: hidden;
   position: relative;
   display: inline-block;
 }
 
-#style-4::before,
-#style-4::after {
+.clientNavbar::before,
+.clientNavbar::after {
   content: "";
   position: absolute;
   width: 100%;
   left: 0;
 }
 
-#style-4::before {
-  background-color: var(--brand-secondary-300);
+.clientNavbar::before {
+  background-color: var(--brand-primary-300);
   height: 2px;
   bottom: 0;
   transform-origin: 100% 50%;
@@ -23,30 +23,30 @@
   transition: transform 0.3s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-#style-4:hover::before {
+.clientNavbar:hover::before {
   transform-origin: 0% 50%;
   transform: scaleX(1);
 }
 
-#style-4::after {
+.clientNavbar::after {
   content: attr(data-replace);
   height: 100%;
   top: 0;
   transform-origin: 100% 50%;
   transform: translate3d(200%, 0, 0);
   transition: transform 0.3s cubic-bezier(0.76, 0, 0.24, 1);
-  color: var(--brand-secondary-300);
+  color: var(--brand-primary-300);
 }
 
-#style-4:hover::after {
+.clientNavbar:hover::after {
   transform: translate3d(0, 0, 0);
 }
 
-#style-4 span {
+.clientNavbar span {
   display: inline-block;
   transition: transform 0.3s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-#style-4:hover span {
+.clientNavbar:hover span {
   transform: translate3d(-300%, 0, 0);
 }

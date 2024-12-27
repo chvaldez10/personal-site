@@ -4,11 +4,15 @@ import { RiFacebookFill } from "react-icons/ri";
 import { SiBehance } from "react-icons/si";
 import Image from "next/image";
 
-import "@/styles/main-header.css";
+import styles from "./hero.module.css";
+
+// import "@/styles/main-header.css";
 
 const AboutJumbotron = () => {
   return (
-    <div className="h-screen gradient-background flex flex-col justify-center items-center">
+    <div
+      className={`${styles.gradientBackground} h-screen flex flex-col justify-center items-center`}
+    >
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 items-center md:gap-20">
         {/* Left side */}
         <div className="content">

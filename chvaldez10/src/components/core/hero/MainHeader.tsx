@@ -1,16 +1,20 @@
 import React from "react";
-import "@/styles/main-header.css";
 import { FaGithub } from "react-icons/fa";
 
 // Components
 import { SocialButton } from "@/components/ui/buttons";
 import { PdfDialogButton } from "@/components/ui/buttons";
 
+// Styles
+import styles from "./hero.module.css";
+
 // Note: Depreciate this component once all components are migrated to AboutJumbotron
 
 const MainHeader: React.FC = () => {
   return (
-    <div className="h-screen gradient-background flex flex-col justify-center items-center text-center space-y-4">
+    <div
+      className={`${styles.gradientBackground} h-screen flex flex-col justify-center items-center text-center space-y-4`}
+    >
       {/* Header */}
       <h1
         className="text-4xl md:text-6xl font-extrabold text-white"

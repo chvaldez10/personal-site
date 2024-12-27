@@ -1,10 +1,9 @@
-import { AboutMe } from "@/components/core/hero";
+import { AboutMeJumbotron } from "@/components/core/hero";
 
 export default function Home() {
   return (
     <>
-      {/* <MainHeader /> */}
-      <AboutMe />
+      <AboutMeJumbotron />
     </>
   );
 }

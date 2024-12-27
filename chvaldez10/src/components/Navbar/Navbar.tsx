@@ -16,7 +16,7 @@ import { NavbarLinks } from "@/types/shared";
 import { navlinks } from "@/data/navlinks";
 
 // Styles
-import "@/styles/navbar.css";
+import styles from "./navbar.module.css";
 
 const Navbar: FC = () => {
   return (
@@ -80,9 +80,9 @@ const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       smooth={true}
       duration={300}
       offset={-50}
-      className="group inline-flex w-max items-center justify-center rounded-md px-4 text-sm font-medium transition-colors cursor-pointer text-center"
-      id="style-4"
+      className={`${styles.clientNavbar} group inline-flex w-max items-center justify-center rounded-md px-4 text-sm font-medium transition-colors cursor-pointer text-center`}
       data-replace={label}
+      style={{ textDecoration: "none" }}
     >
       <span>{label}</span>
     </Link>
@@ -96,9 +96,9 @@ const MobileNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       smooth={true}
       duration={300}
       offset={-80}
-      className="flex w-full items-center text-lg font-semibold cursor-pointer"
-      id="style-4"
+      className={`${styles.clientNavbar} flex w-full items-center text-lg font-semibold cursor-pointer`}
       data-replace={label}
+      style={{ textDecoration: "none" }}
     >
       <span>{label}</span>
     </Link>
