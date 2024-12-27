@@ -1,12 +1,16 @@
 // Original code from https://www.creative-tim.com/twcomponents/component/hero-section-1
 
-import { RiFacebookFill } from "react-icons/ri";
-import { SiBehance } from "react-icons/si";
 import Image from "next/image";
 
+// Icons
+import { FaGithub } from "react-icons/fa";
+import { FaFilePdf } from "react-icons/fa";
+
+// Styles
 import styles from "./hero.module.css";
 
-// import "@/styles/main-header.css";
+// Components
+import { BrandButton } from "@/components/ui/buttons";
 
 const AboutMeJumbotron = () => {
   return (
@@ -37,7 +41,7 @@ const AboutDescription = () => {
   return (
     <div className="content">
       {/* top label */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         <hr className="w-6 h-1 bg-orange-500 border-none" />
         <span className="md:text-lg font-medium text-gray-800">
           Self-Proclaimed Product Engineer
@@ -45,25 +49,23 @@ const AboutDescription = () => {
       </div>
 
       {/* Header */}
-      <p className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-5 sm:mt-0">
+      <p className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-2">
         I&apos;m Christian
       </p>
 
       {/* Subheader */}
-      <p className="mt-5 md:text-base">
+      <p className="mt-4 md:text-base">
         What does that mean? I&apos;m someone who is eager to tackle challenges
         in software, from designing and developing to testing and shipping
         products. It may take years, but I&apos;m committed to the journey.
       </p>
 
       {/* Buttons */}
-      <div className="flex gap-4 mt-10">
-        <button className="font-medium text-base flex items-center px-5 py-3 md:py-4 md:px-8 rounded-xl capitalize bg-gradient-to-r from-orange-300 to-orange-500 hover:from-pink-500 hover:to-yellow-500 relative gap-2 transition duration-300 hover:scale-105 text-white shadow-glass">
-          Get In Touch
-          <span className="animate-ping absolute right-0 top-0 w-3 h-3 rounded-full bg-gradient-to-r from-orange-400 to-orange-700"></span>
-        </button>
-        <RiFacebookFill />
-        <SiBehance />
+      <div className="flex gap-4 mt-8">
+        <BrandButton>Get In Touch</BrandButton>
+
+        <FaGithub />
+        <FaFilePdf />
       </div>
     </div>
   );
