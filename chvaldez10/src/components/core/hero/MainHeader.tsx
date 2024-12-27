@@ -46,8 +46,12 @@ const MainHeader: React.FC = () => {
         <PdfDialogButton
           pdfUrl="/Christian-Valdez_Resume.pdf"
           label="Resume"
+          variant="outline"
+          className="rounded-full hover-scale-effect"
           description="View my resume below."
-        />
+        >
+          Resume
+        </PdfDialogButton>
       </div>
     </div>
   );

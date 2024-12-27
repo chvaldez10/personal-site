@@ -15,26 +15,24 @@ import {
   PdfDialogButton,
 } from "@/components/ui/buttons";
 
+import CenteredLayout from "./CenteredLayout";
+
 const AboutMeJumbotron = () => {
   return (
-    <div
-      className={`${styles.gradientBackground} h-screen flex flex-col justify-center items-center`}
-    >
-      <div className="container grid grid-cols-1 md:grid-cols-2 items-center md:gap-4 w-10/12">
-        <AboutDescription />
+    <CenteredLayout background={styles.gradientBackground}>
+      <AboutDescription />
 
-        {/* Image  */}
-        <div className="mt-12 mx-auto">
-          <Image
-            src="/sandbox-no-bg.gif"
-            width={600}
-            height={600}
-            alt=""
-            className="w-full h-auto max-w-xs md:max-w-md lg:max-w-lg"
-          />
-        </div>
+      {/* Image  */}
+      <div className="mt-12 mx-auto">
+        <Image
+          src="/sandbox-no-bg.gif"
+          width={600}
+          height={600}
+          alt=""
+          className="w-full h-auto max-w-xs md:max-w-md lg:max-w-lg"
+        />
       </div>
-    </div>
+    </CenteredLayout>
   );
 };
 
