@@ -116,7 +116,7 @@ const NavbarLogo = () => {
   return (
     <Link to="main-header" className="hover-scale-effect">
       <Image
-        src="/rice-bowl.png"
+        src="/images/rice-bowl.png"
         alt="Logo"
         width={48}
         height={48}

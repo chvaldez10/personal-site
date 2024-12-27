@@ -25,7 +25,7 @@ const AboutMeJumbotron = () => {
       {/* Image  */}
       <div className="mt-12 mx-auto">
         <Image
-          src="/sandbox-no-bg.gif"
+          src="/gifs/sandbox-no-bg.gif"
           width={600}
           height={600}
           alt=""
@@ -76,7 +76,7 @@ const AboutDescription = () => {
         <PdfDialogButton
           variant="link"
           size="iconFit"
-          pdfUrl="/Christian-Valdez_Resume.pdf"
+          pdfUrl="/docs/Christian-Valdez_Resume.pdf"
           className="items-start hover-scale-effect"
           label="Resume"
         ></PdfDialogButton>
