@@ -1,3 +1,4 @@
 export { default as MainHeader } from "./MainHeader";
 export { default as AboutMeJumbotron } from "./AboutMeJumbotron";
-export { default as JapaneseStoreFront } from "./JapaneseStoreFront";
+
+export { default as Skills } from "./Skills";
