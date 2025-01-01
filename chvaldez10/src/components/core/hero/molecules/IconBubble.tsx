@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
-import ChildComponent from "./ChildComponent";
+import BubbleItem from "./BubbleItem";
 import { data } from "@/data/bubbleData";
 import "./bubble-animation.css";
 
@@ -25,7 +25,7 @@ const IconBubble: React.FC = () => {
 
   useEffect(() => {
     const bubbles = document.querySelector("._2MD0k") as HTMLElement;
-    const img = document.querySelectorAll<HTMLDivElement>(".childComponent");
+    const img = document.querySelectorAll<HTMLDivElement>(".bubbleItem");
     img.forEach((i) => (i.ondragstart = () => false));
     const dragspeed = 2;
     let isDown = false;
@@ -79,12 +79,10 @@ const IconBubble: React.FC = () => {
     };
   }, []);
 
-  const children = data.map((item, i) => (
-    <ChildComponent key={i} data={item} />
-  ));
+  const children = data.map((item, i) => <BubbleItem key={i} data={item} />);
 
   return (
-    <BubbleUI options={options} className="myBubbleUI">
+    <BubbleUI options={options} className="bubbleUIContainer">
       {children}
     </BubbleUI>
   );
