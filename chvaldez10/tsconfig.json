@@ -19,14 +19,16 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/components/ui/Navbar"
+    "src/components/ui/Navbar",
+    "src/types/react-bubble-ui.d.ts"
   ],
   "exclude": ["node_modules"]
 }
