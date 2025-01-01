@@ -12,7 +12,7 @@ const IconBubble: React.FC = () => {
     size: 180,
     minSize: 20,
     gutter: 8,
-    numCols: 5,
+    numCols: 6,
     yRadius: 220,
     xRadius: 130,
     cornerRadius: 50,
@@ -24,9 +24,10 @@ const IconBubble: React.FC = () => {
   };
 
   useEffect(() => {
-    const bubbles = document.querySelector("._2MD0k") as HTMLElement;
-    const img = document.querySelectorAll<HTMLDivElement>(".bubbleItem");
-    img.forEach((i) => (i.ondragstart = () => false));
+    const bubblesContainer = document.querySelector("._2MD0k") as HTMLElement;
+    const bubbleItems =
+      document.querySelectorAll<HTMLDivElement>(".bubbleItem");
+    bubbleItems.forEach((i) => (i.ondragstart = () => false));
     const dragspeed = 2;
     let isDown = false;
     let startX: number;
@@ -36,53 +37,53 @@ const IconBubble: React.FC = () => {
 
     const handleMouseDown = (e: MouseEvent) => {
       isDown = true;
-      bubbles?.classList.add("active");
-      startX = e.pageX - (bubbles?.offsetLeft || 0);
-      startY = e.pageY - (bubbles?.offsetTop || 0);
-      scrollLeft = bubbles?.scrollLeft || 0;
-      scrollTop = bubbles?.scrollTop || 0;
+      bubblesContainer?.classList.add("active");
+      startX = e.pageX - (bubblesContainer?.offsetLeft || 0);
+      startY = e.pageY - (bubblesContainer?.offsetTop || 0);
+      scrollLeft = bubblesContainer?.scrollLeft || 0;
+      scrollTop = bubblesContainer?.scrollTop || 0;
     };
 
     const handleMouseLeave = () => {
       isDown = false;
-      bubbles?.classList.remove("active");
+      bubblesContainer?.classList.remove("active");
     };
 
     const handleMouseUp = () => {
       isDown = false;
-      bubbles?.classList.remove("active");
+      bubblesContainer?.classList.remove("active");
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDown) return;
       e.preventDefault();
-      const x = e.pageX - (bubbles?.offsetLeft || 0);
-      const y = e.pageY - (bubbles?.offsetTop || 0);
+      const x = e.pageX - (bubblesContainer?.offsetLeft || 0);
+      const y = e.pageY - (bubblesContainer?.offsetTop || 0);
       const walk = (x - startX) * dragspeed;
       const topwalk = (y - startY) * dragspeed;
-      if (bubbles) {
-        bubbles.scrollLeft = scrollLeft - walk;
-        bubbles.scrollTop = scrollTop - topwalk;
+      if (bubblesContainer) {
+        bubblesContainer.scrollLeft = scrollLeft - walk;
+        bubblesContainer.scrollTop = scrollTop - topwalk;
       }
     };
 
-    bubbles?.addEventListener("mousedown", handleMouseDown);
-    bubbles?.addEventListener("mouseleave", handleMouseLeave);
-    bubbles?.addEventListener("mouseup", handleMouseUp);
-    bubbles?.addEventListener("mousemove", handleMouseMove);
+    bubblesContainer?.addEventListener("mousedown", handleMouseDown);
+    bubblesContainer?.addEventListener("mouseleave", handleMouseLeave);
+    bubblesContainer?.addEventListener("mouseup", handleMouseUp);
+    bubblesContainer?.addEventListener("mousemove", handleMouseMove);
 
     return () => {
-      bubbles?.removeEventListener("mousedown", handleMouseDown);
-      bubbles?.removeEventListener("mouseleave", handleMouseLeave);
-      bubbles?.removeEventListener("mouseup", handleMouseUp);
-      bubbles?.removeEventListener("mousemove", handleMouseMove);
+      bubblesContainer?.removeEventListener("mousedown", handleMouseDown);
+      bubblesContainer?.removeEventListener("mouseleave", handleMouseLeave);
+      bubblesContainer?.removeEventListener("mouseup", handleMouseUp);
+      bubblesContainer?.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);
 
   const children = data.map((item, i) => <BubbleItem key={i} data={item} />);
 
   return (
-    <BubbleUI options={options} className="bubbleUIContainer">
+    <BubbleUI options={options} className="bubbleUIContainer cursor-grab">
       {children}
     </BubbleUI>
   );
