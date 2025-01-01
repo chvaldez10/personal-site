@@ -4,13 +4,13 @@ import React from "react";
 import CenteredLayout from "./layouts/CenteredLayout";
 import IconBubble from "./molecules/IconBubble";
 
-const Skills: React.FC = () => {
+const TechFind: React.FC = () => {
   return (
     <CenteredLayout>
-      <div className="content">Hello</div>
+      <div className="content">Tech finds I cant live without</div>
       <IconBubble />
     </CenteredLayout>
   );
 };
 
-export default Skills;
+export default TechFind;

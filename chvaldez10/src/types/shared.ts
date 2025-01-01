@@ -9,3 +9,10 @@ export interface HeroLayoutProps {
   children: React.ReactNode;
   background?: string;
 }
+
+export interface CompanyLogo {
+  key: string;
+  src: string;
+  alt: string;
+  sharedLink?: string;
+}
