@@ -11,8 +11,8 @@ export interface HeroLayoutProps {
 }
 
 export interface CompanyLogo {
-  key: string;
   src: string;
   alt: string;
   sharedLink?: string;
+  label?: string;
 }

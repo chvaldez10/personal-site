@@ -15,7 +15,8 @@
   height: 100%; /* width expands to fit bubble */
   border-radius: 50%; /* rounded border forms a circle */
   display: flex;
-  user-select: none;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  user-select: none;
 }

@@ -1,64 +1,64 @@
 import { CompanyLogo } from "@/types/shared";
 
-export const data: CompanyLogo[] = [
+export const appLogos: CompanyLogo[] = [
   {
-    key: "Aldente",
     src: "/logos/aldente.png",
     alt: "Aldente Logo",
+    label: "Aldente",
   },
   {
-    key: "arc-logo",
     src: "/logos/arc.svg",
     alt: "Arc Logo",
+    label: "Arc",
   },
   {
-    key: "browser-stack-logo",
     src: "/logos/browser-stack.svg",
     alt: "BrowserStack Logo",
+    label: "BrowserStack",
   },
   {
-    key: "canva-logo",
     src: "/logos/canva.svg",
     alt: "Canva Logo",
+    label: "Canva",
   },
   {
-    key: "coda-logo",
     src: "/logos/coda.svg",
     alt: "Coda Logo",
+    label: "Coda",
   },
   {
-    key: "cursor-logo",
     src: "/logos/cursor.png",
     alt: "Cursor Logo",
+    label: "Cursor",
   },
   {
-    key: "logitech-logo",
     src: "/logos/logitech.svg",
     alt: "Logitech Logo",
+    label: "Logitech",
   },
   {
-    key: "raycast-logo",
     src: "/logos/raycast.svg",
     alt: "Raycast Logo",
+    label: "Raycast",
   },
   {
-    key: "supabase-logo",
     src: "/logos/supabase.svg",
     alt: "Supabase Logo",
+    label: "Supabase",
   },
   {
-    key: "warp-logo",
     src: "/logos/warp.svg",
     alt: "Warp Logo",
+    label: "Warp",
   },
   {
-    key: "youtube-music-logo",
     src: "/logos/youtube-music.svg",
     alt: "Youtube Music Logo",
+    label: "Youtube Music",
   },
   {
-    key: "zen-logo",
     src: "/logos/zen.svg",
     alt: "Zen Logo",
+    label: "Zen",
   },
 ];

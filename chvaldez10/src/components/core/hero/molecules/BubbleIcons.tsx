@@ -4,14 +4,14 @@ import React, { useEffect } from "react";
 import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
 import BubbleItem from "./BubbleItem";
-import { data } from "@/data/bubbleData";
+import { appLogos } from "@/data/bubbleData";
 import "./bubble-animation.css";
 
 const BubbleIcons: React.FC = () => {
   const options = {
     size: 180,
     minSize: 36,
-    gutter: 2,
+    gutter: 8,
     numCols: 4,
     yRadius: 140,
     xRadius: 140,
@@ -80,7 +80,9 @@ const BubbleIcons: React.FC = () => {
     };
   }, []);
 
-  const children = data.map((item, i) => <BubbleItem key={i} data={item} />);
+  const children = appLogos.map((appLogo, i) => (
+    <BubbleItem key={i} {...appLogo} />
+  ));
 
   return (
     <BubbleUI options={options} className="bubbleUIContainer cursor-grab">
