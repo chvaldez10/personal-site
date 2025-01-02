@@ -15,4 +15,5 @@ export interface CompanyLogo {
   alt: string;
   sharedLink?: string;
   label?: string;
+  description: string;
 }

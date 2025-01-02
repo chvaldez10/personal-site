@@ -7,7 +7,7 @@ import BubbleIcons from "./molecules/BubbleIcons";
 const TechFind: React.FC = () => {
   return (
     <CenteredLayout>
-      <div className="content">Tech finds I cant live without</div>
+      <div className="content">Tech finds for my day to day</div>
       <BubbleIcons />
     </CenteredLayout>
   );
