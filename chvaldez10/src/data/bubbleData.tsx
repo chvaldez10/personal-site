@@ -22,7 +22,7 @@ export const appLogos: CompanyLogo[] = [
   {
     src: "/logos/canva.svg",
     alt: "Canva Logo",
-    label: "Canva",
+    // label: "Canva",
     description: "A design tool for creating visual content.",
   },
   {
@@ -40,7 +40,7 @@ export const appLogos: CompanyLogo[] = [
   {
     src: "/logos/logitech.svg",
     alt: "Logitech Logo",
-    label: "Logitech",
+    // label: "Logitech",
     description: "Software to customize your mouse and keyboard.",
   },
   {
@@ -58,7 +58,7 @@ export const appLogos: CompanyLogo[] = [
   {
     src: "/logos/warp.svg",
     alt: "Warp Logo",
-    label: "Warp",
+    // label: "Warp",
     description: "A terminal for the modern web.",
   },
   {

@@ -30,7 +30,7 @@ const BubbleItem: FC<CompanyLogo> = ({ ...data }) => {
             className="w-1/2 h-1/2 "
           />
           <p className="mt-1 text-xs sm:text-sm md:text-base lg:text-lg text-secondary-foreground">
-            {data.label}
+            {data?.label}
           </p>
         </div>
 
