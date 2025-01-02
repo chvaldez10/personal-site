@@ -7,14 +7,14 @@ import BubbleItem from "./BubbleItem";
 import { data } from "@/data/bubbleData";
 import "./bubble-animation.css";
 
-const IconBubble: React.FC = () => {
+const BubbleIcons: React.FC = () => {
   const options = {
     size: 180,
-    minSize: 20,
-    gutter: 3,
-    numCols: 3,
-    yRadius: 120,
-    xRadius: 100,
+    minSize: 36,
+    gutter: 2,
+    numCols: 4,
+    yRadius: 140,
+    xRadius: 140,
     cornerRadius: 50,
     fringeWidth: 160,
     gravitation: 5,
@@ -89,4 +89,4 @@ const IconBubble: React.FC = () => {
   );
 };
 
-export default IconBubble;
+export default BubbleIcons;

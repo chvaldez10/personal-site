@@ -2,13 +2,13 @@ import React from "react";
 
 // Components
 import CenteredLayout from "./layouts/CenteredLayout";
-import IconBubble from "./molecules/IconBubble";
+import BubbleIcons from "./molecules/BubbleIcons";
 
 const TechFind: React.FC = () => {
   return (
     <CenteredLayout>
       <div className="content">Tech finds I cant live without</div>
-      <IconBubble />
+      <BubbleIcons />
     </CenteredLayout>
   );
 };

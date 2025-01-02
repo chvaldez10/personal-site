@@ -3,62 +3,62 @@ import { CompanyLogo } from "@/types/shared";
 export const data: CompanyLogo[] = [
   {
     key: "Aldente",
-    src: "/logos/Aldente.png",
+    src: "/logos/aldente.png",
     alt: "Aldente Logo",
   },
   {
     key: "arc-logo",
-    src: "/logos/Arc.svg",
+    src: "/logos/arc.svg",
     alt: "Arc Logo",
   },
   {
     key: "browser-stack-logo",
-    src: "/logos/Browser-Stack.svg",
+    src: "/logos/browser-stack.svg",
     alt: "BrowserStack Logo",
   },
   {
     key: "canva-logo",
-    src: "/logos/Canva.svg",
+    src: "/logos/canva.svg",
     alt: "Canva Logo",
   },
   {
     key: "coda-logo",
-    src: "/logos/Coda.svg",
+    src: "/logos/coda.svg",
     alt: "Coda Logo",
   },
   {
     key: "cursor-logo",
-    src: "/logos/Cursor.png",
+    src: "/logos/cursor.png",
     alt: "Cursor Logo",
   },
   {
+    key: "logitech-logo",
+    src: "/logos/logitech.svg",
+    alt: "Logitech Logo",
+  },
+  {
     key: "raycast-logo",
-    src: "/logos/Raycast.svg",
+    src: "/logos/raycast.svg",
     alt: "Raycast Logo",
   },
   {
     key: "supabase-logo",
-    src: "/logos/Supabase.svg",
+    src: "/logos/supabase.svg",
     alt: "Supabase Logo",
   },
   {
-    key: "vercel-logo",
-    src: "/logos/Vercel.svg",
-    alt: "Vercel Logo",
-  },
-  {
     key: "warp-logo",
-    src: "/logos/Warp.svg",
+    src: "/logos/warp.svg",
     alt: "Warp Logo",
   },
   {
     key: "youtube-music-logo",
-    src: "/logos/Youtube-Music.svg",
+    src: "/logos/youtube-music.svg",
     alt: "Youtube Music Logo",
   },
   {
     key: "zen-logo",
-    src: "/logos/Zen.svg",
+    src: "/logos/zen.svg",
     alt: "Zen Logo",
   },
 ];
