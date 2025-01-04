@@ -60,6 +60,7 @@ export const appLogos: CompanyLogo[] = [
     alt: "Warp Logo",
     // label: "Warp",
     description: "A terminal for the modern web.",
+    referralLink: "https://app.warp.dev/referral/M93VEN",
   },
   {
     src: "/logos/youtube-music.svg",

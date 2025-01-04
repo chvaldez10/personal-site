@@ -2,6 +2,9 @@
 
 import { FC, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+
+// Types
 import { CompanyLogo } from "@/types/shared";
 
 const BubbleItem: FC<CompanyLogo> = ({ ...data }) => {
@@ -20,7 +23,7 @@ const BubbleItem: FC<CompanyLogo> = ({ ...data }) => {
       }}
     >
       <div className={`bubbleCard ${isFlipped ? "flipped" : ""}`}>
-        {/* Front */}
+        {/* Logo and Label */}
         <div className="bubbleFront flex flex-col items-center justify-center ">
           <Image
             src={data.src}
@@ -34,9 +37,21 @@ const BubbleItem: FC<CompanyLogo> = ({ ...data }) => {
           </p>
         </div>
 
-        {/* Back */}
-        <div className="bubbleBack flex items-center justify-center rounded-full ">
-          <p className="text-center text-sm">{data.description}</p>
+        {/* Description and Referral Link */}
+        <div className="bubbleBack flex flex-col items-center justify-center rounded-full">
+          <p className="text-center text-sm md:text-base text-gray-800">
+            {data.description}
+          </p>
+          {data?.referralLink && (
+            <Link
+              href={data?.referralLink || ""}
+              target="_blank"
+              rel="noopener noreferrer"
+              className=" text-pink-500 hover:underline text-xs sm:text-sm transition-colors duration-200"
+            >
+              Referral Link
+            </Link>
+          )}
         </div>
       </div>
     </div>

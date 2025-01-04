@@ -13,7 +13,7 @@ export interface HeroLayoutProps {
 export interface CompanyLogo {
   src: string;
   alt: string;
-  sharedLink?: string;
+  referralLink?: string;
   label?: string;
   description: string;
 }
