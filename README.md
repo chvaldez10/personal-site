@@ -25,7 +25,7 @@ To get started, follow these steps:
 
 ### 🌐 Deployment
 
-TBD
+Deployed on Vercel: [chvaldez10.vercel.app](https://chvaldez10.vercel.app/)
 
 ### 🔗 Note
 
