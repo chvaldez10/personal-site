@@ -33,6 +33,12 @@ export const appLogos: CompanyLogo[] = [
     description: "A note-taking app for building applications.",
   },
   {
+    src: "/logos/color-hunt.svg",
+    alt: "Color Hunt Logo",
+    label: "Color Hunt",
+    description: "A color palette generator.",
+  },
+  {
     src: "/logos/cursor.png",
     alt: "Cursor Logo",
     label: "Cursor",
