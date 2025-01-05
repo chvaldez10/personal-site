@@ -1,6 +1,7 @@
 import { FC } from "react";
 import Image from "next/image";
 import { FaBarcode } from "react-icons/fa";
+import "./thermal-ticket.css";
 
 // Calculate the date 7 days from today
 const getDateSevenDaysFromNow = () => {
@@ -12,13 +13,16 @@ const getDateSevenDaysFromNow = () => {
 
 const TicketItem: FC = () => {
   return (
-    <div className="flex flex-row rounded-lg shadow-lg overflow-hidden h-48 w-full">
+    <div className="flex flex-row rounded-lg shadow-lg overflow-hidden h-48 w-full relative">
       {/* Barcode */}
       <div className="flex-item-center text-gray-800 px-2">
         <div className="w-full transform -rotate-90">
           <FaBarcode className="text-4xl md:text-6xl" />
         </div>
       </div>
+
+      {/* Scan line */}
+      <div className="scan-line"></div>
 
       {/* Logo */}
       <div className="flex-item-center bg-red-500">
