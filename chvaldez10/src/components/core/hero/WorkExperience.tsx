@@ -2,7 +2,7 @@ import React from "react";
 
 // Components
 import CenteredLayout from "./layouts/CenteredLayout";
-import TicketItem from "./molecules/TicketItem";
+import ThermalTicket from "./molecules/ThermalTicket";
 
 const TechFind: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ const TechFind: React.FC = () => {
       </div>
 
       {/* Content */}
-      <TicketItem />
+      <ThermalTicket />
     </CenteredLayout>
   );
 };

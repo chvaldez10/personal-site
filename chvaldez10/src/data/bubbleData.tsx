@@ -12,6 +12,7 @@ export const appLogos: CompanyLogo[] = [
     alt: "Arc Logo",
     label: "Arc",
     description: "A browser built for the modern web.",
+    referralLink: "https://arc.net/gift/4dfb9ec0",
   },
   {
     src: "/logos/browser-stack.svg",

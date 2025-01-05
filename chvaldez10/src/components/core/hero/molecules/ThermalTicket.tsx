@@ -1,4 +1,5 @@
 import { FC } from "react";
+import Image from "next/image";
 import { FaBarcode } from "react-icons/fa";
 
 // Calculate the date 7 days from today
@@ -13,21 +14,26 @@ const TicketItem: FC = () => {
   return (
     <div className="flex flex-row rounded-lg shadow-lg overflow-hidden h-48 w-full">
       {/* Barcode */}
-      <div className="flex flex-col justify-center items-center text-center text-gray-800 px-2">
+      <div className="flex-item-center text-gray-800 px-2">
         <div className="w-full transform -rotate-90">
-          <FaBarcode className="text-7xl" />
+          <FaBarcode className="text-4xl md:text-6xl" />
         </div>
       </div>
 
       {/* Logo */}
-      <div className="flex flex-col justify-center items-center bg-red-500 text-center text-white">
-        <div className="-rotate-90 font-bold text-base md:text-xl">
-          Showpass
+      <div className="flex-item-center bg-red-500">
+        <div className="w-full transform -rotate-90">
+          <Image
+            src="/logos/showpass-white.svg"
+            alt="Showpass Logo"
+            width={75}
+            height={75}
+          />
         </div>
       </div>
 
       {/* Event details */}
-      <div className="flex flex-col justify-center items-start p-4 bg-white text-gray-800">
+      <div className="flex-item-center p-4 w-3/4 bg-white text-gray-800">
         <div className="text-left">
           <h2 className="text-lg font-bold">Super Cool Event</h2>
           <p className="text-sm">Date: {getDateSevenDaysFromNow()}</p>

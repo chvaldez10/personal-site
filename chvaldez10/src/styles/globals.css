@@ -108,3 +108,7 @@ a:hover {
 .hover-scale-effect {
   @apply transform hover:scale-110 transition-all duration-300 ease-in-out;
 }
+
+.flex-item-center {
+  @apply flex flex-col items-center justify-center;
+}
