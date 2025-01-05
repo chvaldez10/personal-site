@@ -2,7 +2,7 @@
 .bubbleUIContainer {
   width: 100%;
   height: 550px;
-  background-color: white;
+  background-color: var(--brand-secondary-100);
 }
 
 .child {

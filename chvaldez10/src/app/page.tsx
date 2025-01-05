@@ -1,7 +1,7 @@
 import {
   AboutMeJumbotron,
   TechFinds,
-  WorkExperience,
+  CurrentWorkExperience,
 } from "@/components/core/hero";
 
 export default function Home() {
@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <AboutMeJumbotron />
       <TechFinds />
-      <WorkExperience />
+      <CurrentWorkExperience />
     </>
   );
 }

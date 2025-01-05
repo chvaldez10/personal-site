@@ -6,7 +6,7 @@ import CenteredVertical from "./layouts/CenteredVertical";
 
 const TechFind: React.FC = () => {
   return (
-    <CenteredVertical>
+    <CenteredVertical background={"bg-[var(--brand-secondary-100)]"}>
       {/* Verbiage */}
       <div className="content text-center">
         <p className="text-2xl lg:text-4xl font-bold">

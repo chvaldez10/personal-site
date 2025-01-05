@@ -1,5 +1,9 @@
 // Original code from https://www.creative-tim.com/twcomponents/component/hero-section-1
 
+// React
+import { FC } from "react";
+
+// Next
 import Image from "next/image";
 
 // Icons
@@ -17,7 +21,7 @@ import {
 
 import CenteredLayout from "./layouts/HeroStack";
 
-const AboutMeJumbotron = () => {
+const AboutMeJumbotron: FC = () => {
   return (
     <CenteredLayout background={styles.gradientBackground}>
       <AboutDescription />
