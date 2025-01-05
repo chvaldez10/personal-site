@@ -15,7 +15,7 @@ import {
   PdfDialogButton,
 } from "@/components/ui/buttons";
 
-import CenteredLayout from "./layouts/CenteredLayout";
+import CenteredLayout from "./layouts/HeroStack";
 
 const AboutMeJumbotron = () => {
   return (

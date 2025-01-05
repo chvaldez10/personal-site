@@ -2,10 +2,7 @@ import React from "react";
 
 import { HeroLayoutProps } from "@/types/shared";
 
-const CenteredLayout: React.FC<HeroLayoutProps> = ({
-  children,
-  background,
-}) => {
+const HeroStack: React.FC<HeroLayoutProps> = ({ children, background }) => {
   return (
     <>
       <div
@@ -19,4 +16,4 @@ const CenteredLayout: React.FC<HeroLayoutProps> = ({
   );
 };
 
-export default CenteredLayout;
+export default HeroStack;
