@@ -15,7 +15,7 @@ const TicketItem: FC = () => {
   return (
     <div className="flex flex-row rounded-lg shadow-lg overflow-hidden h-48 w-full relative">
       {/* Barcode */}
-      <div className="flex-item-center text-gray-800 px-2">
+      <div className="flex-items-center text-gray-800 px-2">
         <div className="w-full transform -rotate-90">
           <FaBarcode className="text-4xl md:text-6xl" />
         </div>
@@ -25,7 +25,7 @@ const TicketItem: FC = () => {
       <div className="scan-line"></div>
 
       {/* Logo */}
-      <div className="flex-item-center bg-red-500">
+      <div className="flex-items-center bg-red-500">
         <div className="w-full transform -rotate-90">
           <Image
             src="/logos/showpass-white.svg"
@@ -37,7 +37,7 @@ const TicketItem: FC = () => {
       </div>
 
       {/* Event details */}
-      <div className="flex-item-center p-4 w-3/4 bg-white text-gray-800">
+      <div className="flex-items-center p-4 w-3/4 bg-white text-gray-800">
         <div className="text-left">
           <h2 className="text-lg font-bold">Super Cool Event</h2>
           <p className="text-sm">Date: {getDateSevenDaysFromNow()}</p>

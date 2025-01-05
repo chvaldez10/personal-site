@@ -1,15 +1,15 @@
 import React from "react";
 
 // Components
-import CenteredLayout from "./layouts/CenteredLayout";
 import BubbleIcons from "./molecules/BubbleIcons";
+import CenteredVertical from "./layouts/CenteredVertical";
 
 const TechFind: React.FC = () => {
   return (
-    <CenteredLayout>
+    <CenteredVertical>
       {/* Verbiage */}
-      <div className="content order-first md:order-last text-center">
-        <p className="text-2xl lg:text-4xl  font-bold">
+      <div className="content text-center">
+        <p className="text-2xl lg:text-4xl font-bold">
           Tech finds for my day to day
         </p>
 
@@ -20,7 +20,7 @@ const TechFind: React.FC = () => {
 
       {/* Content */}
       <BubbleIcons />
-    </CenteredLayout>
+    </CenteredVertical>
   );
 };
 
