@@ -10,11 +10,11 @@ import "./bubble-animation.css";
 const BubbleIcons: React.FC = () => {
   const options = {
     size: 180,
-    minSize: 36,
+    minSize: 20,
     gutter: 8,
     numCols: 4,
-    xRadius: 160,
-    yRadius: 140,
+    xRadius: 100,
+    yRadius: 80,
     cornerRadius: 50,
     fringeWidth: 160,
     gravitation: 5,
