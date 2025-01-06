@@ -14,17 +14,17 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/buttons/button";
 
-export default function Component() {
+const Login = () => {
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className="h-screen md:h-96 flex flex-col justify-center w-full md:max-w-xl mx-auto">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Login</CardTitle>
-        <CardDescription>
-          Enter your email and password to login to your account
-        </CardDescription>
+        <CardTitle className="text-2xl font-bold">
+          Welcome Back Chris!
+        </CardTitle>
+        <CardDescription>Hope you remember your password.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="flex flex-col justify-start space-y-4 ">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -45,4 +45,6 @@ export default function Component() {
       </CardContent>
     </Card>
   );
-}
+};
+
+export default Login;
