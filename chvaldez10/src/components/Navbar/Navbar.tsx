@@ -1,7 +1,8 @@
 "use client";
 
 import { FC } from "react";
-import { Link } from "react-scroll";
+import Link from "next/link";
+import { Link as ScrollLink } from "react-scroll";
 import Image from "next/image";
 
 // Components
@@ -52,7 +53,7 @@ const DesktopNavbar = () => {
 
 const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
   return (
-    <Link
+    <ScrollLink
       to={href}
       smooth={true}
       duration={300}
@@ -62,7 +63,7 @@ const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       style={{ textDecoration: "none" }}
     >
       <span>{label}</span>
-    </Link>
+    </ScrollLink>
   );
 };
 
@@ -98,7 +99,7 @@ const MobileNavbar = () => {
 
 const MobileNavbarLinkItem = ({ href, label }: NavbarLinks) => {
   return (
-    <Link
+    <ScrollLink
       to={href}
       smooth={true}
       duration={300}
@@ -108,13 +109,13 @@ const MobileNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       style={{ textDecoration: "none" }}
     >
       <span>{label}</span>
-    </Link>
+    </ScrollLink>
   );
 };
 
 const NavbarLogo = () => {
   return (
-    <Link to="main-header" className="hover-scale-effect">
+    <Link href="/" className="hover-scale-effect">
       <Image
         src="/images/rice-bowl.png"
         alt="Logo"
