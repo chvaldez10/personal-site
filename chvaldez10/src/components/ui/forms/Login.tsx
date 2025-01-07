@@ -88,7 +88,7 @@ const Login: FC = () => {
             <Input
               id="email"
               type="email"
-              placeholder="m@example.com"
+              placeholder="email@example.com"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -101,6 +101,7 @@ const Login: FC = () => {
             <Input
               id="password"
               type="password"
+              placeholder="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -114,6 +115,7 @@ const Login: FC = () => {
               <Input
                 id="confirm-password"
                 type="password"
+                placeholder="password"
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
