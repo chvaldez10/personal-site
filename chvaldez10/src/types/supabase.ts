@@ -58,7 +58,8 @@ export type Database = {
   };
 };
 
-export type PublicSchema = Database[Extract<keyof Database, "public">];
+type PublicSchema = Database[Extract<keyof Database, "public">];
+export type BrandLogos = PublicSchema["Tables"]["brand_logos"]["Row"];
 
 export type Tables<
   PublicTableNameOrOptions extends

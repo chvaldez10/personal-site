@@ -1,9 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
-import { PublicSchema } from "@/types/supabase";
+import { BrandLogos } from "@/types/supabase";
 
-export async function fetchBrandLogos(): Promise<
-  PublicSchema["Tables"]["brand_logos"]["Row"][]
-> {
+export async function fetchBrandLogos(): Promise<BrandLogos[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.from("brand_logos").select("*");
 
@@ -12,5 +10,5 @@ export async function fetchBrandLogos(): Promise<
     return [];
   }
 
-  return data as PublicSchema["Tables"]["brand_logos"]["Row"][];
+  return data as BrandLogos[];
 }

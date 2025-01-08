@@ -1,13 +1,20 @@
 "use client";
 
 import React, { useEffect } from "react";
+
+// React Bubble UI
 import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
 import BubbleItem from "./BubbleItem";
-import { appLogos } from "@/data/bubbleData";
 import "./bubble-animation.css";
 
-const BubbleIcons: React.FC = () => {
+import { BrandLogos } from "@/types/supabase";
+
+interface BubbleIconsProps {
+  brandLogos: BrandLogos[];
+}
+
+const BubbleIcons: React.FC<BubbleIconsProps> = ({ brandLogos }) => {
   const options = {
     size: 180,
     minSize: 20,
@@ -80,8 +87,8 @@ const BubbleIcons: React.FC = () => {
     };
   }, []);
 
-  const children = appLogos.map((appLogo, i) => (
-    <BubbleItem key={i} {...appLogo} />
+  const children = brandLogos.map((brandLogo, i) => (
+    <BubbleItem key={i} {...brandLogo} />
   ));
 
   return (

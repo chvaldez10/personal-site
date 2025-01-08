@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 // Types
-import { CompanyLogo } from "@/types/shared";
+import { BrandLogos } from "@/types/supabase";
 
-const BubbleItem: FC<CompanyLogo> = ({ ...data }) => {
+const BubbleItem: FC<BrandLogos> = ({ ...data }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleClick = () => {
@@ -42,9 +42,9 @@ const BubbleItem: FC<CompanyLogo> = ({ ...data }) => {
           <p className="text-center text-sm md:text-base text-gray-800">
             {data.description}
           </p>
-          {data?.referralLink && (
+          {data?.referral_link && (
             <Link
-              href={data?.referralLink || ""}
+              href={data?.referral_link || ""}
               target="_blank"
               rel="noopener noreferrer"
               className=" text-pink-500 hover:underline text-xs sm:text-sm transition-colors duration-200"

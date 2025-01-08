@@ -4,7 +4,11 @@ import React from "react";
 import BubbleIcons from "./molecules/BubbleIcons";
 import CenteredVertical from "./layouts/CenteredVertical";
 
-const TechFind: React.FC = () => {
+import { fetchBrandLogos } from "@/actions/fetchMedia";
+
+const TechFind: React.FC = async () => {
+  const brandLogos = await fetchBrandLogos();
+
   return (
     <CenteredVertical background={"bg-[var(--brand-secondary-100)]"}>
       {/* Verbiage */}
@@ -19,7 +23,7 @@ const TechFind: React.FC = () => {
       </div>
 
       {/* Content */}
-      <BubbleIcons />
+      <BubbleIcons brandLogos={brandLogos} />
     </CenteredVertical>
   );
 };
