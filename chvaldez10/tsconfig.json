@@ -20,11 +20,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/types",
-      "./node_modules/@supabase/supabase-js"
-    ]
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
     "next-env.d.ts",

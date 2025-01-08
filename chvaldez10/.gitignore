@@ -50,3 +50,6 @@ next-env.d.ts
 supabase/config.toml
 supabase/config.toml
 1.8.1
+
+# vscode
+.vscode 

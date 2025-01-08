@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { PublicSchema } from "@/types/supabase/database.types";
+import { PublicSchema } from "@/types/supabase";
 
 export async function fetchBrandLogos(): Promise<
   PublicSchema["Tables"]["brand_logos"]["Row"][]
