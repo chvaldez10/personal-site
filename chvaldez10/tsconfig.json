@@ -20,7 +20,11 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types",
+      "./node_modules/@supabase/supabase-js"
+    ]
   },
   "include": [
     "next-env.d.ts",
@@ -28,7 +32,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/components/ui/Navbar",
-    "src/types/react-bubble-ui.d.ts"
+    "src/types/"
   ],
   "exclude": ["node_modules"]
 }
