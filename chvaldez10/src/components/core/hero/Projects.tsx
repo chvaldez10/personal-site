@@ -10,22 +10,36 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
+import ProjectGallery from "./molecules/ProjectGallery";
+
+const projectData = [
+  {
+    projectName: "Active Projects",
+    projectDescription: "These are the projects I am currently working on",
+  },
+  {
+    projectName: "Completed Projects",
+    projectDescription: "These are the projects I have completed",
+  },
+  {
+    projectName: "Upcoming Projects",
+    projectDescription: "These are the projects I have planned",
+  },
+];
+
 export default function Projects() {
-  const [activeContainer, setActiveContainer] = useState(0);
-  const containers = [
-    <div key={1} className="bg-white shadow rounded-lg p-6">
-      Container 1
-    </div>,
-    <div key={2} className="bg-white shadow rounded-lg p-6">
-      Container 2
-    </div>,
-    <div key={3} className="bg-white shadow rounded-lg p-6">
-      Container 3
-    </div>,
-  ];
+  const [activeContainer, setActiveContainer] = useState<number>(0);
+
+  const containers = projectData.map((project) => (
+    <ProjectGallery
+      key={project.projectName}
+      projectName={project.projectName}
+      projectDescription={project.projectDescription}
+    />
+  ));
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen w-10/12 mx-auto">
       <BreadcrumbWithCustomSeparator setActiveContainer={setActiveContainer} />
       <div className="mt-4">{containers[activeContainer]}</div>
     </div>
@@ -43,7 +57,7 @@ function BreadcrumbWithCustomSeparator({
         {/* Container 1 */}
         <BreadcrumbItem>
           <BreadcrumbLink onClick={() => setActiveContainer(0)}>
-            Container 1
+            Active Projects
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -54,7 +68,7 @@ function BreadcrumbWithCustomSeparator({
         {/* Container 2 */}
         <BreadcrumbItem>
           <BreadcrumbLink onClick={() => setActiveContainer(1)}>
-            Container 2
+            Completed Projects
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -65,7 +79,7 @@ function BreadcrumbWithCustomSeparator({
         {/* Container 3 */}
         <BreadcrumbItem>
           <BreadcrumbLink onClick={() => setActiveContainer(2)}>
-            Container 3
+            Upcoming Projects
           </BreadcrumbLink>
         </BreadcrumbItem>
       </BreadcrumbList>
