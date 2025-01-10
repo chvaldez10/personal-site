@@ -14,15 +14,15 @@ import ProjectGallery from "./molecules/ProjectGallery";
 
 const projectData = [
   {
-    projectName: "Active Projects",
+    projectName: "Active",
     projectDescription: "These are the projects I am currently working on",
   },
   {
-    projectName: "Completed Projects",
+    projectName: "Completed",
     projectDescription: "These are the projects I have completed",
   },
   {
-    projectName: "Upcoming Projects",
+    projectName: "Upcoming",
     projectDescription: "These are the projects I have planned",
   },
 ];
@@ -31,11 +31,7 @@ export default function Projects() {
   const [activeContainer, setActiveContainer] = useState<number>(0);
 
   const containers = projectData.map((project) => (
-    <ProjectGallery
-      key={project.projectName}
-      projectName={project.projectName}
-      projectDescription={project.projectDescription}
-    />
+    <ProjectGallery key={project.projectName} projects={projectData} />
   ));
 
   return (
@@ -57,7 +53,7 @@ function BreadcrumbWithCustomSeparator({
         {/* Container 1 */}
         <BreadcrumbItem>
           <BreadcrumbLink onClick={() => setActiveContainer(0)}>
-            Active Projects
+            Active
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -68,7 +64,7 @@ function BreadcrumbWithCustomSeparator({
         {/* Container 2 */}
         <BreadcrumbItem>
           <BreadcrumbLink onClick={() => setActiveContainer(1)}>
-            Completed Projects
+            Completed
           </BreadcrumbLink>
         </BreadcrumbItem>
 
@@ -79,7 +75,7 @@ function BreadcrumbWithCustomSeparator({
         {/* Container 3 */}
         <BreadcrumbItem>
           <BreadcrumbLink onClick={() => setActiveContainer(2)}>
-            Upcoming Projects
+            Upcoming
           </BreadcrumbLink>
         </BreadcrumbItem>
       </BreadcrumbList>

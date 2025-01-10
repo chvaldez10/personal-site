@@ -1,19 +1,25 @@
 import React from "react";
 
 interface ProjectGalleryProps {
-  projectName: string;
-  projectDescription: string;
+  projects: {
+    projectName: string;
+    projectDescription: string;
+  }[];
 }
 
-const ProjectGallery: React.FC<ProjectGalleryProps> = ({
-  projectName,
-  projectDescription,
-}) => {
+const ProjectGallery: React.FC<ProjectGalleryProps> = ({ projects }) => {
   return (
     <>
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2>{projectName}</h2>
-        <p>{projectDescription}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {projects.map((project, index) => (
+          <div
+            key={index}
+            className="bg-[var(--brand-secondary-100)] shadow rounded-lg p-6 h-96"
+          >
+            <h2>{project.projectName}</h2>
+            <p>{project.projectDescription}</p>
+          </div>
+        ))}
       </div>
     </>
   );
