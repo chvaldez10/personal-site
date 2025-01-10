@@ -10,7 +10,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-export default function BreadCrumbsTest() {
+export default function Projects() {
   const [activeContainer, setActiveContainer] = useState(0);
   const containers = [
     <div key={1} className="bg-white shadow rounded-lg p-6">
