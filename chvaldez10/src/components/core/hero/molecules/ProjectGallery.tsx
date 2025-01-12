@@ -14,7 +14,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({ projects }) => {
         {projects.map((project, index) => (
           <div
             key={index}
-            className="bg-[var(--brand-secondary-100)] shadow rounded-lg p-6 h-96"
+            className="bg-[var(--brand-secondary-100)] shadow rounded-lg p-6 h-96 transition-transform transform hover:scale-105 hover:shadow-lg"
           >
             <h2>{project.projectName}</h2>
             <p>{project.projectDescription}</p>
