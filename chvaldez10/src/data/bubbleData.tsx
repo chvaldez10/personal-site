@@ -1,4 +1,12 @@
-import { CompanyLogo } from "@/types/shared";
+// This is just mock data. Images are imported from Supabase.
+
+export interface CompanyLogo {
+  src: string;
+  alt: string;
+  referralLink?: string;
+  label?: string;
+  description: string;
+}
 
 export const appLogos: CompanyLogo[] = [
   {

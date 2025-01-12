@@ -10,10 +10,7 @@ export interface HeroLayoutProps {
   background?: string;
 }
 
-export interface CompanyLogo {
-  src: string;
-  alt: string;
-  referralLink?: string;
-  label?: string;
-  description: string;
+export interface ProjectData {
+  projectName: string;
+  projectDescription: string;
 }
