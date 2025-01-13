@@ -2,23 +2,11 @@ import { FC } from "react";
 import Image from "next/image";
 import { FaBarcode } from "react-icons/fa";
 import "./thermal-ticket.css";
-
-// Calculate the date 7 days from today
-const getDateSevenDaysFromNow = () => {
-  const today = new Date();
-  const futureDate = new Date(today);
-  futureDate.setDate(today.getDate() + 7);
-  return futureDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { getDateSevenDaysFromNow } from "@/lib/dateUtils";
 
 const TicketItem: FC = () => {
   return (
-    <div className="flex flex-row rounded-lg shadow-lg overflow-hidden h-36 md:h-48 w-full relative">
+    <div className="flex flex-row rounded-lg shadow-lg overflow-hidden h-36 md:h-40 lg:h-48 w-full relative">
       {/* Barcode */}
       <div className="flex-items-center text-gray-800 px-2">
         <div className="w-full transform -rotate-90">
@@ -44,14 +32,14 @@ const TicketItem: FC = () => {
       {/* Event details */}
       <div className="flex flex-col justify-between p-4 w-full md:w-3/4 bg-white text-gray-800">
         <div>
-          <p className="text-xs md:text-sm">Super Cool Venue</p>
-          <h2 className="text-lg md:text-xl font-bold">Super Cool Event</h2>
-          <p className="text-xs md:text-sm">
+          <p className="text-xs lg:text-sm">Super Cool Venue</p>
+          <h2 className="text-lg lg:text-xl font-bold">Super Cool Event</h2>
+          <p className="text-xs lg:text-sm">
             {getDateSevenDaysFromNow()} @ 9:00 PM
           </p>
         </div>
         <div>
-          <p className="text-xs md:text-sm">Super Cool Location</p>
+          <p className="text-xs lg:text-sm">Super Cool Location</p>
         </div>
       </div>
     </div>
