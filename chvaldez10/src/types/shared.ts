@@ -9,8 +9,3 @@ export interface HeroLayoutProps {
   children: React.ReactNode;
   background?: string;
 }
-
-export interface ProjectData {
-  projectName: string;
-  projectDescription: string;
-}

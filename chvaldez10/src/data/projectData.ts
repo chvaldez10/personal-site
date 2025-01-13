@@ -1,4 +1,4 @@
-import { ProjectData } from "@/types/shared";
+import { ProjectData } from "@/types/Profile";
 
 export interface ProjectDataCollection {
   [status: string]: ProjectData[];
@@ -19,16 +19,16 @@ export const projectData: ProjectDataCollection = {
       projectDescription: "K-pop profile to showcase favorite group",
     },
   ],
-  "School Projects": [
-    {
-      projectName: "School Project 1",
-      projectDescription: "School project 1 description",
-    },
-  ],
   Upcoming: [
     {
       projectName: "TBD",
       projectDescription: "TBD",
+    },
+  ],
+  Archived: [
+    {
+      projectName: "School Project 1",
+      projectDescription: "School project 1 description",
     },
   ],
 };
