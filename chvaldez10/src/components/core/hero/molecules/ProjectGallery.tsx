@@ -2,11 +2,10 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+import { ProjectData } from "@/types/Profile";
+
 interface ProjectGalleryProps {
-  projects: {
-    projectName: string;
-    projectDescription: string;
-  }[];
+  projects: ProjectData[];
 }
 
 const ProjectGallery: React.FC<ProjectGalleryProps> = ({ projects }) => {
@@ -21,7 +20,7 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({ projects }) => {
             {/* image */}
             <div className="relative w-full h-80">
               <Image
-                src={"/images/church-image.jpg"}
+                src={project.projectImage}
                 alt={project.projectName}
                 fill={true}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
