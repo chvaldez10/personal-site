@@ -10,6 +10,7 @@ export const projectData: ProjectDataCollection = {
       projectName: "Church Website",
       projectDescription: "This is the website for my church",
       projectImage: "/images/church-image.jpg",
+      projectGithub: "https://github.com/chvaldez10/cfmc-web-app",
     },
     {
       projectName: "Dayhome Management System",

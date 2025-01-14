@@ -26,7 +26,7 @@ export default function Projects() {
   ));
 
   return (
-    <div className="min-h-screen w-10/12 mx-auto">
+    <div className="py-8 w-10/12 mx-auto">
       <BreadcrumbWithCustomSeparator
         activeContainer={activeProjectStatus}
         setActiveContainer={setActiveProjectStatus}

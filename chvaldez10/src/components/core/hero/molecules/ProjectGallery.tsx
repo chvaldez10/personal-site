@@ -34,25 +34,27 @@ const ProjectGallery: React.FC<ProjectGalleryProps> = ({ projects }) => {
 
             {/* description */}
             <div className="text-center flex-grow p-4">
-              <h2 className="text-2xl font-bold mb-2 text-gray-800">
+              <h2 className="text-lg md:text-xl font-bold mb-2 text-gray-800">
                 {project.projectName}
               </h2>
               <p className="text-gray-600 mb-4">{project.projectDescription}</p>
             </div>
 
             {/* github repo */}
-            <div className="text-center p-4">
-              <span className="text-sm text-gray-500">
-                Github repo:{" "}
-                <Link
-                  href={"https://github.com/chvaldez10/personal-site"}
-                  target="_blank"
-                  className="text-pink-500 hover:underline"
-                >
-                  click me
-                </Link>
-              </span>
-            </div>
+            {project.projectGithub && (
+              <div className="text-center p-4">
+                <span className="text-sm text-gray-500">
+                  Github repo:{" "}
+                  <Link
+                    href={project.projectGithub}
+                    target="_blank"
+                    className="text-pink-500 hover:underline"
+                  >
+                    click me
+                  </Link>
+                </span>
+              </div>
+            )}
           </div>
         ))}
       </div>
