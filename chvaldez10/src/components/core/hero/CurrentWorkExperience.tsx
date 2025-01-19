@@ -11,7 +11,7 @@ const CurrentWorkExperience: React.FC = () => {
       <div className="content">
         <p className="text-2xl lg:text-4xl font-bold">Software QA Analyst</p>
 
-        <p className="mt-4 text-sm sm:text-base">
+        <p className="mt-4 text-sm sm:text-base text-gray-800">
           At Showpass, I am dedicated to enhancing the fan experience by
           ensuring that our software functions seamlessly. My role involves
           testing and validating features to deliver a high-quality product.

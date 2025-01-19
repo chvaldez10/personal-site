@@ -53,7 +53,7 @@ function BreadcrumbWithCustomSeparator({
   const breadCrumbListItems = Object.keys(projectData);
 
   return (
-    <Breadcrumb className="flex justify-center">
+    <Breadcrumb className="flex justify-center py-4">
       <BreadcrumbList>
         {breadCrumbListItems.map((containerName, index) => (
           <React.Fragment key={containerName}>

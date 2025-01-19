@@ -8,7 +8,7 @@ const TicketItem: FC = () => {
   return (
     <div className="flex flex-row rounded-lg shadow-lg overflow-hidden h-36 md:h-40 lg:h-48 w-full relative">
       {/* Barcode */}
-      <div className="flex-items-center text-gray-800 px-2">
+      <div className="flex-items-center text-gray-600 px-2">
         <div className="w-full transform -rotate-90">
           <FaBarcode className="text-4xl md:text-6xl" />
         </div>
@@ -39,7 +39,9 @@ const TicketItem: FC = () => {
           </p>
         </div>
         <div>
-          <p className="text-xs lg:text-sm">Super Cool Location</p>
+          <p className="text-xs lg:text-sm text-gray-800">
+            Super Cool Location
+          </p>
         </div>
       </div>
     </div>

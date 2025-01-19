@@ -48,7 +48,7 @@ const AboutDescription = () => {
       {/* top label */}
       <div className="flex items-center gap-2 sm:gap-4">
         <hr className="w-4 sm:w-6 h-1 bg-orange-500 border-none" />
-        <span className="text-sm sm:text-lg font-medium text-gray-800">
+        <span className="text-sm sm:text-lg font-medium text-gray-600">
           Self-Proclaimed Product Engineer
         </span>
       </div>
@@ -59,7 +59,7 @@ const AboutDescription = () => {
       </p>
 
       {/* Subheader */}
-      <p className="mt-4 text-sm sm:text-base">
+      <p className="mt-4 text-sm sm:text-base text-gray-800">
         What does that mean? I am someone who is eager to tackle challenges in
         software, from design and development to testing and shipping products.
         Why a sandbox? Because in a sandbox, you can experiment, fail, and
