@@ -1,11 +1,18 @@
 import { ProjectData } from "@/types/Profile";
 
+// Define enums for project statuses
+export enum ProjectStatus {
+  Active = "Active",
+  Upcoming = "Upcoming",
+  Archived = "Archived",
+}
+
 export interface ProjectDataCollection {
   [status: string]: ProjectData[];
 }
 
 export const projectData: ProjectDataCollection = {
-  Active: [
+  [ProjectStatus.Active]: [
     {
       projectName: "Church Website",
       projectDescription: "This is the website for my church",
@@ -23,7 +30,7 @@ export const projectData: ProjectDataCollection = {
       projectImage: "/images/kpop-image.jpg",
     },
   ],
-  Upcoming: [
+  [ProjectStatus.Upcoming]: [
     {
       projectName: "TBD",
       projectDescription:
@@ -31,7 +38,7 @@ export const projectData: ProjectDataCollection = {
       projectImage: "/images/machine-learning-image.jpg",
     },
   ],
-  Archived: [
+  [ProjectStatus.Archived]: [
     {
       projectName: "Suite of Dog Apps",
       projectDescription: "A suite of dog apps.",

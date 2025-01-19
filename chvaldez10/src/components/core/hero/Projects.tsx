@@ -12,8 +12,8 @@ import {
 
 import ProjectGallery from "./molecules/ProjectGallery";
 
-// data
-import { projectData } from "@/data/projectData";
+// constants
+import { projectData } from "@/constants/projectData";
 
 export default function Projects() {
   const [activeProjectStatus, setActiveProjectStatus] = useState<string>(

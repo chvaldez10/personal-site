@@ -14,7 +14,7 @@ import { RiMenu5Fill } from "react-icons/ri";
 import { NavbarLinks } from "@/types/shared";
 
 // Data
-import { navlinks } from "@/data/navlinks";
+import { navlinks } from "@/constants/navlinks";
 
 // Styles
 import styles from "./navbar.module.css";
