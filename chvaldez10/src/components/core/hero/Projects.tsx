@@ -26,13 +26,18 @@ export default function Projects() {
   ));
 
   return (
-    <div className="py-8 w-10/12 mx-auto">
-      <BreadcrumbWithCustomSeparator
-        activeContainer={activeProjectStatus}
-        setActiveContainer={setActiveProjectStatus}
-      />
-      <div className="mt-4">
-        {containers[projectKeys.indexOf(activeProjectStatus)]}
+    <div
+      className="min-h-screen flex-items-center  bg-[var(--brand-secondary-100)]"
+      id="projects"
+    >
+      <div className="w-10/12">
+        <BreadcrumbWithCustomSeparator
+          activeContainer={activeProjectStatus}
+          setActiveContainer={setActiveProjectStatus}
+        />
+        <div className="mt-4">
+          {containers[projectKeys.indexOf(activeProjectStatus)]}
+        </div>
       </div>
     </div>
   );

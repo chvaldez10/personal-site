@@ -10,7 +10,10 @@ const TechFind: React.FC = async () => {
   const brandLogos = await fetchBrandLogos();
 
   return (
-    <CenteredVertical background={"bg-[var(--brand-secondary-100)]"}>
+    <CenteredVertical
+      background={"bg-[var(--brand-secondary-100)]"}
+      id="tech-finds"
+    >
       {/* Verbiage */}
       <div className="content text-center">
         <p className="text-2xl lg:text-4xl font-bold">

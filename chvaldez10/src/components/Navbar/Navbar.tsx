@@ -2,8 +2,8 @@
 
 import { FC } from "react";
 import Link from "next/link";
-import { Link as ScrollLink } from "react-scroll";
 import Image from "next/image";
+import { Link as ScrollLink } from "react-scroll";
 
 // Components
 import { Button } from "@/components/ui/buttons/button";
@@ -56,8 +56,8 @@ const DesktopNavbarLinkItem = ({ href, label }: NavbarLinks) => {
     <ScrollLink
       to={href}
       smooth={true}
-      duration={300}
-      offset={-50}
+      duration={700}
+      // offset={-50}
       className={`${styles.clientNavbar} group inline-flex w-max items-center justify-center rounded-md px-4 text-sm font-medium transition-colors cursor-pointer text-center`}
       data-replace={label}
       style={{ textDecoration: "none" }}
@@ -103,7 +103,7 @@ const MobileNavbarLinkItem = ({ href, label }: NavbarLinks) => {
       to={href}
       smooth={true}
       duration={300}
-      offset={-80}
+      // offset={-80}
       className={`${styles.clientNavbar} flex w-full items-center text-lg font-semibold cursor-pointer`}
       data-replace={label}
       style={{ textDecoration: "none" }}

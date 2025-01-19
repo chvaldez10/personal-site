@@ -8,4 +8,5 @@ export interface NavbarLinks {
 export interface HeroLayoutProps {
   children: React.ReactNode;
   background?: string;
+  id?: string;
 }

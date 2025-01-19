@@ -6,7 +6,7 @@ import ThermalTicket from "./molecules/ThermalTicket";
 
 const TechFind: React.FC = () => {
   return (
-    <HeroStack>
+    <HeroStack id="current-work-experience">
       {/* Verbiage */}
       <div className="content">
         <p className="text-2xl lg:text-4xl  font-bold">Software QA Analyst</p>
