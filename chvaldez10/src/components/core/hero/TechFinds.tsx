@@ -6,7 +6,7 @@ import CenteredVertical from "./layouts/CenteredVertical";
 
 import { fetchBrandLogos } from "@/actions/fetchMedia";
 
-const TechFind: React.FC = async () => {
+const TechFinds: React.FC = async () => {
   const brandLogos = await fetchBrandLogos();
 
   return (
@@ -15,12 +15,12 @@ const TechFind: React.FC = async () => {
       id="tech-finds"
     >
       {/* Verbiage */}
-      <div className="content text-center">
+      <div className="content text-center py-4">
         <p className="text-2xl lg:text-4xl font-bold">
           Tech finds for my day to day
         </p>
 
-        <p className="mt-4 md:text-base">
+        <p className="mt-4 text-sm sm:text-base">
           Discover the tools and technologies that enhance my daily workflow.
         </p>
       </div>
@@ -31,4 +31,4 @@ const TechFind: React.FC = async () => {
   );
 };
 
-export default TechFind;
+export default TechFinds;

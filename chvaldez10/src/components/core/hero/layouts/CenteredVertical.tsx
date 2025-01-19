@@ -9,7 +9,7 @@ const CenteredVertical: React.FC<HeroLayoutProps> = ({
 }) => {
   return (
     <div className={`min-h-screen flex-items-center ${background}`} id={id}>
-      {children}
+      <div className="container w-10/12 space-y-4">{children}</div>
     </div>
   );
 };

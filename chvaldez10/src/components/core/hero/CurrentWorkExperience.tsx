@@ -4,17 +4,17 @@ import React from "react";
 import HeroStack from "./layouts/HeroStack";
 import ThermalTicket from "./molecules/ThermalTicket";
 
-const TechFind: React.FC = () => {
+const CurrentWorkExperience: React.FC = () => {
   return (
     <HeroStack id="current-work-experience">
       {/* Verbiage */}
       <div className="content">
-        <p className="text-2xl lg:text-4xl  font-bold">Software QA Analyst</p>
+        <p className="text-2xl lg:text-4xl font-bold">Software QA Analyst</p>
 
-        <p className="mt-4 md:text-base">
-          Showpass&apos;s mission is to provide event organizers with tools that
-          elavate the fan experience. In the grand scheme of things, I am
-          responsible for ensuring that the software is working as expected.
+        <p className="mt-4 text-sm sm:text-base">
+          At Showpass, I am dedicated to enhancing the fan experience by
+          ensuring that our software functions seamlessly. My role involves
+          testing and validating features to deliver a high-quality product.
         </p>
       </div>
 
@@ -24,4 +24,4 @@ const TechFind: React.FC = () => {
   );
 };
 
-export default TechFind;
+export default CurrentWorkExperience;

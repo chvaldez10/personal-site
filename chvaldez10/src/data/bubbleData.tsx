@@ -84,6 +84,12 @@ export const appLogos: CompanyLogo[] = [
     referralLink: "https://app.warp.dev/referral/M93VEN",
   },
   {
+    src: "https://dvxqlvpokfujnpdwfuom.supabase.co/storage/v1/object/public/meda/logos/youtube.svg?t=2025-01-19T03%3A56%3A30.659Z",
+    alt: "Youtube Logo",
+    label: "Youtube",
+    description: "A video streaming service.",
+  },
+  {
     src: "https://dvxqlvpokfujnpdwfuom.supabase.co/storage/v1/object/public/meda/logos/youtube-music.svg?t=2025-01-07T04%3A54%3A17.220Z",
     alt: "Youtube Music Logo",
     label: "Youtube Music",
