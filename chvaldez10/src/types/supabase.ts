@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       brand_logos: {
         Row: {
+          active: boolean | null;
           alt: string;
           created: string | null;
           description: string;
@@ -21,6 +22,7 @@ export type Database = {
           updated: string | null;
         };
         Insert: {
+          active?: boolean | null;
           alt: string;
           created?: string | null;
           description: string;
@@ -31,6 +33,7 @@ export type Database = {
           updated?: string | null;
         };
         Update: {
+          active?: boolean | null;
           alt?: string;
           created?: string | null;
           description?: string;
@@ -38,6 +41,33 @@ export type Database = {
           label?: string | null;
           referral_link?: string | null;
           src?: string;
+          updated?: string | null;
+        };
+        Relationships: [];
+      };
+      waffle_switch: {
+        Row: {
+          created: string | null;
+          description: string | null;
+          id: number;
+          is_active: boolean;
+          name: string;
+          updated: string | null;
+        };
+        Insert: {
+          created?: string | null;
+          description?: string | null;
+          id?: number;
+          is_active: boolean;
+          name: string;
+          updated?: string | null;
+        };
+        Update: {
+          created?: string | null;
+          description?: string | null;
+          id?: number;
+          is_active?: boolean;
+          name?: string;
           updated?: string | null;
         };
         Relationships: [];
@@ -60,6 +90,7 @@ export type Database = {
 
 type PublicSchema = Database[Extract<keyof Database, "public">];
 export type BrandLogos = PublicSchema["Tables"]["brand_logos"]["Row"];
+export type WaffleSwitch = PublicSchema["Tables"]["waffle_switch"]["Row"];
 
 export type Tables<
   PublicTableNameOrOptions extends
