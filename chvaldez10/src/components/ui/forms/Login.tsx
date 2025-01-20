@@ -21,7 +21,11 @@ import { Button } from "@/components/ui/buttons/button";
 
 import { login, signup } from "@/app/(main)/login/actions";
 
-const Login: FC = () => {
+interface LoginProps {
+  enableSignUp?: boolean;
+}
+
+const Login: FC<LoginProps> = ({ enableSignUp = false }) => {
   const [isLogin, setIsLogin] = useState<boolean>(true);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -71,7 +75,7 @@ const Login: FC = () => {
             className="text-pink-500 cursor-pointer"
             onClick={() => setIsLogin(!isLogin)}
           >
-            {isLogin ? "Sign Up" : "Login"}
+            {isLogin ? (enableSignUp ? "Sign Up" : "") : "Login"}
           </button>
         </CardDescription>
       </CardHeader>
