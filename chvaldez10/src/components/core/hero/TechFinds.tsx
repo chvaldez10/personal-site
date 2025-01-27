@@ -5,6 +5,7 @@ import BubbleIcons from "./molecules/BubbleIcons";
 import CenteredVertical from "./layouts/CenteredVertical";
 
 import { fetchBrandLogos } from "@/actions/fetchMedia";
+import { Typography } from "@/components/ui/text";
 
 const TechFinds: React.FC = async () => {
   const brandLogos = await fetchBrandLogos();
@@ -16,13 +17,9 @@ const TechFinds: React.FC = async () => {
     >
       {/* Verbiage */}
       <div className="content text-center py-4">
-        <p className="text-2xl lg:text-4xl font-bold">
-          Tech finds for my day to day
-        </p>
-
-        <p className="mt-4 text-sm sm:text-base">
-          Discover the tools and technologies that enhance my daily workflow.
-        </p>
+        <Typography variant="h2" text="Tech finds for my day to day" className="text-gray-800" />
+        
+        <Typography variant="p" text="Discover the tools and technologies that enhance my daily workflow." className="mt-4 text-sm sm:text-base text-gray-600" />
       </div>
 
       {/* Content */}

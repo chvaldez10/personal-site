@@ -19,6 +19,8 @@ import {
   PdfDialogButton,
 } from "@/components/ui/buttons";
 
+import { Typography } from "@/components/ui/text";
+
 import { CenteredLayout } from "@/components/core/hero";
 
 const AboutMeJumbotron: FC = () => {
@@ -32,8 +34,9 @@ const AboutMeJumbotron: FC = () => {
           src="/gifs/sandbox-no-bg.gif"
           width={600}
           height={600}
-          alt=""
+          alt="Descriptive alt text here"
           className="w-full h-auto max-w-xs md:max-w-md lg:max-w-lg"
+          loading="lazy"
         />
       </div>
     </CenteredLayout>
@@ -54,17 +57,18 @@ const AboutDescription = () => {
       </div>
 
       {/* Header */}
-      <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mt-2">
-        I&apos;m Christian
-      </p>
+      <Typography
+        variant="h1"
+        text="I'm Christian"
+        className="leading-tight mt-2"
+      />
 
       {/* Subheader */}
-      <p className="mt-4 text-sm sm:text-base text-gray-800">
-        What does that mean? I am someone who is eager to tackle challenges in
-        software, from design and development to testing and shipping products.
-        Why a sandbox? Because in a sandbox, you can experiment, fail, and
-        learn.
-      </p>
+      <Typography
+        variant="p"
+        text="What does that mean? I am someone who is eager to tackle challenges in software, from design and development to testing and shipping products. Why a sandbox? Because in a sandbox, you can experiment, fail, and learn."
+        className="text-gray-800 mt-4"
+      />
 
       {/* Buttons */}
       <div className="flex flex-wrap gap-2 mt-8">
