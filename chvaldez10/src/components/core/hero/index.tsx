@@ -1,5 +1,5 @@
 // Hero Layouts
-export { default as CenteredLayout } from "./layouts/HeroStack";
+export { default as HeroStack } from "./layouts/HeroStack";
 
 // Hero Sections
 export { default as MainHeader } from "./MainHeader";

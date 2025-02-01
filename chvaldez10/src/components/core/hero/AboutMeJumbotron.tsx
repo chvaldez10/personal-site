@@ -1,12 +1,7 @@
 // Original code from https://www.creative-tim.com/twcomponents/component/hero-section-1
 
-// React
 import { FC } from "react";
-
-// Next
 import Image from "next/image";
-
-// Icons
 import { FaGithub } from "react-icons/fa";
 
 // Styles
@@ -18,28 +13,27 @@ import {
   SocialButton,
   PdfDialogButton,
 } from "@/components/ui/buttons";
-
 import { Typography } from "@/components/ui/text";
-
-import { CenteredLayout } from "@/components/core/hero";
+import { HeroStack } from "@/components/core/hero";
 
 const AboutMeJumbotron: FC = () => {
   return (
-    <CenteredLayout background={styles.gradientBackground}>
+    <HeroStack background={styles.gradientBackground}>
       <AboutDescription />
 
       {/* Image  */}
       <div className="mt-12 mx-auto">
         <Image
-          src="/gifs/sandbox-no-bg.gif"
-          width={600}
-          height={600}
-          alt="Descriptive alt text here"
+          src="/gifs/sandbox.gif"
+          width={640}
+          height={640}
+          alt="Sandbox GIF"
           className="w-full h-auto max-w-xs md:max-w-md lg:max-w-lg"
           loading="lazy"
+          unoptimized
         />
       </div>
-    </CenteredLayout>
+    </HeroStack>
   );
 };
 
@@ -84,7 +78,7 @@ const AboutDescription = () => {
         <PdfDialogButton
           variant="link"
           size="iconFit"
-          pdfUrl="/docs/Christian-Valdez_Resume.pdf"
+          pdfUrl="https://dvxqlvpokfujnpdwfuom.supabase.co/storage/v1/object/public/meda/docs/Christian-Valdez_Resume.pdf" // media is a typo
           className="items-start hover-scale-effect"
           label="Resume"
         ></PdfDialogButton>

@@ -3,6 +3,8 @@
 import { FC } from "react";
 import Link from "next/link";
 import Image from "next/image";
+
+// 3rd Party
 import { Link as ScrollLink } from "react-scroll";
 
 // Components
@@ -31,23 +33,20 @@ export default Navbar;
 
 const DesktopNavbar = () => {
   return (
-    <>
-      {/* Logo */}
-      <div className="hidden md:flex items-center mx-auto gap-4">
-        <NavbarLogo />
+    <div className="hidden md:flex items-center mx-auto gap-4">
+      <NavbarLogo />
 
-        {/* Desktop items */}
-        <nav className="gap-6" id="desktop-nav">
-          {navlinks.map((navlink: NavbarLinks) => (
-            <DesktopNavbarLinkItem
-              key={navlink.href}
-              href={navlink.href}
-              label={navlink.label}
-            />
-          ))}
-        </nav>
-      </div>
-    </>
+      {/* Desktop items */}
+      <nav className="gap-6" id="desktop-nav">
+        {navlinks.map((navlink: NavbarLinks) => (
+          <DesktopNavbarLinkItem
+            key={navlink.href}
+            href={navlink.href}
+            label={navlink.label}
+          />
+        ))}
+      </nav>
+    </div>
   );
 };
 
