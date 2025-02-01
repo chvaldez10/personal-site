@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { ProjectData } from "@/types/Profile";
+import { Typography } from "@/components/ui/text";
 
 interface ProjectGalleryProps {
   projects: ProjectData[];
@@ -33,10 +34,16 @@ const ProjectGallery: FC<ProjectGalleryProps> = ({ projects }) => {
 
             {/* Description */}
             <div className="text-center flex-grow p-4">
-              <h2 className="text-lg md:text-xl font-bold mb-2 text-gray-800">
-                {project.projectName}
-              </h2>
-              <p className="text-gray-600 mb-4">{project.projectDescription}</p>
+              <Typography
+                variant="h5"
+                text={project.projectName}
+                className="mb-2 text-gray-800 font-bold"
+              />
+              <Typography
+                variant="p"
+                text={project.projectDescription}
+                className="text-gray-600 mb-4"
+              />
             </div>
 
             {/* GitHub Repository Link */}

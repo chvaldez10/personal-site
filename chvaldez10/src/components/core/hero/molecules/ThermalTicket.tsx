@@ -3,6 +3,7 @@ import Image from "next/image";
 import { FaBarcode } from "react-icons/fa";
 import "./thermal-ticket.css";
 import { getDateSevenDaysFromNow } from "@/lib/dateUtils";
+import { Typography } from "@/components/ui/text";
 
 const TicketItem: FC = () => {
   return (
@@ -32,16 +33,28 @@ const TicketItem: FC = () => {
       {/* Event details */}
       <div className="flex flex-col justify-between p-4 w-full md:w-3/4 bg-white text-gray-800">
         <div>
-          <p className="text-xs lg:text-sm">Super Cool Venue</p>
-          <h2 className="text-lg lg:text-xl font-bold">Super Cool Event</h2>
-          <p className="text-xs lg:text-sm">
-            {getDateSevenDaysFromNow()} @ 9:00 PM
-          </p>
+          <Typography
+            variant="p"
+            text="Super Cool Venue"
+            className="text-xs lg:text-sm"
+          />
+          <Typography
+            variant="h2"
+            text="Super Cool Event"
+            className="text-lg lg:text-xl font-bold"
+          />
+          <Typography
+            variant="p"
+            text={`${getDateSevenDaysFromNow()} @ 9:00 PM`}
+            className="text-xs lg:text-sm"
+          />
         </div>
         <div>
-          <p className="text-xs lg:text-sm text-gray-800">
-            Super Cool Location
-          </p>
+          <Typography
+            variant="p"
+            text="Super Cool Location"
+            className="text-xs lg:text-sm text-gray-800"
+          />
         </div>
       </div>
     </div>
