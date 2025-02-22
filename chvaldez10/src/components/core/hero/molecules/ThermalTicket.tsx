@@ -4,6 +4,7 @@ import { FaBarcode } from "react-icons/fa";
 import "./thermal-ticket.css";
 import { getDateSevenDaysFromNow } from "@/lib/dateUtils";
 import { Typography } from "@/components/ui/text";
+import { superCoolEventTicket } from "@/data/mockEventTicket";
 
 const TicketItem: FC = () => {
   return (
@@ -35,12 +36,12 @@ const TicketItem: FC = () => {
         <div>
           <Typography
             variant="p"
-            text="Super Cool Venue"
+            text={superCoolEventTicket.venue}
             className="text-xs lg:text-sm"
           />
           <Typography
             variant="h2"
-            text="Super Cool Event"
+            text={superCoolEventTicket.eventName}
             className="text-lg lg:text-xl font-bold"
           />
           <Typography
@@ -52,7 +53,7 @@ const TicketItem: FC = () => {
         <div>
           <Typography
             variant="p"
-            text="Super Cool Location"
+            text={superCoolEventTicket.eventLocation}
             className="text-xs lg:text-sm text-gray-800"
           />
         </div>
