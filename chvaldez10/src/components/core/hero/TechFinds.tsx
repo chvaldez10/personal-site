@@ -1,7 +1,7 @@
 import React from "react";
 
 // Components
-import BubbleIcons from "./molecules/BubbleIcons";
+import MarqueeIcons from "./molecules/MarqueeIcons";
 import CenteredVertical from "./layouts/CenteredVertical";
 
 import { fetchBrandLogos } from "@/actions/fetchMedia";
@@ -31,7 +31,7 @@ const TechFinds: React.FC = async () => {
       </div>
 
       {/* Content */}
-      <BubbleIcons brandLogos={brandLogos} />
+      <MarqueeIcons brandLogos={brandLogos} />
     </CenteredVertical>
   );
 };
