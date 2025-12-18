@@ -5,7 +5,7 @@ import Image from "next/image";
 import { FaGithub } from "react-icons/fa";
 
 // Styles
-import styles from "./Hero.module.css";
+import styles from "./hero.module.css";
 
 // Components
 import {
