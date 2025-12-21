@@ -60,7 +60,7 @@ const AboutDescription = () => {
       {/* Subheader */}
       <Typography
         variant="p"
-        text="What does that mean? I am someone who is eager to tackle challenges in software, from design and development to testing and shipping products. Why a sandbox? Because in a sandbox, you can experiment, fail, and learn."
+        text="What does it mean to be a self-proclaimed product engineer? To me, it means being eager to tackle challenges across the entire software lifecycle—from design and development to testing and shipping products. Why a GIF of a sandbox? Because in a sandbox, you can experiment, fail, and learn."
         className="text-gray-800 mt-4"
       />
 

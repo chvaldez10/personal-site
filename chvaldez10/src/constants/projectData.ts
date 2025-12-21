@@ -2,9 +2,9 @@ import { ProjectData } from "@/types/Profile";
 
 // Define enums for project statuses
 export enum ProjectStatus {
-  Active = "Active",
-  Upcoming = "Upcoming",
-  Archived = "Archived",
+  InProgress = "In Progress",
+  Ideation = "Ideation",
+  Maintenance = "Maintenance",
 }
 
 export interface ProjectDataCollection {
@@ -12,37 +12,27 @@ export interface ProjectDataCollection {
 }
 
 export const projectData: ProjectDataCollection = {
-  [ProjectStatus.Active]: [
-    {
-      projectName: "Church Website",
-      projectDescription: "This is the website for my church",
-      projectImage: "/images/church-image.jpg",
-      projectGithub: "https://github.com/chvaldez10/cfmc-web-app",
-    },
-    {
-      projectName: "Dayhome Management System",
-      projectDescription: "Helper tool for dayhome providers",
-      projectImage: "/images/dayhome-image.jpg",
-    },
+  [ProjectStatus.InProgress]: [
     {
       projectName: "K-pop Profile",
-      projectDescription: "K-pop profile to showcase favorite group",
+      projectDescription: "A K-pop profile showcasing my favorite group",
       projectImage: "/images/kpop-image.jpg",
     },
   ],
-  [ProjectStatus.Upcoming]: [
+  [ProjectStatus.Ideation]: [
     {
       projectName: "TBD",
       projectDescription:
-        "I'm not sure what this is yet but I want to do something machine learning related",
-      projectImage: "/images/machine-learning-image.jpg",
+        "I'm planning to create an app that provides common QA tools for software testing",
+      projectImage: "/images/toolbox.jpg",
     },
   ],
-  [ProjectStatus.Archived]: [
+  [ProjectStatus.Maintenance]: [
     {
-      projectName: "Suite of Dog Apps",
-      projectDescription: "A suite of dog apps.",
-      projectImage: "/images/dog-image.jpg",
+      projectName: "Church Website",
+      projectDescription: "A website for my church",
+      projectImage: "/images/church-image.jpg",
+      projectGithub: "https://github.com/chvaldez10/cfmc-web-app",
     },
   ],
 };

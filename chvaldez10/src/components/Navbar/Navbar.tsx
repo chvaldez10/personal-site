@@ -23,7 +23,9 @@ import styles from "./navbar.module.css";
 
 const Navbar: FC = () => {
   return (
-    <header className="fixed top-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6 z-50">
+    <header
+      className={`fixed top-0 flex h-20 w-full shrink-0 items-center px-4 md:px-6 z-50`}
+    >
       <MobileNavbar />
       <DesktopNavbar />
     </header>
