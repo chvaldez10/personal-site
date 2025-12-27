@@ -41,7 +41,7 @@ const MarqueeIcons: React.FC<MarqueeIconsProps> = ({ brandLogos }) => {
     <div
       key={logo.id || index}
       onClick={() => handleItemClick(logo)}
-      className="mr-8 flex-shrink-0 w-[120px] h-[90px] rounded-xl flex flex-col items-center justify-center gap-2 p-3 cursor-pointer transition-all duration-300 hover:scale-110 hover:-translate-y-1"
+      className="mr-8 shrink-0 w-[120px] h-[90px] rounded-xl flex flex-col items-center justify-center gap-2 p-3 cursor-pointer transition-all duration-300 hover:scale-110 hover:-translate-y-1"
     >
       <Image
         src={logo.src}
@@ -77,12 +77,12 @@ const MarqueeIcons: React.FC<MarqueeIconsProps> = ({ brandLogos }) => {
           <>
             {/* Backdrop */}
             <div
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[9999] animate-in fade-in duration-300"
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs z-9999 animate-in fade-in duration-300"
               onClick={handleClose}
             />
 
             {/* Detail popup */}
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 w-[300px] shadow-2xl z-[10000] animate-in zoom-in-95 fade-in duration-300">
+            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-linear-to-br from-white to-gray-50 rounded-2xl p-6 w-[300px] shadow-2xl z-10000 animate-in zoom-in-95 fade-in duration-300">
               <button
                 className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-lg text-gray-600 transition-colors"
                 onClick={handleClose}

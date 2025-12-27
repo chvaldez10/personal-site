@@ -19,13 +19,13 @@ import {
 export default function BreadCrumbWithChangingContainers() {
   const [activeContainer, setActiveContainer] = useState(0);
   const containers = [
-    <div key={1} className="bg-white shadow rounded-lg p-6">
+    <div key={1} className="bg-white shadow-sm rounded-lg p-6">
       Container 1
     </div>,
-    <div key={2} className="bg-white shadow rounded-lg p-6">
+    <div key={2} className="bg-white shadow-sm rounded-lg p-6">
       Container 2
     </div>,
-    <div key={3} className="bg-white shadow rounded-lg p-6">
+    <div key={3} className="bg-white shadow-sm rounded-lg p-6">
       Container 3
     </div>,
   ];

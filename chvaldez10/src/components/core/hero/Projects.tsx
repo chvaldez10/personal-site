@@ -27,7 +27,7 @@ export default function Projects() {
 
   return (
     <div
-      className="min-h-screen flex-items-center  bg-[var(--brand-secondary-100)]"
+      className="min-h-screen flex-items-center  bg-(--brand-secondary-100)"
       id="projects"
     >
       <div className="w-10/12">

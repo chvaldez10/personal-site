@@ -12,7 +12,7 @@ const TechFinds: React.FC = async () => {
 
   return (
     <CenteredVertical
-      background={"bg-[var(--brand-secondary-100)]"}
+      background={"bg-(--brand-secondary-100)"}
       id="tech-finds"
     >
       {/* Verbiage */}

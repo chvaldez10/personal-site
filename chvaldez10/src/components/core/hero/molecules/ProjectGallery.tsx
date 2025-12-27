@@ -16,7 +16,7 @@ const ProjectGallery: FC<ProjectGalleryProps> = ({ projects }) => {
         {projects.map((project, index) => (
           <div
             key={index}
-            className="bg-[var(--brand-secondary-100)] shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-2xl flex flex-col justify-between group cursor-pointer"
+            className="bg-(--brand-secondary-100) shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-2xl flex flex-col justify-between group cursor-pointer"
           >
             {/* Image */}
             <div className="relative w-full h-80">
@@ -33,7 +33,7 @@ const ProjectGallery: FC<ProjectGalleryProps> = ({ projects }) => {
             </div>
 
             {/* Description */}
-            <div className="text-center flex-grow p-4">
+            <div className="text-center grow p-4">
               <Typography
                 variant="h5"
                 text={project.projectName}
