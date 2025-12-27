@@ -15,7 +15,9 @@ const nextConfig = {
       },
     ],
     dangerouslyAllowSVG: true,
+    qualities: [75, 100],
   },
+  reactCompiler: true,
 };
 
 export default nextConfig;
