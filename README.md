@@ -30,7 +30,3 @@ To get started, follow these steps:
 ### 🌐 Deployment
 
 Deployed on Vercel: [chvaldez10.vercel.app](https://chvaldez10.vercel.app/)
-
-Vercel's built-in package manager detection tops out at pnpm 10, so the project requires the
-`ENABLE_EXPERIMENTAL_COREPACK=1` environment variable to make Vercel honor the `packageManager`
-field in `package.json`.
