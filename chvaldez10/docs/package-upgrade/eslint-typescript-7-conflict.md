@@ -50,18 +50,38 @@ In Next.js projects you hit this even if you never installed typescript-eslint y
 | Own the lint stack, want TS 7 now | Swap to a linter with no TS-compiler dependency — see [oxlint.md](./oxlint.md). Keep the ESLint config in-repo (inert) to restore type-aware rules later. |
 | Want TS 7 and can live without lint temporarily | Upgrade, leave `eslint .` failing, document why. |
 
-## Related: ESLint 10
+## Related: ESLint 10 (separate axis, don't conflate)
 
-Independent of TS 7, ESLint 10 breaks `eslint-plugin-react` (≤7.37.5, latest): it calls
-the removed `context.getFilename()` API while auto-detecting the React version, crashing
-with `contextOrFilename.getFilename is not a function`. Its peer range also stops at
-`eslint ^9.7`. Workaround if you want ESLint 10 anyway — pin the React version so
-detection never runs:
+The TypeScript version and the ESLint version are **independent compatibility axes**.
+The TS 7 crash above happens identically on ESLint 9 and 10 — downgrading ESLint does
+not help, and upgrading it doesn't either.
+
+| | TS ≤ 6.0.x | TS 7 |
+| --- | --- | --- |
+| ESLint 9 | works | crashes (typescript-eslint) |
+| ESLint 10 | works\* | crashes (typescript-eslint) |
+
+\* The only ESLint-10 breakage we hit was `eslint-plugin-react` (≤7.37.5, latest): it
+calls the removed `context.getFilename()` API while auto-detecting the React version,
+crashing with `contextOrFilename.getFilename is not a function`. Its peer range also
+stops at `eslint ^9.7`. Pin the React version so detection never runs:
 
 ```js
 // eslint.config.mjs
 { settings: { react: { version: "19.2.8" } } }
 ```
 
-Otherwise stay on ESLint 9.x (deprecated upstream, but it's what the Next lint stack
-declares support for).
+With that pin, ESLint 10 ran the full eslint-config-next rule set cleanly here. We stayed
+on 9.x anyway (deprecated upstream, but it's what the Next lint stack declares).
+
+**Projects without `eslint-plugin-react` — e.g. a Playwright test repo — can go straight
+to ESLint 10** (verified peer ranges: `@typescript-eslint/*` 8.x allows
+`eslint ^8.57 || ^9 || ^10`; `eslint-plugin-playwright` 2.x allows `eslint >=8.40.0`).
+Two conditions:
+
+- TypeScript stays ≤ 6.0.x — see the matrix.
+- Flat config (`eslint.config.mjs`) is mandatory: ESLint 10 removed legacy `.eslintrc.*`
+  support entirely. Coming from ESLint 8, the config migration is the real work, not the
+  version bump.
+- Check any remaining plugins' peer ranges before committing (`pnpm view <plugin>
+  peerDependencies`).
