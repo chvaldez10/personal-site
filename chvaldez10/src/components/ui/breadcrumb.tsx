@@ -57,6 +57,8 @@ const BreadcrumbLink = React.forwardRef<
 })
 BreadcrumbLink.displayName = "BreadcrumbLink"
 
+/* eslint-disable jsx-a11y/prefer-tag-over-role -- the current page is intentionally not a
+   navigable anchor; role="link" with aria-disabled is shadcn's breadcrumb pattern. */
 const BreadcrumbPage = React.forwardRef<
   HTMLSpanElement,
   React.ComponentPropsWithoutRef<"span">
@@ -70,6 +72,7 @@ const BreadcrumbPage = React.forwardRef<
     {...props}
   />
 ))
+/* eslint-enable jsx-a11y/prefer-tag-over-role */
 BreadcrumbPage.displayName = "BreadcrumbPage"
 
 const BreadcrumbSeparator = ({

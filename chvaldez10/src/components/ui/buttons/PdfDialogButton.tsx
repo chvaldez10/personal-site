@@ -42,6 +42,7 @@ const PdfDialogButton = React.forwardRef<
           {pdfUrl ? (
             <iframe
               src={pdfUrl}
+              title={label}
               width="100%"
               height="100%"
               style={{ border: "none" }}

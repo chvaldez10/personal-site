@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,11 +14,6 @@ interface MarqueeIconsProps {
 
 const MarqueeIcons: React.FC<MarqueeIconsProps> = ({ brandLogos }) => {
   const [selectedItem, setSelectedItem] = useState<BrandLogos | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Split logos into two rows
   const rows = useMemo(() => {
@@ -38,7 +33,8 @@ const MarqueeIcons: React.FC<MarqueeIconsProps> = ({ brandLogos }) => {
   }, []);
 
   const renderItem = (logo: BrandLogos, index: number) => (
-    <div
+    <button
+      type="button"
       key={logo.id || index}
       onClick={() => handleItemClick(logo)}
       className="mr-8 shrink-0 w-[120px] h-[90px] rounded-xl flex flex-col items-center justify-center gap-2 p-3 cursor-pointer transition-all duration-300 hover:scale-110 hover:-translate-y-1"
@@ -55,7 +51,7 @@ const MarqueeIcons: React.FC<MarqueeIconsProps> = ({ brandLogos }) => {
       <span className="text-xs font-medium text-secondary-foreground text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
         {logo.label}
       </span>
-    </div>
+    </button>
   );
 
   return (
@@ -71,12 +67,13 @@ const MarqueeIcons: React.FC<MarqueeIconsProps> = ({ brandLogos }) => {
       </div>
 
       {/* Portal for modal */}
-      {mounted &&
-        selectedItem &&
+      {selectedItem &&
         createPortal(
           <>
             {/* Backdrop */}
-            <div
+            <button
+              type="button"
+              aria-label="Close details"
               className="fixed inset-0 bg-black/40 backdrop-blur-xs z-9999 animate-in fade-in duration-300"
               onClick={handleClose}
             />
