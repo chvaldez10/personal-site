@@ -1,0 +1,17 @@
+#!/bin/sh
+# Commits on main ship straight to production, so they get the full suite. Feature
+# branches run lint only, to keep the commit loop fast.
+set -e
+
+cd "$(git rev-parse --show-toplevel)/chvaldez10"
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$branch" = "main" ]; then
+  echo "pre-commit: on main, running full checks"
+  pnpm lint
+  pnpm typecheck
+else
+  echo "pre-commit: on $branch, running lint"
+  pnpm lint
+fi
