@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "label": "Canva",
+    "alt": "Canva logo",
+    "description": "Demo content for local UI development.",
+    "src": "/logos/canva.svg",
+    "active": true,
+    "referral_link": null,
+    "created": null,
+    "updated": null
+  },
+  {
+    "id": 2,
+    "label": "Arc",
+    "alt": "Arc logo",
+    "description": "Demo content for local UI development.",
+    "src": "/logos/arc.svg",
+    "active": true,
+    "referral_link": null,
+    "created": null,
+    "updated": null
+  },
+  {
+    "id": 3,
+    "label": "Supabase",
+    "alt": "Supabase logo",
+    "description": "Demo content for local UI development.",
+    "src": "/logos/supabase.svg",
+    "active": true,
+    "referral_link": null,
+    "created": null,
+    "updated": null
+  },
+  {
+    "id": 4,
+    "label": "YouTube",
+    "alt": "YouTube logo",
+    "description": "Demo content for local UI development.",
+    "src": "/logos/youtube.svg",
+    "active": true,
+    "referral_link": null,
+    "created": null,
+    "updated": null
+  }
+]

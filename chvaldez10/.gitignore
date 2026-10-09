@@ -8,6 +8,10 @@
 
 # testing
 /coverage
+/.demo/
+/playwright-report/
+/test-results/
+/migration-private/
 
 # next.js
 /.next/
@@ -52,4 +56,4 @@ supabase/config.toml
 1.8.1
 
 # vscode
-.vscode 
+.vscode

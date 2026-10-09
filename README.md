@@ -21,9 +21,9 @@ To get started, follow these steps:
 
 1. Clone the repository to your local machine.
 2. Navigate to the project directory and change your directory to `chvaldez10`.
-3. Install pnpm 11 or later with `corepack enable pnpm`, or follow the [pnpm installation guide](https://pnpm.io/installation).
+3. Use Node 24 and the pinned pnpm version in `chvaldez10/package.json`; run `corepack enable`.
 4. Run `pnpm install` to install dependencies.
-5. Create a `.env.local` file in the root directory and add your Supabase credentials.
+5. Follow [the app setup guide](chvaldez10/README.md) to configure `chvaldez10/.env.local`, or use local demo mode without cloud credentials.
 6. Start the development server with `pnpm dev`.
 7. Open your browser and visit `http://localhost:3000` to view your site.
 

@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Christian Valdez's personal site
 
-## Getting Started
+Next.js 16 App Router, React 19, TypeScript 7, Tailwind 4, and Supabase. Convex dependencies and development tooling are prepared; cloud setup and data/auth migration have not started.
 
-First, run the development server:
+## Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Use Node 24 (see .node-version) and the exact pnpm version declared in package.json.
+
+From this directory:
+
+```sh
+corepack enable
+pnpm install --frozen-lockfile
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Copy .env.example to .env.local and fill in NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY for the existing app. Do not overwrite an existing .env.local or commit its values.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+pnpm run doctor
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+pnpm 11 also has a built-in doctor command; use pnpm run doctor to run this project's read-only preflight.
 
-## Learn More
+Open http://localhost:3000. The runner starts Next now and adds the Convex watcher when convex/schema.ts and its development environment are configured. dev:web and dev:backend remain available separately. Starting the backend CLI can initialize/update a cloud development deployment; routine checks do not run it.
 
-To learn more about Next.js, take a look at the following resources:
+## Local demo without cloud credentials
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Demo seeding only writes .demo/brand-logos.json on this computer. It never writes to Supabase or Convex and does not create accounts.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```sh
+pnpm seed:dev
+```
 
-## Deploy on Vercel
+Set SITE_DEMO_MODE=true in .env.local, or set it temporarily for the current shell:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```powershell
+$env:SITE_DEMO_MODE = 'true'
+pnpm run doctor
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The demo uses local logo fixtures, disables signup/login, and redirects protected pages to /login. Leave SITE_DEMO_MODE unset or false for the real site. Set the same value before a build and while running that build; public demo content can be generated at build time.
+
+## Commands
+
+| Command         | Purpose                                                                        |
+| --------------- | ------------------------------------------------------------------------------ |
+| pnpm run doctor | Read-only version/configuration/fixture checks; prints names, not secrets      |
+| pnpm dev        | Named development processes with coordinated shutdown                          |
+| pnpm dev:web    | Next development server only                                                   |
+| pnpm seed:dev   | Validate and write deterministic local demo data                               |
+| pnpm check      | Typecheck, Oxlint, maintained formatting baseline, and unit tests              |
+| pnpm format     | Format files listed in .format-files.json                                      |
+| pnpm test       | Node's built-in tests for validation, redirect destinations, and media mapping |
+| pnpm build      | Production build using the selected environment                                |
+| pnpm test:e2e   | Seed demo data, build, and run browser smoke tests on port 3100                |
+
+Before the first browser run, install Chromium:
+
+```sh
+pnpm exec playwright install chromium
+pnpm test:e2e
+```
+
+test:e2e builds in demo mode. After it finishes, rebuild with normal environment settings before using pnpm start for the real site.
+
+GitHub Actions runs checks and browser tests on Linux with demo data and no production credentials. It does not deploy. Live email delivery, existing-account login, and authenticated signout still need acceptance against the configured Supabase project.
+
+Formatting uses an explicit maintained baseline to keep legacy formatting changes out of this work. Add newly maintained files to .format-files.json. Generated output, dependencies, private exports, and credentials are excluded by keeping them outside that baseline.
+
+## Media
+
+The résumé is served from /docs/resume.pdf. Verified existing logo objects are mapped to /logos/... while their metadata still comes from Supabase. Unknown/external image URLs are preserved rather than silently replaced.
+
+To update a fixed asset, replace its file under public/ and redeploy. New logo filenames also need a mapping in src/lib/media.ts when replacing old hosted object URLs. The original Supabase objects remain available.
+
+## Authentication and migration
+
+The login form uses validated Server Actions and displays field/general errors and pending states. Signup respects the database flag at the app action boundary; direct Supabase signup must also be governed by the provider's configuration. The dashboard keeps its existing authenticated-user policy and now exposes signout.
+
+See [migration plan](docs/convex-migration/README.md), [checkpoints](docs/convex-migration/CHECKPOINTS.md), [auth comparison](docs/convex-migration/AUTH-DECISION.md), and [preparation status](docs/convex-migration/PREPARATION.md).

@@ -78,7 +78,7 @@ const AboutDescription = () => {
         <PdfDialogButton
           variant="link"
           size="iconFit"
-          pdfUrl="https://dvxqlvpokfujnpdwfuom.supabase.co/storage/v1/object/public/meda/docs/Christian-Valdez_Resume.pdf" // media is a typo
+          pdfUrl="/docs/resume.pdf"
           className="items-start hover-scale-effect"
           label="Resume"
         ></PdfDialogButton>

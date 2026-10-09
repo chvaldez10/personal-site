@@ -1,29 +1,40 @@
 import { type EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest } from "next/server";
-
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { safeNextPath } from "@/lib/validation/auth";
+
+const otpTypes: EmailOtpType[] = [
+  "signup",
+  "invite",
+  "magiclink",
+  "recovery",
+  "email_change",
+  "email",
+];
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
-  const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/";
-
-  if (token_hash && type) {
-    const supabase = await createClient();
-
-    const { error } = await supabase.auth.verifyOtp({
-      type,
-      token_hash,
-    });
-    if (!error) {
-      // redirect user to specified redirect URL or root of app
-      redirect(next);
+  const type = searchParams.get("type");
+  let verified = false;
+  if (
+    process.env.SITE_DEMO_MODE !== "true" &&
+    token_hash &&
+    type &&
+    otpTypes.includes(type as EmailOtpType)
+  ) {
+    try {
+      const supabase = await createClient();
+      const { error } = await supabase.auth.verifyOtp({
+        type: type as EmailOtpType,
+        token_hash,
+      });
+      verified = !error;
+    } catch {
+      verified = false;
     }
   }
-
-  // redirect the user to an error page with some instructions
-  //   redirect("/error");
-  alert("Signup failed");
+  if (verified) redirect(safeNextPath(searchParams.get("next")));
+  redirect("/login?confirmation=failed");
 }

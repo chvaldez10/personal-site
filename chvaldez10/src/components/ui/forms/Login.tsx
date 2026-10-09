@@ -1,13 +1,6 @@
 "use client";
 
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/1ADs2FRNaQg
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-
-import { FC, useState } from "react";
-
+import { useActionState, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -18,123 +11,107 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/buttons/button";
-
 import { login, signup } from "@/app/(main)/login/actions";
+import type { AuthState } from "@/lib/validation/auth";
 
-interface LoginProps {
-  enableSignUp?: boolean;
+function AuthForm({ isLogin }: { isLogin: boolean }) {
+  const [state, action, pending] = useActionState<AuthState, FormData>(
+    isLogin ? login : signup,
+    {},
+  );
+  return (
+    <form action={action} className="space-y-4" aria-busy={pending}>
+      <fieldset disabled={pending} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            aria-invalid={Boolean(state.fieldErrors?.email)}
+            aria-describedby="email-error"
+          />
+          <p id="email-error" className="text-sm text-destructive">
+            {state.fieldErrors?.email?.[0]}
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            required
+            minLength={isLogin ? undefined : 8}
+            autoComplete={isLogin ? "current-password" : "new-password"}
+            aria-invalid={Boolean(state.fieldErrors?.password)}
+            aria-describedby="password-error"
+          />
+          <p id="password-error" className="text-sm text-destructive">
+            {state.fieldErrors?.password?.[0]}
+          </p>
+        </div>
+        {!isLogin && (
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm password</Label>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              autoComplete="new-password"
+              aria-invalid={Boolean(state.fieldErrors?.confirmPassword)}
+              aria-describedby="confirm-error"
+            />
+            <p id="confirm-error" className="text-sm text-destructive">
+              {state.fieldErrors?.confirmPassword?.[0]}
+            </p>
+          </div>
+        )}
+        <Button type="submit" className="bg-sky-600" disabled={pending}>
+          {pending ? "Please wait…" : isLogin ? "Login" : "Sign Up"}
+        </Button>
+      </fieldset>
+      <div aria-live="polite" aria-atomic="true">
+        {state.error && (
+          <p className="text-sm text-destructive">{state.error}</p>
+        )}
+        {state.message && <p className="text-sm">{state.message}</p>}
+      </div>
+    </form>
+  );
 }
 
-const Login: FC<LoginProps> = ({ enableSignUp = false }) => {
-  const [isLogin, setIsLogin] = useState<boolean>(true);
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Setup formData
-    const formData = new FormData(e.target as HTMLFormElement);
-    formData.set("email", email);
-    formData.set("password", password);
-
-    // Check if signup and passwords match
-    if (!isLogin) {
-      if (password !== confirmPassword) {
-        alert("Passwords do not match");
-        return;
-      }
-    }
-
-    try {
-      if (isLogin) {
-        await login(formData);
-      } else {
-        await signup(formData);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+export default function Login({
+  enableSignUp = false,
+}: {
+  enableSignUp?: boolean;
+}) {
+  const [isLogin, setIsLogin] = useState(true);
   return (
-    <Card className="h-screen md:h-auto flex flex-col justify-center w-full md:max-w-lg mx-auto">
+    <Card className="flex w-full flex-col justify-center md:max-w-lg">
       <CardHeader className="space-y-1">
-        {/* Title */}
         <CardTitle className="text-2xl font-bold">
           {isLogin ? "Welcome Back!" : "Join the Party!"}
         </CardTitle>
-
-        {/* Description */}
         <CardDescription>
-          {isLogin
-            ? "Hope you remember your password."
-            : "Create an account to get started."}{" "}
-          <button
-            className="text-pink-500 cursor-pointer"
-            onClick={() => setIsLogin(!isLogin)}
-          >
-            {isLogin ? (enableSignUp ? "Sign Up" : "") : "Login"}
-          </button>
+          {isLogin ? "Sign in to your account." : "Create your account."}{" "}
+          {enableSignUp && (
+            <button
+              type="button"
+              className="text-pink-600 underline focus-visible:outline-2"
+              onClick={() => setIsLogin(!isLogin)}
+            >
+              {isLogin ? "Sign Up" : "Login"}
+            </button>
+          )}
         </CardDescription>
       </CardHeader>
-
-      {/* Form */}
       <CardContent>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col justify-start space-y-4 "
-        >
-          {/* Email */}
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="email@example.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          {/* Password */}
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          {/* Confirm Password */}
-          {!isLogin && (
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm Password</Label>
-              <Input
-                id="confirm-password"
-                type="password"
-                placeholder="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          )}
-
-          {/* Submit */}
-          <Button type="submit" className="bg-sky-600">
-            {isLogin ? "Login" : "Sign Up"}
-          </Button>
-        </form>
+        <AuthForm key={isLogin ? "login" : "signup"} isLogin={isLogin} />
       </CardContent>
     </Card>
   );
-};
-
-export default Login;
+}

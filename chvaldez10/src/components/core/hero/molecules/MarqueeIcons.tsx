@@ -1,122 +1,115 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
-import { createPortal } from "react-dom";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Marquee from "react-fast-marquee";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import type { BrandLogos } from "@/types/supabase";
 
-import { BrandLogos } from "@/types/supabase";
-
-interface MarqueeIconsProps {
+export default function MarqueeIcons({
+  brandLogos,
+}: {
   brandLogos: BrandLogos[];
-}
-
-const MarqueeIcons: React.FC<MarqueeIconsProps> = ({ brandLogos }) => {
-  const [selectedItem, setSelectedItem] = useState<BrandLogos | null>(null);
-
-  // Split logos into two rows
-  const rows = useMemo(() => {
-    const mid = Math.ceil(brandLogos.length / 2);
-    return {
-      row1: brandLogos.slice(0, mid),
-      row2: brandLogos.slice(mid),
-    };
-  }, [brandLogos]);
-
-  const handleItemClick = useCallback((item: BrandLogos) => {
-    setSelectedItem(item);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setSelectedItem(null);
-  }, []);
-
-  const renderItem = (logo: BrandLogos, index: number) => (
+}) {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const lastTrigger = useRef<HTMLButtonElement | null>(null);
+  const selected = brandLogos.find((logo) => logo.id === selectedId);
+  const midpoint = Math.ceil(brandLogos.length / 2);
+  const renderLogo = (logo: BrandLogos) => (
     <button
       type="button"
-      key={logo.id || index}
-      onClick={() => handleItemClick(logo)}
-      className="mr-8 shrink-0 w-30 h-22.5 rounded-xl flex flex-col items-center justify-center gap-2 p-3 cursor-pointer transition-all duration-300 hover:scale-110 hover:-translate-y-1"
+      key={logo.id}
+      aria-haspopup="dialog"
+      aria-label={"Details about " + (logo.label || logo.alt)}
+      onClick={(event) => {
+        lastTrigger.current = event.currentTarget;
+        setSelectedId(logo.id);
+      }}
+      className="mr-8 flex h-22.5 w-30 shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl p-3 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 motion-reduce:transform-none"
     >
       <Image
         src={logo.src}
         alt={logo.alt}
         width={36}
         height={36}
-        className="object-contain"
+        className="h-9 w-9 object-contain"
         draggable={false}
-        loading="lazy"
       />
-      <span className="text-xs font-medium text-secondary-foreground text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+      <span className="max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-xs font-medium text-secondary-foreground">
         {logo.label}
       </span>
     </button>
   );
-
   return (
-    <>
-      <div className="w-full py-10 flex flex-col gap-6">
-        <Marquee speed={40} pauseOnHover gradient={false}>
-          {rows.row1.map((logo, i) => renderItem(logo, i))}
+    <Dialog
+      open={Boolean(selected)}
+      onOpenChange={(open) => {
+        if (!open) setSelectedId(null);
+      }}
+    >
+      <div className="flex w-full flex-col gap-6 py-10">
+        <Marquee
+          speed={40}
+          pauseOnHover
+          pauseOnClick
+          gradient={false}
+          play={!selected}
+        >
+          {brandLogos.slice(0, midpoint).map(renderLogo)}
         </Marquee>
-
-        <Marquee speed={40} pauseOnHover gradient={false} direction="right">
-          {rows.row2.map((logo, i) => renderItem(logo, i))}
+        <Marquee
+          speed={40}
+          pauseOnHover
+          pauseOnClick
+          gradient={false}
+          direction="right"
+          play={!selected}
+        >
+          {brandLogos.slice(midpoint).map(renderLogo)}
         </Marquee>
       </div>
-
-      {/* Portal for modal */}
-      {selectedItem &&
-        createPortal(
-          <>
-            {/* Backdrop */}
-            <button
-              type="button"
-              aria-label="Close details"
-              className="fixed inset-0 bg-black/40 backdrop-blur-xs z-9999 animate-in fade-in duration-300"
-              onClick={handleClose}
-            />
-
-            {/* Detail popup */}
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-linear-to-br from-white to-gray-50 rounded-2xl p-6 w-75 shadow-2xl z-10000 animate-in zoom-in-95 fade-in duration-300">
-              <button
-                className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-lg text-gray-600 transition-colors"
-                onClick={handleClose}
-              >
-                ×
-              </button>
-              <div className="flex items-center gap-3 mb-3">
-                <Image
-                  src={selectedItem.src}
-                  alt={selectedItem.alt}
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {selectedItem.label}
-                </h3>
-              </div>
-              <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                {selectedItem.description}
-              </p>
-              {selectedItem.referral_link && (
-                <Link
-                  href={selectedItem.referral_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-pink-500 text-sm font-medium hover:gap-2.5 transition-all"
-                >
-                  Check it out <span>→</span>
-                </Link>
-              )}
+      {selected && (
+        <DialogContent
+          className="max-w-sm rounded-2xl"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            lastTrigger.current?.focus();
+          }}
+        >
+          <DialogHeader>
+            <div className="flex items-center gap-3 pr-6">
+              <Image
+                src={selected.src}
+                alt={selected.alt}
+                width={48}
+                height={48}
+                className="h-12 w-12 object-contain"
+              />
+              <DialogTitle>{selected.label || selected.alt}</DialogTitle>
             </div>
-          </>,
-          document.body
-        )}
-    </>
+            <DialogDescription className="pt-3">
+              {selected.description}
+            </DialogDescription>
+          </DialogHeader>
+          {selected.referral_link && (
+            <Link
+              href={selected.referral_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-600 underline"
+            >
+              Check it out <span aria-hidden="true">→</span>
+            </Link>
+          )}
+        </DialogContent>
+      )}
+    </Dialog>
   );
-};
-
-export default React.memo(MarqueeIcons);
+}

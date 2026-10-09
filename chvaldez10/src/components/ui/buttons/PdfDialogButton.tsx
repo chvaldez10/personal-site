@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Dialog,
@@ -7,10 +9,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { FaFilePdf } from "react-icons/fa";
-
-import { Button, ButtonProps } from "./button";
+import { Button, type ButtonProps } from "./button";
 
 interface PdfDialogButtonProps extends ButtonProps {
   pdfUrl?: string;
@@ -21,43 +21,47 @@ interface PdfDialogButtonProps extends ButtonProps {
 const PdfDialogButton = React.forwardRef<
   HTMLButtonElement,
   PdfDialogButtonProps
->(({ pdfUrl, label, description, ...props }, ref) => {
-  return (
-    <Dialog>
-      {/* Button Text */}
-      <DialogTrigger asChild>
-        <Button {...props} ref={ref}>
-          <FaFilePdf />
-          {props.children}
-        </Button>
-      </DialogTrigger>
-
-      {/* Dialogue Content */}
-      <DialogContent className="max-w-[800px] h-screen md:h-[80vh] flex flex-col transition-all duration-300">
-        <DialogHeader>
-          <DialogTitle>{label}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <div className="flex-1 py-4">
-          {pdfUrl ? (
-            <iframe
-              src={pdfUrl}
-              title={label}
-              width="100%"
-              height="100%"
-              style={{ border: "none" }}
-            />
-          ) : (
-            <div className="flex-1 flex justify-center items-center h-full">
-              <p className="text-sm text-gray-500">No PDF available</p>
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-});
-
+>(({ pdfUrl, label, description, children, ...props }, ref) => (
+  <Dialog>
+    <DialogTrigger asChild>
+      <Button {...props} ref={ref} aria-label={props["aria-label"] || label}>
+        <FaFilePdf aria-hidden="true" />
+        {children || <span className="sr-only">{label}</span>}
+      </Button>
+    </DialogTrigger>
+    <DialogContent className="flex h-[85dvh] max-w-[800px] flex-col">
+      <DialogHeader>
+        <DialogTitle>{label}</DialogTitle>
+        <DialogDescription>
+          {description || "Preview the PDF or open it directly below."}
+        </DialogDescription>
+      </DialogHeader>
+      {pdfUrl ? (
+        <>
+          <div className="flex flex-wrap gap-4">
+            <a
+              href={pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm underline"
+            >
+              Open {label} in a new tab
+            </a>
+            <a href={pdfUrl} download className="text-sm underline">
+              Download {label}
+            </a>
+          </div>
+          <iframe
+            src={pdfUrl}
+            title={label}
+            className="min-h-0 w-full flex-1 border-0"
+          />
+        </>
+      ) : (
+        <p className="py-4 text-sm text-muted-foreground">No PDF available</p>
+      )}
+    </DialogContent>
+  </Dialog>
+));
 PdfDialogButton.displayName = "PdfDialogButton";
-
 export { PdfDialogButton };
