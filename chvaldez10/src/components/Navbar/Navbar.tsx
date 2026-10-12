@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { scroller } from "react-scroll";
 import { RiMenu5Fill } from "react-icons/ri";
 import { Button } from "@/components/ui/buttons/button";
 import {
@@ -35,6 +36,17 @@ function NavbarLogo() {
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  function scrollToSection(
+    event: { preventDefault: () => void },
+    section: string,
+    duration: number,
+  ) {
+    if (window.location.pathname !== "/" || !document.getElementById(section))
+      return;
+    event.preventDefault();
+    window.history.pushState(null, "", "/#" + section);
+    scroller.scrollTo(section, { smooth: true, duration, offset: -80 });
+  }
   return (
     <header className="fixed top-0 z-50 flex h-20 w-full shrink-0 items-center px-4 md:px-6">
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -61,6 +73,7 @@ export default function Navbar() {
                 href={"/#" + href}
                 style={{ textDecoration: "none" }}
                 onClick={() => setMobileOpen(false)}
+                onNavigate={(event) => scrollToSection(event, href, 300)}
                 className={
                   styles.clientNavbar +
                   " flex w-full items-center text-lg font-semibold"
@@ -81,6 +94,7 @@ export default function Navbar() {
               key={href}
               aria-label={label}
               href={"/#" + href}
+              onNavigate={(event) => scrollToSection(event, href, 700)}
               style={{ textDecoration: "none" }}
               className={
                 styles.clientNavbar +
