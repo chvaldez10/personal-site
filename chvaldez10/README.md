@@ -1,82 +1,59 @@
 # Christian Valdez's personal site
 
-Next.js 16 App Router, React 19, TypeScript 7, Tailwind 4, and Supabase. Convex dependencies and development tooling are prepared; cloud setup and data/auth migration have not started.
+Next.js 16, React 19, TypeScript 7, Tailwind 4, Convex, and Convex Auth. Cloudflare Images hosts logos. The development migration is in place; publishing remains a separate checkpoint.
 
 ## Setup
 
-Use Node 24 (see .node-version) and the exact pnpm version declared in package.json.
-
-From this directory:
+Use Node 24 and the pnpm version in package.json. On Windows or macOS, open Warp or your usual terminal in the app folder:
 
 ```sh
+cd chvaldez10
 corepack enable
 pnpm install --frozen-lockfile
 ```
 
-Copy .env.example to .env.local and fill in NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY for the existing app. Do not overwrite an existing .env.local or commit its values.
+Skip cd if already in the app folder. Copy .env.example to .env.local using your editor; keep an existing .env.local. Convex setup fills in CONVEX_DEPLOYMENT and NEXT_PUBLIC_CONVEX_URL.
 
 ```sh
 pnpm run doctor
 pnpm dev
 ```
 
-pnpm 11 also has a built-in doctor command; use pnpm run doctor to run this project's read-only preflight.
+Open http://localhost:3000. One runner starts Next and the Convex development watcher. dev:web and dev:backend also work separately. Starting the backend watcher updates the selected cloud development deployment; routine checks do not.
 
-Open http://localhost:3000. The runner starts Next now and adds the Convex watcher when convex/schema.ts and its development environment are configured. dev:web and dev:backend remain available separately. Starting the backend CLI can initialize/update a cloud development deployment; routine checks do not run it.
+Cloudflare's API token and auth secrets belong in the Convex deployment settings. Never put them in NEXT_PUBLIC_ variables.
 
-## Local demo without cloud credentials
-
-Demo seeding only writes .demo/brand-logos.json on this computer. It never writes to Supabase or Convex and does not create accounts.
-
-```sh
-pnpm seed:dev
-```
-
-Set SITE_DEMO_MODE=true in .env.local, or set it temporarily for the current shell:
-
-```powershell
-$env:SITE_DEMO_MODE = 'true'
-pnpm run doctor
-pnpm dev
-```
-
-The demo uses local logo fixtures, disables signup/login, and redirects protected pages to /login. Leave SITE_DEMO_MODE unset or false for the real site. Set the same value before a build and while running that build; public demo content can be generated at build time.
+For owner account setup, follow [the project steps](docs/convex-migration/PROJECT-NOTES.md).
 
 ## Commands
 
-| Command         | Purpose                                                                        |
-| --------------- | ------------------------------------------------------------------------------ |
-| pnpm run doctor | Read-only version/configuration/fixture checks; prints names, not secrets      |
-| pnpm dev        | Named development processes with coordinated shutdown                          |
-| pnpm dev:web    | Next development server only                                                   |
-| pnpm seed:dev   | Validate and write deterministic local demo data                               |
-| pnpm check      | Typecheck, Oxlint, maintained formatting baseline, and unit tests              |
-| pnpm format     | Format files listed in .format-files.json                                      |
-| pnpm test       | Node's built-in tests for validation, redirect destinations, and media mapping |
-| pnpm build      | Production build using the selected environment                                |
-| pnpm test:e2e   | Seed demo data, build, and run browser smoke tests on port 3100                |
+| Command          | Purpose                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| pnpm run doctor  | Check versions and configuration without displaying secrets |
+| pnpm dev         | Start Next and Convex development together                  |
+| pnpm dev:web     | Start Next only                                             |
+| pnpm dev:backend | Start the Convex development watcher only                   |
+| pnpm check       | Typecheck, lint, formatting, and unit/backend tests         |
+| pnpm format      | Format the maintained files in .format-files.json           |
+| pnpm test        | Run Node validation tests and Convex backend tests          |
+| pnpm build       | Build using the selected environment                        |
+| pnpm test:e2e    | Build real pages against a test-only local backend          |
 
-Before the first browser run, install Chromium:
+Before the first browser test:
 
 ```sh
 pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-test:e2e builds in demo mode. After it finishes, rebuild with normal environment settings before using pnpm start for the real site.
-
-GitHub Actions runs checks and browser tests on Linux with demo data and no production credentials. It does not deploy. Live email delivery, existing-account login, and authenticated signout still need acceptance against the configured Supabase project.
-
-Formatting uses an explicit maintained baseline to keep legacy formatting changes out of this work. Add newly maintained files to .format-files.json. Generated output, dependencies, private exports, and credentials are excluded by keeping them outside that baseline.
+Browser tests start a temporary HTTP backend stub and exercise the real pages, including login errors and private-route protection. Fixtures are used only by tests; the app always uses its configured Convex deployment. CI never deploys. After browser tests, run pnpm build before pnpm start so the build uses your real Convex URL. Live owner login, signout, and direct Cloudflare upload still need acceptance with your privately chosen password.
 
 ## Media
 
-The résumé is served from /docs/resume.pdf. Verified existing logo objects are mapped to /logos/... while their metadata still comes from Supabase. Unknown/external image URLs are preserved rather than silently replaced.
+The dashboard uploads images directly to Cloudflare using a short-lived upload URL issued after owner authorization. The API token stays on the backend. Convex confirms the upload before saving the logo record.
 
-To update a fixed asset, replace its file under public/ and redeploy. New logo filenames also need a mapping in src/lib/media.ts when replacing old hosted object URLs. The original Supabase objects remain available.
+Résumé links use /api/resume, which serves the PDF from Convex and falls back to /docs/resume.pdf if it is unavailable. Keep public/docs/resume.pdf current. Logo failures show an icon while keeping their text and details usable.
 
-## Authentication and migration
+Supabase data, hosted source files, and old integration files are preserved during review. The active development app uses Convex.
 
-The login form uses validated Server Actions and displays field/general errors and pending states. Signup respects the database flag at the app action boundary; direct Supabase signup must also be governed by the provider's configuration. The dashboard keeps its existing authenticated-user policy and now exposes signout.
-
-See [migration plan](docs/convex-migration/README.md), [checkpoints](docs/convex-migration/CHECKPOINTS.md), [auth comparison](docs/convex-migration/AUTH-DECISION.md), and [preparation status](docs/convex-migration/PREPARATION.md).
+See the [reusable migration guide](docs/convex-migration/README.md) and [this site's next steps](docs/convex-migration/PROJECT-NOTES.md).

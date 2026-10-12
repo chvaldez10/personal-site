@@ -21,6 +21,6 @@ See [Convex's login guidance](https://docs.convex.dev/auth/overview).
 
 I will prepare the code and give you the exact setup steps. During a migration, keep the old login working until the replacement is tested.
 
-For this personal site, email/password stays and GitHub is optional.
+For this personal site, Convex Auth with email/password is implemented for one owner. A private setup key gates initial account creation; public signup is blocked. You choose the password locally. GitHub, email confirmation, and password reset are not part of this first version. See [the account setup steps](./PROJECT-NOTES.md#you-create-your-dashboard-account).
 
 Return to [step 5](./README.md#5-you-and-me-handle-login-if-needed).

@@ -4,7 +4,10 @@ export const brandLogoSchema = z.object({
   id: z.number().int(),
   alt: z.string(),
   description: z.string(),
-  src: z.string().min(1),
+  src: z
+    .string()
+    .nullish()
+    .transform((value) => value ?? ""),
   active: z.boolean().nullable(),
   label: z.string().nullable(),
   referral_link: z.string().nullable(),

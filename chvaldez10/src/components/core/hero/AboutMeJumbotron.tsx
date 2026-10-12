@@ -78,7 +78,8 @@ const AboutDescription = () => {
         <PdfDialogButton
           variant="link"
           size="iconFit"
-          pdfUrl="/docs/resume.pdf"
+          pdfUrl="/api/resume"
+          downloadUrl="/api/resume?download=1"
           className="items-start hover-scale-effect"
           label="Resume"
         ></PdfDialogButton>

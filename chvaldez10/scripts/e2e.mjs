@@ -2,11 +2,14 @@ import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { appRoot } from "./environment.mjs";
+import { startBackendStub } from "../tests/support/backend-stub.mjs";
 
 const require = createRequire(import.meta.url);
+const backend = await startBackendStub();
 const env = {
   ...process.env,
-  SITE_DEMO_MODE: "true",
+  NEXT_PUBLIC_CONVEX_URL: backend.url,
+  E2E_BACKEND_URL: backend.url,
   NEXT_TELEMETRY_DISABLED: "1",
 };
 async function run(args) {
@@ -19,8 +22,15 @@ async function run(args) {
     child.on("error", reject);
     child.on("exit", (code) => resolve(code ?? 1));
   });
-  if (code !== 0) process.exit(code);
+  if (code !== 0)
+    throw new Error("Browser check command failed with exit code " + code);
 }
-await run(["scripts/seed-demo.mjs"]);
-await run([require.resolve("next/dist/bin/next"), "build"]);
-await run([require.resolve("@playwright/test/cli"), "test"]);
+try {
+  await run([require.resolve("next/dist/bin/next"), "build"]);
+  await run([require.resolve("@playwright/test/cli"), "test"]);
+} catch (error) {
+  console.error(error.message);
+  process.exitCode = 1;
+} finally {
+  await backend.close();
+}

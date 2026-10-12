@@ -1,28 +1,12 @@
-import { createClient } from "@/utils/supabase/server";
-import type { WaffleSwitch } from "@/types/supabase";
-import { cookies } from "next/headers";
-
+import { fetchQuery } from "convex/nextjs";
+import { api } from "@convex/_generated/api";
 export async function fetchWaffleSwitch(
   name: string,
-): Promise<WaffleSwitch | null> {
-  if (process.env.SITE_DEMO_MODE === "true") return null;
-  // Do not swallow Next's request-time rendering signal as a database failure.
-  await cookies();
+): Promise<{ is_active: boolean } | null> {
+  if (name !== "enable_signup") return null;
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("waffle_switch")
-      .select("*")
-      .eq("name", name)
-      .abortSignal(AbortSignal.timeout(5000))
-      .maybeSingle();
-    if (error) {
-      console.error("Feature flag could not be loaded.");
-      return null;
-    }
-    return data as WaffleSwitch | null;
+    return { is_active: await fetchQuery(api.featureFlags.signupEnabled, {}) };
   } catch {
-    console.error("Feature flags are temporarily unavailable.");
     return null;
   }
 }

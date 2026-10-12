@@ -17,7 +17,6 @@ jobs:
       run:
         working-directory: chvaldez10
     env:
-      SITE_DEMO_MODE: "true"
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
@@ -29,8 +28,6 @@ jobs:
           package_json_file: chvaldez10/package.json
           run_install: false
       - run: pnpm install --frozen-lockfile
-      - run: pnpm seed:dev
-      - run: pnpm run doctor
       - run: pnpm check
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e

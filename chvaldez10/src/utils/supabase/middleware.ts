@@ -11,7 +11,7 @@ export async function updateSession(request: NextRequest) {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   let authenticated = false;
 
-  if (process.env.SITE_DEMO_MODE !== "true" && url && key) {
+  if (url && key) {
     try {
       const supabase = createServerClient(url, key, {
         global: {

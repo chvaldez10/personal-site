@@ -1,36 +1,25 @@
-# Preparation: already done
+# Preparation already completed
 
-This file records work completed in personal-site. It is not a setup checklist for other repos.
+These changes apply to personal-site. Other repos do not need to copy every change.
 
-You do not need to repeat this work.
+- One shared root layout.
+- One development runner for Next and Convex.
+- A configuration check and test-only browser fixtures.
+- Input validation, pending states, and useful login errors.
+- Accessible logo dialogs, keyboard filters, and mobile navigation.
+- A fallback icon for missing or broken logos.
+- Résumé preview, open, and download links.
+- Formatting, unit/backend tests, and browser checks.
 
-- One shared layout holds the app's fonts, styles, and page setup.
-- Known logos and the résumé have local copies under public/.
-- Logo loading shows a useful message when it fails.
-- Login/signup show input errors and a waiting state.
-- The dashboard has a signout button.
-- Logo dialogs and project buttons work with the keyboard.
-- Mobile navigation closes after selecting a link.
-- The résumé has preview, open, and download links.
-- Development commands, local demo data, formatting, and automated checks are ready.
-- Convex is installed, but its project and database have not been set up.
+## Development migration completed
 
-## Useful commands
+- 14 logo records and one setting copied to Convex; counts match the exports.
+- 14 logo files copied to Cloudflare Images.
+- Convex résumé retrieval verified; local PDF fallback kept.
+- Owner-only Convex Auth and protected routes implemented.
+- Dashboard upload form added.
+- Supabase data and source files preserved.
 
-Run these from chvaldez10/:
+Typecheck, lint, formatting, unit/backend/component tests and browser checks passed. A normal build passed. A live local browser check verified all 14 Cloudflare images loaded, anonymous dashboard access redirected to login, owner setup was available, and the résumé response was a valid PDF.
 
-- pnpm run doctor — check your local setup.
-- pnpm dev — start development.
-- pnpm check — run code and formatting checks.
-- pnpm seed:dev — create local demo data.
-- pnpm test:e2e — build a demo and check it in a browser.
-
-The [app README](../../README.md) explains demo mode and setup.
-
-## Checks previously completed
-
-Code checks, five unit tests, four browser tests, and both builds passed. The normal Supabase homepage loaded correctly, and logged-out visitors were redirected away from the dashboard.
-
-Real account login and email delivery still need to be checked with the chosen replacement.
-
-**The app still uses Supabase. Next: [step 2](./README.md#2-you-install-convex-and-create-a-test-project).**
+**Next: test owner signout and uploading, then prepare the production settings.** Follow [PROJECT-NOTES.md](./PROJECT-NOTES.md). The public website has not been switched.

@@ -1,6 +1,8 @@
 "use client";
-
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { loginSchema, signupSchema } from "@/lib/validation/auth";
 import {
   Card,
   CardHeader,
@@ -11,16 +13,46 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/buttons/button";
-import { login, signup } from "@/app/(main)/login/actions";
-import type { AuthState } from "@/lib/validation/auth";
-
-function AuthForm({ isLogin }: { isLogin: boolean }) {
-  const [state, action, pending] = useActionState<AuthState, FormData>(
-    isLogin ? login : signup,
-    {},
-  );
+function OwnerLogin({ setupAvailable }: { setupAvailable: boolean }) {
+  const { signIn } = useAuthActions();
+  const router = useRouter();
+  const [setup, setSetup] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+    setError("");
+    const data = Object.fromEntries(new FormData(event.currentTarget));
+    const parsed = (setup ? signupSchema : loginSchema).safeParse(data);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0].message);
+      return;
+    }
+    setPending(true);
+    try {
+      const authenticated = await signIn("password", {
+        email: parsed.data.email,
+        password: parsed.data.password,
+        flow: setup ? "signUp" : "signIn",
+        ...(setup ? { setupKey: String(data.setupKey ?? "").trim() } : {}),
+      });
+      if (authenticated.signingIn) {
+        router.replace("/dashboard");
+        router.refresh();
+      } else setError("Sign-in could not be completed. Please try again.");
+    } catch {
+      setError(
+        setup
+          ? "Owner setup failed. Check your email, setup key, and password."
+          : "Unable to sign in. Check your email and password.",
+      );
+    } finally {
+      setPending(false);
+    }
+  }
   return (
-    <form action={action} className="space-y-4" aria-busy={pending}>
+    <form onSubmit={submit} className="space-y-4" aria-busy={pending}>
       <fieldset disabled={pending} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -30,12 +62,7 @@ function AuthForm({ isLogin }: { isLogin: boolean }) {
             type="email"
             required
             autoComplete="email"
-            aria-invalid={Boolean(state.fieldErrors?.email)}
-            aria-describedby="email-error"
           />
-          <p id="email-error" className="text-sm text-destructive">
-            {state.fieldErrors?.email?.[0]}
-          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
@@ -44,73 +71,81 @@ function AuthForm({ isLogin }: { isLogin: boolean }) {
             name="password"
             type="password"
             required
-            minLength={isLogin ? undefined : 8}
-            autoComplete={isLogin ? "current-password" : "new-password"}
-            aria-invalid={Boolean(state.fieldErrors?.password)}
-            aria-describedby="password-error"
+            minLength={setup ? 12 : undefined}
+            maxLength={128}
+            autoComplete={setup ? "new-password" : "current-password"}
+            aria-describedby={error ? "login-error" : undefined}
+            aria-invalid={Boolean(error)}
           />
-          <p id="password-error" className="text-sm text-destructive">
-            {state.fieldErrors?.password?.[0]}
-          </p>
         </div>
-        {!isLogin && (
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm password</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              autoComplete="new-password"
-              aria-invalid={Boolean(state.fieldErrors?.confirmPassword)}
-              aria-describedby="confirm-error"
-            />
-            <p id="confirm-error" className="text-sm text-destructive">
-              {state.fieldErrors?.confirmPassword?.[0]}
-            </p>
-          </div>
+        {setup && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                maxLength={128}
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="setupKey">Owner setup key</Label>
+              <Input
+                id="setupKey"
+                name="setupKey"
+                type="password"
+                required
+                autoComplete="off"
+              />
+            </div>
+          </>
         )}
-        <Button type="submit" className="bg-sky-600" disabled={pending}>
-          {pending ? "Please wait…" : isLogin ? "Login" : "Sign Up"}
+        <Button type="submit" disabled={pending}>
+          {pending ? "Please wait…" : setup ? "Create owner account" : "Login"}
         </Button>
       </fieldset>
-      <div aria-live="polite" aria-atomic="true">
-        {state.error && (
-          <p className="text-sm text-destructive">{state.error}</p>
-        )}
-        {state.message && <p className="text-sm">{state.message}</p>}
-      </div>
+      {setupAvailable && (
+        <button
+          type="button"
+          disabled={pending}
+          className="text-sm underline"
+          onClick={() => {
+            setSetup(!setup);
+            setError("");
+          }}
+        >
+          {setup ? "Back to login" : "Set up owner account"}
+        </button>
+      )}
+      <p
+        id="login-error"
+        aria-live="polite"
+        aria-atomic="true"
+        className="text-sm text-destructive"
+      >
+        {error}
+      </p>
     </form>
   );
 }
-
 export default function Login({
-  enableSignUp = false,
+  setupAvailable = false,
 }: {
-  enableSignUp?: boolean;
+  setupAvailable?: boolean;
 }) {
-  const [isLogin, setIsLogin] = useState(true);
   return (
-    <Card className="flex w-full flex-col justify-center md:max-w-lg">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">
-          {isLogin ? "Welcome Back!" : "Join the Party!"}
+    <Card className="w-full md:max-w-lg">
+      <CardHeader>
+        <CardTitle>
+          <h1 className="text-2xl">Dashboard login</h1>
         </CardTitle>
-        <CardDescription>
-          {isLogin ? "Sign in to your account." : "Create your account."}{" "}
-          {enableSignUp && (
-            <button
-              type="button"
-              className="text-pink-600 underline focus-visible:outline-2"
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              {isLogin ? "Sign Up" : "Login"}
-            </button>
-          )}
-        </CardDescription>
+        <CardDescription>Sign in with your owner account.</CardDescription>
       </CardHeader>
       <CardContent>
-        <AuthForm key={isLogin ? "login" : "signup"} isLogin={isLogin} />
+        <OwnerLogin setupAvailable={setupAvailable} />
       </CardContent>
     </Card>
   );

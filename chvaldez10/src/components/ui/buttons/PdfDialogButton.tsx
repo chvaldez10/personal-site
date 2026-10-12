@@ -14,6 +14,7 @@ import { Button, type ButtonProps } from "./button";
 
 interface PdfDialogButtonProps extends ButtonProps {
   pdfUrl?: string;
+  downloadUrl?: string;
   label: string;
   description?: string;
 }
@@ -21,7 +22,7 @@ interface PdfDialogButtonProps extends ButtonProps {
 const PdfDialogButton = React.forwardRef<
   HTMLButtonElement,
   PdfDialogButtonProps
->(({ pdfUrl, label, description, children, ...props }, ref) => (
+>(({ pdfUrl, downloadUrl, label, description, children, ...props }, ref) => (
   <Dialog>
     <DialogTrigger asChild>
       <Button {...props} ref={ref} aria-label={props["aria-label"] || label}>
@@ -47,7 +48,11 @@ const PdfDialogButton = React.forwardRef<
             >
               Open {label} in a new tab
             </a>
-            <a href={pdfUrl} download className="text-sm underline">
+            <a
+              href={downloadUrl || pdfUrl}
+              download
+              className="text-sm underline"
+            >
               Download {label}
             </a>
           </div>

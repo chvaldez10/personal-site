@@ -15,6 +15,10 @@ Open Warp or your usual terminal in the folder containing the app's package.json
 
 In a repo with several folders, this may be a subfolder rather than the repo root.
 
+The pnpm/npm commands below work on Windows and macOS, in Warp or another terminal. On Windows you can use PowerShell or Command Prompt; on macOS use your usual terminal. Run the commands from the app folder on either system.
+
+If you need to change folders, put paths containing spaces in quotes. For example, cd "my app" works on both systems. Use your own folder location rather than copying someone else's Windows or macOS path.
+
 ## 2. You: install Convex and create a test project
 
 These examples use pnpm. Keep using the package manager already used by the repo.
@@ -36,7 +40,7 @@ pnpm exec convex dev
 3. Create a project for this app. Each unrelated app should have its own Convex project.
 4. Start with its development version for testing.
 5. Wait until the terminal says the functions are ready.
-6. Press Ctrl+C.
+6. Press Ctrl+C (Control+C on macOS) to stop the command.
 
 For an npm repo, use npm install convex and npx convex dev instead.
 
@@ -60,6 +64,10 @@ For Supabase, start in Table Editor, export each app table, and check Authentica
 
 I will check which files and other database features also need to move.
 
+Exported rows may contain image links, not the image files themselves. We must check the files separately. [Convex has file storage](https://docs.convex.dev/file-storage/overview) for uploaded files; fixed assets can also stay in the app's public/ folder.
+
+If files are already hosted by another service, such as Cloudflare Images, tell me and provide an example image link. We can keep that service and store its links in Convex rather than copying the files again.
+
 ## 4. Me: connect the app to Convex
 
 For a migration, send:
@@ -77,7 +85,7 @@ I will:
 3. Copy and compare the saved data if this is a migration.
 4. Connect the relevant screens to those functions.
 5. Set up one development command for the app and Convex where appropriate.
-6. Add useful error messages and run the project's checks.
+6. Add useful error messages and a fallback icon for missing or failed images, then run the project's checks.
 7. Give you the command and local URL for testing.
 
 **Stop:** I show you the working result; you check the main screens before we continue.
@@ -114,6 +122,7 @@ Check the features this app has:
 - Displaying, creating, editing, and deleting data.
 - Loading, empty, and error messages.
 - Images, file links, and downloads.
+- A fallback icon appears when a logo cannot load; its label and details still work.
 - Login, signout, and private screens.
 - Mobile layout and keyboard controls.
 

@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   loginSchema,
   signupSchema,
@@ -7,6 +8,21 @@ import {
 } from "../src/lib/validation/auth.ts";
 import { brandLogosSchema } from "../src/lib/validation/brandLogos.ts";
 import { localLogoSource } from "../src/lib/media.ts";
+
+test("missing image URLs do not hide otherwise valid logos", () => {
+  const [logo] = JSON.parse(
+    readFileSync(
+      new URL("../fixtures/brand-logos.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  for (const src of [null, undefined, ""]) {
+    const rows = brandLogosSchema.parse([{ ...logo, src }]);
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].src, "");
+    assert.equal(rows[0].label, logo.label);
+  }
+});
 
 test("login accepts existing short passwords and preserves whitespace", () => {
   const parsed = loginSchema.parse({
@@ -35,11 +51,34 @@ test("signup rejects invalid addresses, weak passwords, and confirmation mismatc
   );
   const mismatch = signupSchema.safeParse({
     email: "user@example.com",
-    password: "abcdefgh",
+    password: "abcdefghijkl",
     confirmPassword: "different",
   });
   assert.equal(mismatch.success, false);
   assert.deepEqual(mismatch.error.issues[0].path, ["confirmPassword"]);
+  assert.equal(
+    signupSchema.safeParse({
+      email: "user@example.com",
+      password: "12345678901",
+      confirmPassword: "12345678901",
+    }).success,
+    false,
+  );
+  assert.equal(
+    signupSchema.safeParse({
+      email: "user@example.com",
+      password: "123456789012",
+      confirmPassword: "123456789012",
+    }).success,
+    true,
+  );
+  assert.equal(
+    loginSchema.safeParse({
+      email: "user@example.com",
+      password: "x".repeat(129),
+    }).success,
+    false,
+  );
 });
 test("confirmation destinations cannot redirect to another origin", () => {
   for (const value of [

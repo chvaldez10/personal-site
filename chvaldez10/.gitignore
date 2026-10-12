@@ -8,7 +8,6 @@
 
 # testing
 /coverage
-/.demo/
 /playwright-report/
 /test-results/
 /migration-private/
