@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import { Slash } from "lucide-react";
 import ProjectGallery from "./molecules/ProjectGallery";
 import { projectData } from "@/constants/projectData";
 
@@ -15,24 +16,31 @@ export default function Projects() {
       <div className="w-10/12">
         <fieldset
           aria-label="Filter projects by status"
-          className="flex flex-wrap justify-center gap-2 py-4"
+          className="flex flex-wrap items-center justify-center gap-1.5 py-4 text-sm text-muted-foreground"
         >
-          {statuses.map((status) => (
-            <button
-              type="button"
-              key={status}
-              aria-pressed={status === activeStatus}
-              onClick={() => setActiveStatus(status)}
-              aria-controls="project-results"
-              className={
-                "rounded-md px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 " +
-                (status === activeStatus
-                  ? "bg-yellow-500 text-gray-950"
-                  : "hover:bg-gray-200")
-              }
-            >
-              {status}
-            </button>
+          {statuses.map((status, index) => (
+            <Fragment key={status}>
+              <button
+                type="button"
+                aria-pressed={status === activeStatus}
+                onClick={() => setActiveStatus(status)}
+                aria-controls="project-results"
+                className={
+                  "rounded-md px-2 py-1 transition-transform duration-300 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 " +
+                  (status === activeStatus
+                    ? "bg-yellow-500 text-white hover:bg-yellow-400"
+                    : "hover:bg-gray-200")
+                }
+              >
+                {status}
+              </button>
+              {index < statuses.length - 1 && (
+                <Slash
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 text-gray-500"
+                />
+              )}
+            </Fragment>
           ))}
         </fieldset>
         <div id="project-results" className="mt-4" aria-live="polite">

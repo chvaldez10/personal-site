@@ -39,6 +39,11 @@ async function setup() {
   return { t, owner, other, ownerId, otherId };
 }
 describe("dashboard authorization", () => {
+  it("keeps setup unavailable until the private setup key is configured", async () => {
+    const t = convexTest(schema, modules);
+    vi.stubEnv("OWNER_SETUP_KEY", "");
+    expect(await t.query(api.admin.setupAvailable)).toBe(false);
+  });
   it("sets up the owner with a valid key and authenticates the chosen password", async () => {
     const keys = await generateKeyPair("RS256", { extractable: true });
     vi.stubEnv(
@@ -220,6 +225,36 @@ describe("migration", () => {
   });
 });
 describe("image completion", () => {
+  it("bounds provider requests and gives a safe error for malformed responses", async () => {
+    const { owner } = await setup();
+    const network = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response("upstream failure", { status: 502 }));
+    await expect(
+      owner.action(api.images.requestUpload, { filename: "logo.png" }),
+    ).rejects.toThrow("Image service is unavailable");
+    expect(network.mock.calls[0][1]?.signal).toBeInstanceOf(AbortSignal);
+  });
+  it("rejects expired uploads before requesting the provider", async () => {
+    const { t, owner, ownerId } = await setup();
+    await t.run((ctx) =>
+      ctx.db.insert("pendingImages", {
+        imageId: "expired",
+        ownerId,
+        expiresAt: Date.now() - 1,
+      }),
+    );
+    const network = vi.spyOn(globalThis, "fetch");
+    await expect(
+      owner.action(api.images.completeUpload, {
+        imageId: "expired",
+        label: "Logo",
+        alt: "Logo",
+        description: "Details",
+      }),
+    ).rejects.toThrow("Upload expired");
+    expect(network).not.toHaveBeenCalled();
+  });
   it("rejects a foreign pending upload without accessing the provider", async () => {
     const { t, owner, otherId } = await setup();
     await t.run((ctx) =>

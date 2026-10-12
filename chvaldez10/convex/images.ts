@@ -33,18 +33,22 @@ async function providerRequest(
 ): Promise<ProviderImage> {
   const { account, token } = config();
   let response: Response;
+  let body: unknown;
   try {
     response = await fetch(
       `https://api.cloudflare.com/client/v4/accounts/${account}/images/${path}`,
       {
         ...init,
+        signal: init.signal
+          ? AbortSignal.any([init.signal, AbortSignal.timeout(15000)])
+          : AbortSignal.timeout(15000),
         headers: { Authorization: `Bearer ${token}`, ...init.headers },
       },
     );
+    body = await response.json();
   } catch {
     throw new ConvexError("Image service is unavailable. Please try again.");
   }
-  const body: unknown = await response.json();
   if (
     !response.ok ||
     !record(body) ||
@@ -86,6 +90,17 @@ function text(value: string, name: string, max: number) {
     );
   return trimmed;
 }
+// Release verification performs a provider read without creating an upload or
+// changing database records. Only deployment tooling can invoke it.
+export const verifyExistingImage = internalAction({
+  args: { imageId: v.string() },
+  returns: v.boolean(),
+  handler: async (_ctx, { imageId }) => {
+    const image = await providerRequest(`v1/${encodeURIComponent(imageId)}`);
+    validateCompleted(image, imageId);
+    return true;
+  },
+});
 export const requestUpload = action({
   args: { filename: v.string() },
   returns: v.object({ uploadURL: v.string(), imageId: v.string() }),

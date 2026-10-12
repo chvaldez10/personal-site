@@ -84,13 +84,14 @@ export default function MarqueeIcons({
       </div>
       {selected && (
         <DialogContent
-          className="max-w-sm rounded-2xl"
+          className="z-10000 w-75 max-w-[90vw] rounded-2xl border-0 bg-linear-to-br from-white to-gray-50 shadow-2xl"
+          overlayClassName="z-9999 bg-black/40 backdrop-blur-xs"
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             lastTrigger.current?.focus({ preventScroll: true });
           }}
         >
-          <DialogHeader>
+          <DialogHeader className="space-y-3 text-left">
             <div className="flex items-center gap-3 pr-6">
               <LogoImage
                 src={selected.src}
@@ -98,9 +99,11 @@ export default function MarqueeIcons({
                 size={48}
                 naturalHeight
               />
-              <DialogTitle>{selected.label || selected.alt}</DialogTitle>
+              <DialogTitle className="leading-7 text-gray-900">
+                {selected.label || selected.alt}
+              </DialogTitle>
             </div>
-            <DialogDescription className="pt-3">
+            <DialogDescription className="text-gray-600 leading-relaxed">
               {selected.description}
             </DialogDescription>
           </DialogHeader>

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalQuery, query } from "./_generated/server";
+import { internalQuery, query, env } from "./_generated/server";
 import { currentOwner, ownerEmail, requireOwner } from "./permissions";
 
 export const current = query({
@@ -16,7 +16,7 @@ export const setupAvailable = query({
   returns: v.boolean(),
   handler: async (ctx) => {
     const email = ownerEmail();
-    if (!email) return false;
+    if (!email || !env.OWNER_SETUP_KEY) return false;
     return !(await ctx.db
       .query("users")
       .withIndex("email", (q) => q.eq("email", email))

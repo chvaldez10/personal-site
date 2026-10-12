@@ -1,0 +1,14 @@
+migration-private
+.env
+.env*.local
+.env.production
+.env.preview
+.agents/
+.claude/
+.next/
+.vercel/
+node_modules/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo

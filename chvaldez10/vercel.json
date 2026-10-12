@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm build",
+  "env": {
+    "NEXT_PUBLIC_CONVEX_URL": "https://fearless-llama-873.ca-central-1.convex.cloud"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_CONVEX_URL": "https://fearless-llama-873.ca-central-1.convex.cloud"
+    }
+  }
+}

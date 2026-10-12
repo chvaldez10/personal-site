@@ -23,7 +23,7 @@ Open http://localhost:3000. One runner starts Next and the Convex development wa
 
 Cloudflare's API token and auth secrets belong in the Convex deployment settings. Never put them in NEXT_PUBLIC_ variables.
 
-For owner account setup, follow [the project steps](docs/convex-migration/PROJECT-NOTES.md).
+For owner account setup, follow [the short Convex guide](docs/convex-migration/README.md).
 
 ## Commands
 
@@ -56,4 +56,4 @@ Résumé links use /api/resume, which serves the PDF from Convex and falls back 
 
 Supabase data, hosted source files, and old integration files are preserved during review. The active development app uses Convex.
 
-See the [reusable migration guide](docs/convex-migration/README.md) and [this site's next steps](docs/convex-migration/PROJECT-NOTES.md).
+See the [reusable migration guide](docs/convex-migration/README.md).

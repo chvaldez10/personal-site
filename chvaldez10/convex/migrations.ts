@@ -3,6 +3,13 @@ import { internalMutation, internalQuery } from "./_generated/server";
 import { logoFields } from "./schema";
 
 const { legacyId: _legacyId, ...legacyFields } = logoFields;
+// Trusted release tooling copies the PDF without exposing upload access to
+// browsers. The CLI captures this temporary URL rather than printing it.
+export const prepareResumeUpload = internalMutation({
+  args: {},
+  returns: v.string(),
+  handler: async (ctx) => ctx.storage.generateUploadUrl(),
+});
 export const importData = internalMutation({
   args: {
     logos: v.array(v.object({ id: v.number(), ...legacyFields })),

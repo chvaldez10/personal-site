@@ -50,15 +50,20 @@ export default function Navbar() {
             Explore the sections of Christian's personal site.
           </SheetDescription>
           <NavbarLogo />
-          <nav aria-label="Mobile" className="grid gap-4 py-6">
+          <nav
+            aria-label="Mobile"
+            className="grid gap-4 py-6 text-center md:text-left"
+          >
             {navlinks.map(({ href, label }) => (
               <Link
                 key={href}
+                aria-label={label}
                 href={"/#" + href}
+                style={{ textDecoration: "none" }}
                 onClick={() => setMobileOpen(false)}
                 className={
                   styles.clientNavbar +
-                  " flex w-full items-center px-4 text-lg font-semibold"
+                  " flex w-full items-center text-lg font-semibold"
                 }
                 data-replace={label}
               >
@@ -70,11 +75,13 @@ export default function Navbar() {
       </Sheet>
       <div className="mx-auto hidden items-center gap-4 md:flex">
         <NavbarLogo />
-        <nav aria-label="Main" className="flex gap-6">
+        <nav aria-label="Main" className="flex">
           {navlinks.map(({ href, label }) => (
             <Link
               key={href}
+              aria-label={label}
               href={"/#" + href}
+              style={{ textDecoration: "none" }}
               className={
                 styles.clientNavbar +
                 " inline-flex items-center rounded-md px-4 text-center text-sm font-medium"
