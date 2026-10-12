@@ -8,7 +8,7 @@ const Footer: FC = () => (
     <div className="w-full mx-auto max-w-3xl p-6 flex flex-row justify-between items-center">
       <Typography
         variant="p"
-        text="Last Updated August 2026"
+        text="Last Updated October 2026"
         className="text-gray-800"
       />
       <Link
