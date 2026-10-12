@@ -5,6 +5,7 @@
   "README.md",
   "docs/convex-migration/AUTH-DECISION.md",
   "docs/convex-migration/PREPARATION.md",
+  "docs/convex-migration/PROJECT-NOTES.md",
   "fixtures/brand-logos.json",
   "middleware.ts",
   "package.json",
