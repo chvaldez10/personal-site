@@ -10,10 +10,10 @@ export default function Projects() {
   const [activeStatus, setActiveStatus] = useState(statuses[0]);
   return (
     <section
-      className="min-h-screen flex-items-center bg-(--brand-secondary-100)"
+      className="min-h-screen flex-items-center bg-(--brand-secondary-100) py-24 sm:py-32"
       id="projects"
     >
-      <div className="w-10/12">
+      <div className="home-container">
         <fieldset
           aria-label="Filter projects by status"
           className="flex flex-wrap items-center justify-center gap-1.5 py-4 text-sm text-muted-foreground"

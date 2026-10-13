@@ -4,12 +4,14 @@ import { NavbarLinks } from "@/types/shared";
 enum NavLinkLabel {
   TechFinds = "Tech Finds",
   Experience = "Experience",
+  Background = "Background",
   Projects = "Projects",
 }
 
 enum NavLinkHref {
   TechFinds = "tech-finds",
   Experience = "current-work-experience",
+  Background = "background",
   Projects = "projects",
 }
 
@@ -21,6 +23,10 @@ export const navlinks: NavbarLinks[] = [
   {
     label: NavLinkLabel.Experience,
     href: NavLinkHref.Experience,
+  },
+  {
+    label: NavLinkLabel.Background,
+    href: NavLinkHref.Background,
   },
   // {
   //   label: "Education",

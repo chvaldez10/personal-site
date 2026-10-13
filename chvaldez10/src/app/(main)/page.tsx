@@ -2,6 +2,7 @@ import {
   AboutMeJumbotron,
   TechFinds,
   CurrentWorkExperience,
+  ResumeHighlights,
   Projects,
 } from "@/components/core/hero";
 
@@ -11,6 +12,7 @@ export default async function Home() {
       <AboutMeJumbotron />
       <TechFinds />
       <CurrentWorkExperience />
+      <ResumeHighlights />
       <Projects />
     </>
   );

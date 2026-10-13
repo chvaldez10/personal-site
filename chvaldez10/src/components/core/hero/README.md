@@ -6,7 +6,7 @@ This is a guide for the hero section of the website.
 
 Use either grid or flex layout depending on your needs.
 
-Width should be 10/12 of the container for consistency.
+Use `home-container` for consistent section width and responsive side padding.
 
 Use increments of 4 or 2 for spacing.
 

@@ -22,7 +22,7 @@ const AboutMeJumbotron: FC = () => {
       <AboutDescription />
 
       {/* Image  */}
-      <div className="mt-12 mx-auto">
+      <div className="mx-auto mt-10 md:mt-0">
         <Image
           src="/gifs/sandbox.gif"
           width={640}
