@@ -1,0 +1,34 @@
+.hero {
+  background:
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(250, 198, 122, 0.4),
+      transparent 32%
+    ),
+    radial-gradient(circle at 5% 85%, rgba(210, 0, 98, 0.08), transparent 38%),
+    var(--brand-secondary-100);
+}
+
+.graph {
+  background:
+    radial-gradient(
+      circle at 75% 15%,
+      rgba(250, 198, 122, 0.35),
+      transparent 38%
+    ),
+    linear-gradient(145deg, #fff, #fff7ed);
+}
+
+.graphGrid {
+  background-image:
+    linear-gradient(rgba(154, 52, 18, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(154, 52, 18, 0.09) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 12%,
+    black 84%,
+    transparent
+  );
+}

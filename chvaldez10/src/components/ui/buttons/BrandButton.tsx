@@ -4,15 +4,17 @@ import Link from "next/link";
 export default function BrandButton({
   children,
   href = "https://www.linkedin.com/in/chvaldez10/",
+  openInNewTab = true,
 }: {
   children: ReactNode;
   href?: string;
+  openInNewTab?: boolean;
 }) {
   return (
     <Link
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
+      target={openInNewTab ? "_blank" : undefined}
+      rel={openInNewTab ? "noopener noreferrer" : undefined}
       className="hover-scale-effect relative flex items-center rounded-xl bg-linear-to-r from-yellow-500 to-pink-500 px-8 py-4 text-base font-medium text-white hover:from-pink-500 hover:to-yellow-500"
       style={{ textDecoration: "none", color: "white" }}
     >

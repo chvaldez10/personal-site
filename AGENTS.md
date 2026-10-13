@@ -24,7 +24,8 @@ This is a small personal site maintained by one person. Keep the code, workflow,
 - Keep pages focused on composition. Keep components server-rendered unless they need browser state or events. Keep server-only code out of client components.
 - Enforce owner access in backend functions and protected routes. Validate inputs, handle failures, and keep credentials in deployment settings rather than client code.
 - Cloudflare Images hosts logos. Convex hosts the résumé, with public/docs/resume.pdf as the fallback.
-- Reuse existing UI primitives and design tokens. Preserve responsive layouts, keyboard access, focus states, image fallbacks, and established visual behavior.
+- Before building a new UI element, check the existing components and theme. Reuse them when they fit; add custom components or styles only for a concrete need. Preserve responsive layouts, keyboard access, focus states, image fallbacks, and established visual behavior.
+- The public site uses a light theme: cream and white surfaces, dark text, and orange or pink accents. Match it on new pages and sections unless the user explicitly requests a different theme.
 - Use clear TypeScript contracts. Avoid any, unsafe assertions, silent failures, unrelated formatting, and unnecessary generated-file or lockfile changes.
 
 ## Verify proportionately

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const skillGroups = [
   {
     label: "Languages",
@@ -140,6 +142,28 @@ export default function ResumeHighlights() {
             </ol>
           </article>
         </div>
+
+        <Link
+          href="/tutoring"
+          className="group mt-6 flex flex-col gap-5 rounded-2xl border border-orange-200 bg-white p-6 text-gray-900 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-600 sm:flex-row sm:items-center sm:justify-between sm:p-8"
+          style={{ textDecoration: "none" }}
+        >
+          <div>
+            <p className="text-xs font-bold tracking-widest text-orange-700 uppercase">
+              Math and science / Grades 7–12
+            </p>
+            <h3 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
+              Math and science tutoring for grades 7–12
+            </h3>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-gray-700 sm:text-base">
+              Clear explanations and practice with the topics students are
+              learning in class.
+            </p>
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-orange-100 px-4 py-3 text-sm font-semibold text-orange-900 transition-transform group-hover:translate-x-1 sm:self-auto">
+            View tutoring <span aria-hidden="true">↗</span>
+          </span>
+        </Link>
       </div>
     </section>
   );
