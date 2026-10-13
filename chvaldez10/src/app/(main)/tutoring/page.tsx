@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BrandButton } from "@/components/ui/buttons";
+import TutoringInquiryDialog from "@/components/tutoring/TutoringInquiryDialog";
 import styles from "./tutoring.module.css";
-
-const tutoringEmailHref =
-  "mailto:christianvaldez021@gmail.com?subject=Math%20and%20science%20tutoring%20inquiry";
 
 export const metadata: Metadata = {
   title: "Grades 7–12 Math & Science Tutoring | Christian Valdez",
@@ -164,9 +161,7 @@ export default function TutoringPage() {
               with clear explanations and time for questions.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
-              <BrandButton href={tutoringEmailHref} openInNewTab={false}>
-                Ask about tutoring
-              </BrandButton>
+              <TutoringInquiryDialog label="Ask about tutoring" />
               <a
                 href="#how-it-works"
                 className="inline-flex min-h-12 items-center font-semibold text-gray-800 underline decoration-orange-500 decoration-2 underline-offset-4 hover:text-pink-800 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-pink-700"
@@ -271,13 +266,11 @@ export default function TutoringPage() {
               Ask about math or science tutoring.
             </h2>
             <p className="mt-5 text-base leading-7 text-gray-700">
-              Email me the student&apos;s grade, subject, and the topic they
-              need help with. I&apos;ll reply so we can discuss the next step.
+              Tell me the student&apos;s grade, subject, and the topic they need
+              help with. I&apos;ll reply so we can discuss the next step.
             </p>
           </div>
-          <BrandButton href={tutoringEmailHref} openInNewTab={false}>
-            Email about tutoring
-          </BrandButton>
+          <TutoringInquiryDialog label="Send an inquiry" />
         </div>
       </section>
     </>

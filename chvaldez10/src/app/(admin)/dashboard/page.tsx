@@ -5,6 +5,7 @@ import { api } from "@convex/_generated/api";
 import Link from "next/link";
 import SignOut from "@/components/ui/forms/SignOut";
 import LogoManager from "@/components/dashboard/LogoManager";
+import TutoringInquiryManager from "@/components/dashboard/TutoringInquiryManager";
 export default async function DashboardPage() {
   const token = await convexAuthNextjsToken();
   const owner = token
@@ -21,6 +22,7 @@ export default async function DashboardPage() {
         <SignOut />
       </div>
       <LogoManager />
+      <TutoringInquiryManager />
       <Link href="/" className="underline">
         Back to the site
       </Link>

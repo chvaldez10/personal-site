@@ -18,6 +18,7 @@ import type * as images from "../images.js";
 import type * as migrations from "../migrations.js";
 import type * as permissions from "../permissions.js";
 import type * as siteAssets from "../siteAssets.js";
+import type * as tutoringInquiries from "../tutoringInquiries.js";
 
 import type {
   ApiFromModules,
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   migrations: typeof migrations;
   permissions: typeof permissions;
   siteAssets: typeof siteAssets;
+  tutoringInquiries: typeof tutoringInquiries;
 }>;
 
 /**

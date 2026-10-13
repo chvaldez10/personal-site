@@ -38,4 +38,20 @@ export default defineSchema({
     expiresAt: v.number(),
     logoId: v.optional(v.id("brandLogos")),
   }).index("by_imageId", ["imageId"]),
+  tutoringInquiries: defineTable({
+    contactName: v.string(),
+    email: v.string(),
+    grade: v.number(),
+    subject: v.union(
+      v.literal("math"),
+      v.literal("science"),
+      v.literal("both"),
+    ),
+    message: v.string(),
+    status: v.union(
+      v.literal("new"),
+      v.literal("contacted"),
+      v.literal("closed"),
+    ),
+  }).index("by_status", ["status"]),
 });
