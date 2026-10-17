@@ -195,7 +195,7 @@ export default function TutoringInquiryDialog({
                 className={`w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-500 ${fieldClass}`}
               />
             </div>
-            <div className="absolute -left-[10000px]" aria-hidden="true">
+            <div className="absolute left-[-10000px]" aria-hidden="true">
               <label htmlFor="tutor-website">Website</label>
               <input
                 id="tutor-website"

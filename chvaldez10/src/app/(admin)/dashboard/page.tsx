@@ -1,31 +1,44 @@
-import { redirect } from "next/navigation";
-import { fetchQuery } from "convex/nextjs";
-import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
-import { api } from "@convex/_generated/api";
 import Link from "next/link";
-import SignOut from "@/components/ui/forms/SignOut";
-import LogoManager from "@/components/dashboard/LogoManager";
-import TutoringInquiryManager from "@/components/dashboard/TutoringInquiryManager";
-export default async function DashboardPage() {
-  const token = await convexAuthNextjsToken();
-  const owner = token
-    ? await fetchQuery(api.admin.current, {}, { token })
-    : null;
-  if (!owner) redirect("/login");
+
+const sections = [
+  {
+    href: "/dashboard/tech-finds",
+    title: "Tech Finds",
+    description: "Manage the logos shown on the home page.",
+  },
+  {
+    href: "/dashboard/projects",
+    title: "Projects",
+    description: "Project editing is coming later.",
+  },
+  {
+    href: "/dashboard/tutoring-inquiries",
+    title: "Tutoring inquiries",
+    description: "View and manage tutoring inquiries.",
+  },
+];
+
+export default function DashboardPage() {
   return (
     <section className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <p className="text-muted-foreground">{owner.email}</p>
-        </div>
-        <SignOut />
+      <div>
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Choose a section to manage.
+        </p>
       </div>
-      <LogoManager />
-      <TutoringInquiryManager />
-      <Link href="/" className="underline">
-        Back to the site
-      </Link>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {sections.map(({ href, title, description }) => (
+          <Link
+            key={href}
+            href={href}
+            className="rounded-xl border border-orange-100 bg-white p-5 shadow-sm transition-colors hover:border-orange-300 hover:bg-orange-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700"
+          >
+            <h2 className="text-lg font-semibold">{title}</h2>
+            <p className="mt-2 text-sm text-gray-600">{description}</p>
+          </Link>
+        ))}
+      </div>
     </section>
   );
 }
