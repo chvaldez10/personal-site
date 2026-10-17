@@ -3,7 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
-import BrandButton from "@/components/ui/buttons/BrandButton";
+import { ArrowRight } from "lucide-react";
+import BrandedButton from "@/components/ui/buttons/BrandedButton";
 import { Button } from "@/components/ui/buttons/button";
 import {
   Dialog,
@@ -20,7 +21,13 @@ import styles from "./TutoringInquiryDialog.module.css";
 const fieldClass =
   "mt-2 min-h-11 border-orange-200 bg-white text-gray-950 focus-visible:ring-orange-500";
 
-export default function TutoringInquiryDialog({ label }: { label: string }) {
+export default function TutoringInquiryDialog({
+  label,
+  variant = "default",
+}: {
+  label: string;
+  variant?: "default" | "outline";
+}) {
   const submit = useMutation(api.tutoringInquiries.submit);
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -68,15 +75,21 @@ export default function TutoringInquiryDialog({ label }: { label: string }) {
         }
       }}
     >
-      <BrandButton asChild>
-        <DialogTrigger>
-          {label}
-          <span
-            aria-hidden="true"
-            className="absolute top-0 right-0 h-4 w-4 animate-ping rounded-full bg-linear-to-r from-orange-400 to-orange-700"
-          />
-        </DialogTrigger>
-      </BrandButton>
+      <DialogTrigger asChild>
+        {variant === "outline" ? (
+          <Button
+            type="button"
+            size="lg"
+            variant="outline"
+            className="min-h-12 rounded-xl border-orange-700 bg-white px-7 text-base font-semibold text-orange-800 hover:bg-orange-50 hover:text-orange-900 focus-visible:ring-2 focus-visible:ring-orange-700 focus-visible:ring-offset-2"
+          >
+            {label}
+            <ArrowRight aria-hidden="true" />
+          </Button>
+        ) : (
+          <BrandedButton type="button">{label}</BrandedButton>
+        )}
+      </DialogTrigger>
       <DialogContent
         disableDefaultAnimation
         overlayClassName={`bg-gray-950/45 ${styles.overlay}`}

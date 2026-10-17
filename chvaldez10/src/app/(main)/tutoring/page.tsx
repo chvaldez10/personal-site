@@ -270,7 +270,7 @@ export default function TutoringPage() {
               help with. I&apos;ll reply so we can discuss the next step.
             </p>
           </div>
-          <TutoringInquiryDialog label="Send an inquiry" />
+          <TutoringInquiryDialog label="Send an inquiry" variant="outline" />
         </div>
       </section>
     </>

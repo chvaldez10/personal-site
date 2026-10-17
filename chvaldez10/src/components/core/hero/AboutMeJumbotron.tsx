@@ -9,7 +9,7 @@ import styles from "./hero.module.css";
 
 // Components
 import {
-  BrandButton,
+  BrandedLink,
   SocialButton,
   PdfDialogButton,
 } from "@/components/ui/buttons";
@@ -66,7 +66,9 @@ const AboutDescription = () => {
 
       {/* Buttons */}
       <div className="flex flex-wrap gap-2 mt-8">
-        <BrandButton>Get In Touch</BrandButton>
+        <BrandedLink href="https://www.linkedin.com/in/chvaldez10/" target="_blank">
+          Get In Touch
+        </BrandedLink>
 
         <SocialButton
           icon={<FaGithub />}
