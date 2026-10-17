@@ -1,13 +1,5 @@
-// Original code from https://www.creative-tim.com/twcomponents/component/hero-section-1
-
-import { FC } from "react";
-import Image from "next/image";
 import { FaGithub } from "react-icons/fa";
-
-// Styles
 import styles from "./hero.module.css";
-
-// Components
 import {
   BrandedLink,
   SocialButton,
@@ -15,34 +7,20 @@ import {
 } from "@/components/ui/buttons";
 import { Typography } from "@/components/ui/text";
 import { HeroStack } from "@/components/core/hero";
+import ProcessCardStack from "./ProcessCardStack";
 
-const AboutMeJumbotron: FC = () => {
+export default function AboutMeJumbotron() {
   return (
     <HeroStack background={styles.gradientBackground}>
       <AboutDescription />
-
-      {/* Image  */}
-      <div className="mx-auto mt-10 md:mt-0">
-        <Image
-          src="/gifs/sandbox.gif"
-          width={640}
-          height={640}
-          alt="Sandbox GIF"
-          className="w-full h-auto max-w-xs md:max-w-md lg:max-w-lg"
-          loading="lazy"
-          unoptimized
-        />
-      </div>
+      <ProcessCardStack />
     </HeroStack>
   );
-};
-
-export default AboutMeJumbotron;
+}
 
 const AboutDescription = () => {
   return (
     <div className="content">
-      {/* top label */}
       <div className="flex items-center gap-2 sm:gap-4">
         <hr className="w-4 sm:w-6 h-1 bg-orange-500 border-none" />
         <span className="text-sm sm:text-lg font-medium text-gray-600">
@@ -50,23 +28,23 @@ const AboutDescription = () => {
         </span>
       </div>
 
-      {/* Header */}
       <Typography
         variant="h1"
         text="I'm Christian"
         className="leading-tight mt-2"
       />
 
-      {/* Subheader */}
       <Typography
         variant="p"
-        text="What does it mean to be a self-proclaimed product engineer? To me, it means being eager to tackle challenges across the entire software lifecycle—from design and development to testing and shipping products. Why a GIF of a sandbox? Because in a sandbox, you can experiment, fail, and learn."
-        className="text-gray-800 mt-4"
+        text="I like taking an idea from its first sketch to something people can use—shaping the experience, writing the code, testing the edges, and learning along the way. Explore the cards to see how I think about that process."
+        className="mt-4 max-w-xl leading-7 text-gray-800"
       />
 
-      {/* Buttons */}
       <div className="flex flex-wrap gap-2 mt-8">
-        <BrandedLink href="https://www.linkedin.com/in/chvaldez10/" target="_blank">
+        <BrandedLink
+          href="https://www.linkedin.com/in/chvaldez10/"
+          target="_blank"
+        >
           Get In Touch
         </BrandedLink>
 

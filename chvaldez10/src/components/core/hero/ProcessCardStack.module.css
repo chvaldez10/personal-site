@@ -1,0 +1,537 @@
+.cardStack {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+
+.glow {
+  position: absolute;
+  inset: 3rem -1rem -1rem 2rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fbabc780,
+    #f9c27e55 55%,
+    transparent 75%
+  );
+  filter: blur(28px);
+  pointer-events: none;
+}
+
+.shell {
+  position: relative;
+  overflow: hidden;
+  padding: 1rem;
+  border: 1px solid #fed7aa;
+  border-radius: 1.75rem;
+  background: #ffffffde;
+  box-shadow: 0 25px 80px -35px #692e1166;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem 0.9rem;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #be185d;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.headerTitle {
+  margin-top: 0.2rem;
+  color: #111827;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.counter {
+  flex-shrink: 0;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #7c2d12;
+  font-size: 0.625rem;
+  font-weight: 700;
+}
+
+.cardStage {
+  position: relative;
+  height: clamp(20rem, 38vw, 26rem);
+  overflow: hidden;
+  border: 1px solid #f5d5b8;
+  border-radius: 1.2rem;
+  background: radial-gradient(circle at 50% 38%, #fffaf3, #f9e6cf);
+  perspective: 950px;
+  touch-action: pan-y;
+}
+
+.stageTexture {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#ddae8338 1px, transparent 1px),
+    linear-gradient(90deg, #ddae8338 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(to bottom, #0008, #0002);
+  pointer-events: none;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 90ms linear;
+}
+
+.card {
+  position: absolute;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  backface-visibility: hidden;
+  transition:
+    transform 240ms ease-out,
+    box-shadow 240ms ease-out;
+  box-shadow: 0 12px 28px #55301035;
+}
+
+.card:hover:not([data-active="true"]) {
+  filter: brightness(1.03);
+}
+.card:focus-visible,
+.stageButton:focus-visible {
+  outline: 3px solid #be185d;
+  outline-offset: 3px;
+}
+
+.card[data-active="true"] {
+  z-index: 4;
+  transform: translate3d(var(--focus-x, 0%), var(--focus-y, -5%), 75px)
+    rotate(-2deg) scale(1.04);
+  box-shadow: 0 22px 40px #55301055;
+}
+
+.sketch {
+  top: 15%;
+  left: 5%;
+  width: 48%;
+  height: 62%;
+  transform: rotate(-10deg);
+  background: #fffaf0;
+  --focus-x: 25%;
+}
+
+.build {
+  top: 8%;
+  right: 4%;
+  width: 54%;
+  height: 68%;
+  transform: rotate(8deg);
+  background: #0f172a;
+  --focus-x: -18%;
+}
+
+.ship {
+  top: 34%;
+  left: 25%;
+  width: 51%;
+  height: 56%;
+  transform: rotate(3deg);
+  background: #fffdfa;
+  --focus-y: -12%;
+}
+
+.sketchContent,
+.buildContent,
+.shipContent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.sketchContent {
+  padding: 1rem 1rem 0.8rem 1.35rem;
+  background:
+    radial-gradient(#f2c89b 1px, transparent 1px) 0 0 / 16px 16px,
+    #fffaf0;
+  border: 2px dashed #fb923c;
+  border-radius: inherit;
+}
+
+.cardEyebrow {
+  color: #9a3412;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.sketchHeading {
+  max-width: 11rem;
+  margin-top: 0.65rem;
+  color: #431407;
+  font-size: clamp(0.8rem, 1.6vw, 1.05rem);
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.wireframeHero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  height: 28%;
+  margin-top: 0.85rem;
+  padding: 0.65rem;
+  border: 2px dashed #fdba74;
+  border-radius: 0.55rem;
+  background: #fffdf8;
+}
+
+.wireframeHero span:first-child {
+  width: 55%;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: #fed7aa;
+}
+.wireframeHero span:last-child {
+  width: 82%;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: #ffedd5;
+}
+
+.wireframeRow {
+  display: flex;
+  gap: 0.4rem;
+  height: 18%;
+  margin-top: 0.5rem;
+}
+.wireframeRow span {
+  flex: 1;
+  border: 2px dashed #fdba74;
+  border-radius: 0.45rem;
+  background: #fffdf8;
+}
+
+.stickyNote {
+  align-self: flex-start;
+  max-width: 92%;
+  margin-top: auto;
+  padding: 0.35rem 0.45rem;
+  transform: rotate(-4deg);
+  border: 1px solid #fcd34d;
+  border-radius: 0.25rem;
+  background: #fef3c7;
+  color: #78350f;
+  font-size: 0.6rem;
+  font-weight: 650;
+  box-shadow: 0 3px 7px #78350f21;
+}
+
+.buildContent {
+  padding: 0.8rem;
+  background: #0f172a;
+  color: #f8fafc;
+}
+.editorBar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #94a3b8;
+  font-family: monospace;
+  font-size: 0.6rem;
+}
+.editorDots {
+  display: flex;
+  gap: 0.2rem;
+}
+.editorDots i {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: #fb7185;
+}
+.editorDots i:nth-child(2) {
+  background: #fbbf24;
+}
+.editorDots i:nth-child(3) {
+  background: #4ade80;
+}
+
+.codeLines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 1.1rem;
+  white-space: pre;
+  font-family: monospace;
+  font-size: clamp(0.52rem, 1vw, 0.68rem);
+  line-height: 1.15;
+}
+
+.codePurple {
+  color: #d8b4fe;
+}
+.codeMuted {
+  color: #94a3b8;
+}
+.codeOrange {
+  color: #fcd34d;
+}
+.codeBlue {
+  color: #7dd3fc;
+}
+
+.buildStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.35rem 0.5rem;
+  border-radius: 999px;
+  background: #064e3b77;
+  color: #86efac;
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.buildStatus i {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: #4ade80;
+}
+
+.shipContent {
+  border: 1px solid #fed7aa;
+  border-radius: inherit;
+  background: #fffdfa;
+}
+.shipBar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem;
+  border-bottom: 1px solid #ffedd5;
+  color: #111827;
+  font-size: 0.68rem;
+}
+.shipLogo {
+  display: grid;
+  width: 1.2rem;
+  height: 1.2rem;
+  place-items: center;
+  border-radius: 0.35rem;
+  background: #db2777;
+  color: white;
+  font-weight: 900;
+}
+.shipStatus {
+  margin-left: auto;
+  padding: 0.2rem 0.4rem;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-size: 0.52rem;
+  font-weight: 750;
+}
+.shipBody {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+}
+.shipBody .cardEyebrow {
+  color: #be185d;
+}
+.shipBody > strong {
+  max-width: 11rem;
+  margin-top: 0.45rem;
+  color: #111827;
+  font-size: clamp(0.85rem, 1.6vw, 1.1rem);
+  line-height: 1.18;
+}
+.shipSubtext {
+  margin-top: 0.4rem;
+  color: #4b5563;
+  font-size: 0.58rem;
+  line-height: 1.35;
+}
+.shipCards {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+}
+.shipCards span {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.4rem;
+  border-radius: 0.45rem;
+  background: #ffedd5;
+  color: #111827;
+}
+.shipCards span:nth-child(2) {
+  background: #fce7f3;
+}
+.shipCards small {
+  color: #9a3412;
+  font-size: 0.5rem;
+}
+.shipCards b {
+  font-size: 0.62rem;
+}
+
+.stageHint {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.65rem;
+  color: #9a3412;
+  font-size: 0.62rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+  min-width: 0;
+  margin-top: 0.65rem;
+  padding: 0.3rem;
+  border: 0;
+  border-radius: 0.8rem;
+  background: #fff7ed;
+}
+.stageButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: transparent;
+  color: #374151;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+.stageButton:hover {
+  background: #ffffffb3;
+  color: #9d174d;
+}
+.stageButton[aria-pressed="true"] {
+  background: white;
+  color: #9d174d;
+  box-shadow: 0 1px 4px #43140722;
+}
+
+.caption {
+  min-height: 4.7rem;
+  padding: 0.85rem 0.5rem 0.15rem;
+}
+.captionTitle {
+  color: #111827;
+  font-size: 0.875rem;
+  font-weight: 750;
+}
+.captionDescription {
+  margin-top: 0.2rem;
+  color: #4b5563;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 1023px) {
+  .shell {
+    padding: 0.75rem;
+  }
+  .cardStage {
+    height: 23rem;
+  }
+  .card {
+    top: 13%;
+    left: 12%;
+    right: auto;
+    width: 76%;
+    height: 69%;
+  }
+  .sketch {
+    transform: translate(-23%, 5%) rotate(-10deg) scale(0.82);
+  }
+  .build {
+    transform: translate(23%, -4%) rotate(8deg) scale(0.82);
+  }
+  .ship {
+    transform: translate(0, 23%) rotate(3deg) scale(0.82);
+  }
+  .card[data-active="true"] {
+    transform: translate3d(0, -5%, 75px) rotate(-2deg) scale(1);
+  }
+  .sketchHeading,
+  .shipBody > strong {
+    font-size: 0.9rem;
+  }
+  .codeLines {
+    font-size: 0.62rem;
+  }
+  .stageHint {
+    display: none;
+  }
+}
+
+@media (max-width: 350px) {
+  .cardStage {
+    height: 21rem;
+  }
+  .card {
+    height: 70%;
+  }
+  .sketchContent {
+    padding: 0.7rem 0.7rem 0.6rem 1rem;
+  }
+  .codeLines {
+    gap: 0.2rem;
+    margin-top: 0.7rem;
+    font-size: 0.55rem;
+  }
+  .shipSubtext {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene {
+    transform: none;
+    transition: none;
+  }
+  .card,
+  .stageButton {
+    transition: none;
+  }
+}
