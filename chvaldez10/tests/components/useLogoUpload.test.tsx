@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { createElement, type FormEvent } from "react";
+import { createElement, type SubmitEvent } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { useLogoUpload } from "../../src/components/dashboard/useLogoUpload";
@@ -57,7 +57,7 @@ it("retries a failed save with the uploaded image instead of uploading a duplica
   const event = {
     preventDefault: vi.fn(),
     currentTarget: form,
-  } as unknown as FormEvent<HTMLFormElement>;
+  } as unknown as SubmitEvent<HTMLFormElement>;
   await holder.current.submit(event);
   expect(form.reset).not.toHaveBeenCalled();
   await holder.current.submit(event);

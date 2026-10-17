@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type SubmitEvent } from "react";
 import { useAction } from "convex/react";
 import { api } from "@convex/_generated/api";
 import {
@@ -24,7 +24,7 @@ export function useLogoUpload() {
     setFeedback(null);
   }
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending) return;
     setFeedback(null);
