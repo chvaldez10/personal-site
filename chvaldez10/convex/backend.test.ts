@@ -217,7 +217,12 @@ describe("migration", () => {
       id: rows[0].id as Id<"brandLogos">,
       active: false,
     });
-    expect((await t.query(api.brandLogos.list))[0].active).toBe(false);
+    expect(
+      (await t.query(api.brandLogos.list)).map((logo) => logo.legacyId),
+    ).toEqual([1]);
+    expect((await owner.query(api.brandLogos.listForAdmin))[0].active).toBe(
+      false,
+    );
     // convex-test does not populate storage contentType metadata. An unverified
     // file must return null so the frontend uses its local PDF fallback.
     expect(await t.query(api.siteAssets.resume)).toBeNull();

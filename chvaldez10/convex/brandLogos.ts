@@ -39,7 +39,8 @@ async function readLogos(ctx: QueryCtx) {
 export const list = query({
   args: {},
   returns: v.array(dto),
-  handler: readLogos,
+  handler: async (ctx) =>
+    (await readLogos(ctx)).filter((logo) => logo.active !== false),
 });
 export const listForAdmin = query({
   args: {},

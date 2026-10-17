@@ -1,90 +1,30 @@
-# Welcome to your Convex functions directory!
+# Convex backend
 
-Write your Convex functions here.
-See https://docs.convex.dev/functions for more.
+This site uses one populated Convex deployment for local development, Vercel previews, and the hosted frontend. A frontend preview uses the existing database; it does not need a backend migration. Run Convex commands from `chvaldez10/`. Do not seed or reset the shared data for routine checks.
 
-A query function that takes two arguments looks like:
+## Data and access
 
-```ts
-// convex/myFunctions.ts
-import { query } from "./_generated/server";
-import { v } from "convex/values";
+| Table | Purpose | Access |
+| --- | --- | --- |
+| Convex Auth tables | Password login and owner session | Convex Auth; account setup is limited to `OWNER_EMAIL` and the one-time `OWNER_SETUP_KEY` |
+| `brandLogos` | Tech Finds content and Cloudflare image references | Public list; owner-only admin list and status mutation |
+| `pendingImages` | Owner-bound direct-upload tickets and completion IDs | Internal functions only |
+| `tutoringInquiries` | Public form submissions and owner-managed status | Public submit; owner-only list, status update, and delete |
+| `siteAssets` | Named files in Convex storage, currently the résumé PDF | Public résumé URL query; internal release upload/import |
+| `featureFlags` | Legacy imported flags | The public signup query currently returns `false` without reading this table |
 
-export const myQueryFunction = query({
-  // Validators for arguments.
-  args: {
-    first: v.number(),
-    second: v.string(),
-  },
+The schema and indexes are in `schema.ts`. Auth configuration is in `auth.ts` and `auth.config.ts`. `permissions.ts` resolves the signed-in Convex Auth user and checks its email against `OWNER_EMAIL`; owner access is checked again inside protected backend functions. The dashboard layout also redirects nonowners to login, but that route check is not the data authorization boundary.
 
-  // Function implementation.
-  handler: async (ctx, args) => {
-    // Read the database as many times as you need here.
-    // See https://docs.convex.dev/database/reading-data.
-    const documents = await ctx.db.query("tablename").collect();
+## Request paths
 
-    // Arguments passed from the client are properties of the args object.
-    console.log(args.first, args.second);
+- **Tech Finds:** The home page reads active logos through `brandLogos.list` and `src/lib/data/brandLogos.ts`. The dashboard uses `brandLogos.listForAdmin` to see all logos. Both return at most 200 logos ordered by `sortOrder`.
+- **Logo upload:** `images.requestUpload` checks owner access and requests a short-lived Cloudflare direct-upload URL. The browser sends the file directly to Cloudflare. `images.completeUpload` rechecks owner access, validates the details and completed image, then calls the internal `imageRecords.complete` mutation. That mutation creates the logo and records its ID in `pendingImages` in one transaction, making completion retries safe. An hourly job deletes expired upload tickets in batches of 200. Cloudflare credentials stay in Convex environment settings.
+- **Tutoring:** `tutoringInquiries.submit` validates and stores public inquiries; a filled honeypot field is ignored. Submissions are limited to three per email per day and 60 globally per hour using the Convex rate limiter component. The owner list uses the `by_status` index and returns the newest 100 per status. Owner mutations update status or delete an inquiry.
+- **Résumé:** `siteAssets.resume` returns a Convex storage URL only for a PDF. Next's `/api/resume` route fetches it and falls back to `public/docs/resume.pdf` if unavailable.
+- **Signup switch:** `featureFlags.signupEnabled` always returns `false`; public registration remains closed. Owner account setup is controlled in `auth.ts` and `admin.ts`.
 
-    // Write arbitrary JavaScript here: filter, aggregate, build derived data,
-    // remove non-public properties, or create new objects.
-    return documents;
-  },
-});
-```
+`http.ts` registers Convex Auth routes. `migrations.ts` and the migration functions in `images.ts` are internal release tools, not browser APIs. See [the migration guide](../docs/convex-migration/README.md) for setup and preview commands.
 
-Using this query function in a React component looks like:
+## Configuration
 
-```ts
-const data = useQuery(api.myFunctions.myQueryFunction, {
-  first: 10,
-  second: "hello",
-});
-```
-
-A mutation function looks like:
-
-```ts
-// convex/myFunctions.ts
-import { mutation } from "./_generated/server";
-import { v } from "convex/values";
-
-export const myMutationFunction = mutation({
-  // Validators for arguments.
-  args: {
-    first: v.string(),
-    second: v.string(),
-  },
-
-  // Function implementation.
-  handler: async (ctx, args) => {
-    // Insert or modify documents in the database here.
-    // Mutations can also read from the database like queries.
-    // See https://docs.convex.dev/database/writing-data.
-    const message = { body: args.first, author: args.second };
-    const id = await ctx.db.insert("messages", message);
-
-    // Optionally, return a value from your mutation.
-    return await ctx.db.get("messages", id);
-  },
-});
-```
-
-Using this mutation function in a React component looks like:
-
-```ts
-const mutation = useMutation(api.myFunctions.myMutationFunction);
-function handleButtonPress() {
-  // fire and forget, the most common way to use mutations
-  mutation({ first: "Hello!", second: "me" });
-  // OR
-  // use the result once the mutation has completed
-  mutation({ first: "Hello!", second: "me" }).then((result) =>
-    console.log(result),
-  );
-}
-```
-
-Use the Convex CLI to push your functions to a deployment. See everything
-the Convex CLI can do by running `npx convex -h` in your project root
-directory. To learn more, launch the docs with `npx convex docs`.
+The local Convex CLI uses `CONVEX_DEPLOYMENT`; the frontend uses `NEXT_PUBLIC_CONVEX_URL` from `.env.local`. Set `OWNER_EMAIL`, optional `OWNER_SETUP_KEY`, and the `CLOUDFLARE_*` variables declared in `convex.config.ts` on the configured Convex deployment. Keep auth and Cloudflare secrets out of client variables.

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useMutation } from "convex/react";
+import { ConvexError } from "convex/values";
 import { api } from "@convex/_generated/api";
 import { ArrowRight } from "lucide-react";
 import BrandedButton from "@/components/ui/buttons/BrandedButton";
@@ -57,8 +58,12 @@ export default function TutoringInquiryDialog({
       });
       form.reset();
       setSent(true);
-    } catch {
-      setError("Your inquiry could not be sent. Please try again.");
+    } catch (error) {
+      setError(
+        error instanceof ConvexError && typeof error.data === "string"
+          ? error.data
+          : "Your inquiry could not be sent. Please try again.",
+      );
     } finally {
       setPending(false);
     }

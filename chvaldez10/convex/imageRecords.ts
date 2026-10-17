@@ -72,3 +72,16 @@ export const complete = internalMutation({
     return logoId;
   },
 });
+
+export const cleanupExpired = internalMutation({
+  args: {},
+  returns: v.null(),
+  handler: async (ctx) => {
+    const rows = await ctx.db.query("pendingImages").order("asc").take(200);
+    const now = Date.now();
+    for (const row of rows) {
+      if (row.expiresAt < now) await ctx.db.delete("pendingImages", row._id);
+    }
+    return null;
+  },
+});

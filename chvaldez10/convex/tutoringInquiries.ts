@@ -1,5 +1,7 @@
 import { ConvexError, v } from "convex/values";
+import { HOUR, RateLimiter } from "@convex-dev/rate-limiter";
 import { mutation, query } from "./_generated/server";
+import { components } from "./_generated/api";
 import schema from "./schema";
 import { requireOwner } from "./permissions";
 
@@ -13,6 +15,11 @@ const subject = v.union(
   v.literal("science"),
   v.literal("both"),
 );
+
+const rateLimiter = new RateLimiter(components.rateLimiter, {
+  tutoringByEmail: { kind: "fixed window", rate: 3, period: 24 * HOUR },
+  tutoringGlobal: { kind: "fixed window", rate: 60, period: HOUR },
+});
 
 export const submit = mutation({
   args: {
@@ -42,6 +49,14 @@ export const submit = mutation({
     ) {
       throw new ConvexError("Please check the form and try again.");
     }
+    const emailLimit = await rateLimiter.limit(ctx, "tutoringByEmail", {
+      key: email,
+    });
+    if (!emailLimit.ok)
+      throw new ConvexError("Too many inquiries. Please try again later.");
+    const globalLimit = await rateLimiter.limit(ctx, "tutoringGlobal");
+    if (!globalLimit.ok)
+      throw new ConvexError("Too many inquiries. Please try again later.");
     await ctx.db.insert("tutoringInquiries", {
       contactName,
       email,
