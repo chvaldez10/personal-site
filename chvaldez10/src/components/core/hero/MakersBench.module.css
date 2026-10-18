@@ -1,0 +1,520 @@
+.benchExperience {
+  --desk-top: 55%;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background: #fff8ed;
+}
+
+.wall {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--desk-top);
+  background:
+    radial-gradient(circle at 76% 17%, #f9dcbb 0, transparent 42%),
+    radial-gradient(circle at 18% 80%, #fffdf7 0, transparent 60%),
+    radial-gradient(#d7bca051 1px, transparent 1.5px),
+    linear-gradient(#fffaf1, #f4e7d5);
+  background-size:
+    auto,
+    auto,
+    27px 27px,
+    auto;
+}
+
+.wall::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 14px;
+  background: linear-gradient(#c69a70, #e2b788 32%, #ad744d 42%, #b47e56);
+  box-shadow: 0 8px 16px #8d5c3738;
+  content: "";
+}
+
+.table {
+  position: absolute;
+  inset: var(--desk-top) 0 0;
+  background:
+    radial-gradient(
+      ellipse at 22% 38%,
+      #fff8ebed 0,
+      #fff1d6a1 34%,
+      transparent 64%
+    ),
+    radial-gradient(ellipse at 18% 13%, #fff0d4a6 0, transparent 48%),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 90px,
+      #9f613126 92px 95px,
+      transparent 96px 186px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      #dfae78 0 4px,
+      #eac394 5px 95px,
+      #e0b482 96px 101px
+    );
+  box-shadow: inset 0 20px 40px #a9683940;
+}
+
+.table::after {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    2deg,
+    transparent 0 22px,
+    #a9693830 23px,
+    transparent 24px 68px
+  );
+  opacity: 0.35;
+  content: "";
+}
+
+.glow {
+  position: absolute;
+  top: -22%;
+  right: 6%;
+  width: min(66vw, 900px);
+  height: 105%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    #f8c98761 0,
+    #ffe8be2e 36%,
+    transparent 69%
+  );
+  pointer-events: none;
+  animation: glow 9s ease-in-out infinite alternate;
+}
+
+.dust {
+  position: absolute;
+  inset: 4% 5% 40%;
+  background:
+    radial-gradient(circle at 12% 34%, #c38a5b80 1px, transparent 2px),
+    radial-gradient(circle at 53% 69%, #c38a5b80 1px, transparent 2px),
+    radial-gradient(circle at 73% 19%, #c38a5b80 1px, transparent 2px),
+    radial-gradient(circle at 91% 72%, #c38a5b80 1px, transparent 2px);
+  pointer-events: none;
+  animation: dust 12s ease-in-out infinite alternate;
+}
+
+.stage {
+  position: absolute;
+  z-index: 2;
+  top: 45%;
+  right: 5%;
+  width: min(70vw, 58svh, 680px);
+  aspect-ratio: 560 / 450;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.object {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(6px 11px 6px #71482d52);
+  transform: rotate(var(--rotation));
+  transition: transform 160ms ease-out;
+  will-change: transform, translate;
+}
+
+.object.selected {
+  z-index: 3;
+  transform: translate3d(0, -9px, 0) rotate(var(--rotation)) scale(1.045);
+}
+
+.object:is(:hover, :focus-visible) {
+  z-index: 4;
+  transform: translate3d(0, -6px, 0) rotate(var(--rotation)) scale(1.04);
+}
+
+.object.selected:is(:hover, :focus-visible) {
+  transform: translate3d(0, -11px, 0) rotate(var(--rotation)) scale(1.06);
+}
+
+.object:focus-visible {
+  outline: 3px solid #7c3328;
+  outline-offset: 5px;
+  border-radius: 8px;
+}
+
+.object svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sketchbook {
+  --rotation: -13deg;
+  top: 13%;
+  left: 4%;
+  width: 37%;
+}
+
+.laptop {
+  --rotation: 6deg;
+  top: 13%;
+  left: 37%;
+  width: 52%;
+}
+
+.prototype {
+  --rotation: 12deg;
+  top: 48%;
+  left: 88%;
+  width: 17%;
+}
+
+.ruler {
+  --rotation: 12deg;
+  z-index: 1;
+  top: 5.3%;
+  left: 72.7%;
+  width: 25.9%;
+  min-height: 28px;
+  transform-origin: top left;
+}
+
+.mug {
+  --rotation: 0deg;
+  z-index: 1;
+  top: 79.6%;
+  left: 5.5%;
+  width: 20.5%;
+  min-height: 28px;
+}
+
+.pencil {
+  --rotation: -16deg;
+  z-index: 1;
+  top: 89.8%;
+  left: 31.4%;
+  width: 34.8%;
+  min-height: 28px;
+  transform-origin: 0 40%;
+}
+
+.objectLabel {
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  padding: 4px 8px;
+  border: 1px solid #bd8064;
+  border-radius: 3px;
+  background: #fff8eb;
+  color: #794b38;
+  font-size: clamp(9px, 1vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  box-shadow: 2px 3px 0 #9d604a35;
+}
+
+.laptop .objectLabel {
+  right: auto;
+  left: 8%;
+}
+
+.caption {
+  position: absolute;
+  z-index: 2;
+  bottom: 8%;
+  left: max(2.5rem, calc((100vw - 1152px) / 2 + 40px));
+  display: grid;
+  gap: 5px;
+  width: min(330px, 30vw);
+  padding: 18px 21px;
+  border: 1px solid #d4b68e;
+  border-radius: 3px;
+  background: #fff9ebee;
+  color: #493429;
+  box-shadow: 6px 8px 20px #744b2d30;
+  transform: rotate(-2deg);
+}
+
+.captionIndex {
+  color: #aa5c39;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.caption strong {
+  font-size: clamp(18px, 2vw, 23px);
+  line-height: 1.2;
+}
+
+.caption p {
+  margin: 0;
+  color: #6f594b;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+@keyframes glow {
+  from {
+    opacity: 0.48;
+    transform: translate3d(-14px, 8px, 0);
+  }
+
+  to {
+    opacity: 0.9;
+    transform: translate3d(16px, -8px, 0);
+  }
+}
+
+@keyframes dust {
+  from {
+    opacity: 0.25;
+    transform: translate3d(0, 9px, 0);
+  }
+
+  to {
+    opacity: 0.6;
+    transform: translate3d(8px, -10px, 0);
+  }
+}
+
+@media (max-width: 1199px) {
+  .benchExperience {
+    --desk-top: 45%;
+  }
+
+  .stage {
+    top: var(--desk-top);
+    right: 2%;
+    left: auto;
+    width: min(66vw, 60svh, 650px);
+    aspect-ratio: 560 / 450;
+    translate: none;
+  }
+
+  .sketchbook {
+    top: 3%;
+    left: 5%;
+    width: 45%;
+  }
+
+  .laptop {
+    top: 34%;
+    left: 31%;
+    width: 65%;
+  }
+
+  .prototype {
+    top: 49%;
+    left: 8%;
+    width: 24%;
+  }
+
+  .caption {
+    bottom: 3%;
+    left: 2rem;
+    width: min(230px, 31vw);
+  }
+}
+
+@media (max-width: 639px) {
+  .benchExperience {
+    --desk-top: 50%;
+  }
+
+  .stage {
+    top: var(--desk-top);
+    right: auto;
+    left: 50%;
+    width: min(72vw, calc((50svh - 150px) / 1.05));
+    aspect-ratio: 1 / 1.05;
+    translate: -50% 0;
+  }
+
+  .sketchbook {
+    top: 4%;
+    left: 5%;
+    width: 41%;
+  }
+
+  .laptop {
+    top: 15%;
+    left: 38%;
+    width: 59%;
+  }
+
+  .prototype {
+    top: 52%;
+    left: 59%;
+    width: 29%;
+  }
+
+  .pencil {
+    top: 100%;
+    left: 5%;
+  }
+
+  .caption {
+    right: 16px;
+    bottom: 12px;
+    left: 16px;
+    width: auto;
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 639px) and (max-height: 820px) {
+  .stage {
+    width: min(72vw, calc((50svh - 90px) / 1.05));
+  }
+
+  .caption {
+    bottom: 6px;
+    gap: 1px;
+    padding: 5px 10px;
+    transform: none;
+  }
+
+  .captionIndex {
+    display: none;
+  }
+
+  .caption strong {
+    font-size: 14px;
+  }
+
+  .caption p {
+    font-size: 11px;
+    line-height: 1.2;
+  }
+}
+
+@media (min-width: 640px) and (max-height: 700px) {
+  .benchExperience {
+    --desk-top: 54%;
+  }
+
+  .stage {
+    top: 46%;
+    width: min(66vw, 50svh, 650px);
+  }
+
+  .caption {
+    bottom: 2%;
+    padding: 12px 14px;
+  }
+}
+
+@media (min-width: 640px) and (max-height: 500px) {
+  .wall {
+    inset: 0 45% 0 0;
+    height: 100%;
+  }
+
+  .wall::after {
+    inset: 0 0 0 auto;
+    width: 12px;
+    height: auto;
+  }
+
+  .table {
+    inset: 0 0 0 55%;
+  }
+
+  .stage {
+    top: 7%;
+    right: 1%;
+    width: min(47vw, 95svh, 500px);
+  }
+
+  .ruler {
+    top: 23%;
+  }
+
+  .mug {
+    top: 105%;
+    left: 75%;
+    width: 15%;
+  }
+
+  .pencil {
+    top: 112%;
+    left: 35%;
+  }
+
+  .caption {
+    bottom: 2%;
+    width: min(37vw, 290px);
+    padding: 8px 10px;
+  }
+
+  .captionIndex {
+    display: none;
+  }
+
+  .caption strong {
+    font-size: 16px;
+  }
+
+  .caption p {
+    font-size: 12px;
+    line-height: 1.25;
+  }
+}
+
+@media (min-width: 1200px) and (min-height: 501px) {
+  .benchExperience {
+    --desk-top: 66.6667%;
+  }
+
+  .stage {
+    top: var(--desk-top);
+    width: min(70vw, 37svh, 680px);
+  }
+}
+
+@media (min-width: 1600px) and (min-height: 701px) {
+  .caption {
+    width: min(650px, 28vw);
+    padding: 26px 30px;
+  }
+
+  .captionIndex {
+    font-size: clamp(11px, 0.7vw, 18px);
+  }
+
+  .caption strong {
+    font-size: clamp(23px, 1.5vw, 42px);
+  }
+
+  .caption p {
+    font-size: clamp(18px, 1vw, 30px);
+  }
+}
+
+@media (min-width: 1600px) and (min-height: 1200px) {
+  .caption {
+    top: calc(var(--desk-top) + 2%);
+    bottom: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow,
+  .dust {
+    animation: none;
+  }
+
+  .object {
+    transition: none;
+  }
+}
