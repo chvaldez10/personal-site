@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { FaFilePdf } from "react-icons/fa";
 import { Button, type ButtonProps } from "./button";
+import { cn } from "@/lib/utils";
 
 interface PdfDialogButtonProps extends ButtonProps {
   pdfUrl?: string;
@@ -32,7 +33,12 @@ const PdfDialogButton = React.forwardRef<
       }}
     >
       <DialogTrigger asChild>
-        <Button {...props} ref={ref} aria-label={props["aria-label"] || label}>
+        <Button
+          {...props}
+          ref={ref}
+          className={cn("cursor-pointer", props.className)}
+          aria-label={props["aria-label"] || label}
+        >
           <FaFilePdf aria-hidden="true" />
           {children || <span className="sr-only">{label}</span>}
         </Button>
@@ -40,7 +46,7 @@ const PdfDialogButton = React.forwardRef<
       <DialogContent
         disableDefaultAnimation
         overlayClassName="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 duration-200 motion-reduce:animate-none!"
-        className="flex h-[85dvh] max-w-[800px] flex-col"
+        className="flex h-[85dvh] max-w-200 flex-col"
       >
         <DialogHeader>
           <DialogTitle>{label}</DialogTitle>
