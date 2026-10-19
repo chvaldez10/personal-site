@@ -461,8 +461,12 @@ export default function MakersBench() {
               onPointerEnter={(event) => {
                 if (event.pointerType === "mouse") setPreview(id);
               }}
-              onPointerLeave={() => setPreview(null)}
-              onFocus={() => setPreview(id)}
+              onPointerLeave={(event) => {
+                if (event.pointerType === "mouse") setPreview(null);
+              }}
+              onFocus={(event) => {
+                if (event.currentTarget.matches(":focus-visible")) setPreview(id);
+              }}
               onBlur={() => setPreview(null)}
               onClick={() => setSelected(id)}
               aria-label={label}
