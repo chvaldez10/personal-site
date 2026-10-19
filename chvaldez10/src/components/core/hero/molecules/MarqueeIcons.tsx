@@ -20,6 +20,7 @@ export default function MarqueeIcons({
   brandLogos: BrandLogo[];
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [hasFocus, setHasFocus] = useState(false);
   const lastTrigger = useRef<HTMLButtonElement | null>(null);
   const selected = brandLogos.find((logo) => logo.id === selectedId);
@@ -34,6 +35,7 @@ export default function MarqueeIcons({
       onClick={(event) => {
         lastTrigger.current = event.currentTarget;
         setSelectedId(logo.id);
+        setIsOpen(true);
       }}
       className="mr-8 flex h-22.5 w-30 shrink-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl p-3 transition-transform duration-300 hover:-translate-y-1 hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2"
     >
@@ -45,10 +47,8 @@ export default function MarqueeIcons({
   );
   return (
     <Dialog
-      open={Boolean(selected)}
-      onOpenChange={(open) => {
-        if (!open) setSelectedId(null);
-      }}
+      open={isOpen}
+      onOpenChange={setIsOpen}
     >
       <div
         className="flex w-full flex-col gap-6 py-10"
@@ -66,7 +66,7 @@ export default function MarqueeIcons({
           pauseOnHover
           pauseOnClick
           gradient={false}
-          play={!selected && !hasFocus}
+          play={!isOpen && !hasFocus}
         >
           {brandLogos.slice(0, midpoint).map(renderLogo)}
         </Marquee>
@@ -77,15 +77,16 @@ export default function MarqueeIcons({
           pauseOnClick
           gradient={false}
           direction="right"
-          play={!selected && !hasFocus}
+          play={!isOpen && !hasFocus}
         >
           {brandLogos.slice(midpoint).map(renderLogo)}
         </Marquee>
       </div>
       {selected && (
         <DialogContent
+          disableDefaultAnimation
           className="z-10000 w-75 max-w-[90vw] rounded-2xl border-0 bg-linear-to-br from-white to-gray-50 shadow-2xl"
-          overlayClassName="z-9999 bg-black/40 backdrop-blur-xs"
+          overlayClassName="z-9999 bg-black/40 backdrop-blur-xs data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 duration-200 motion-reduce:animate-none!"
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             lastTrigger.current?.focus({ preventScroll: true });
