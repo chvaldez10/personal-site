@@ -12,9 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProjectStatus } from "@/constants/projectData";
 import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "@/lib/validation/logoUpload";
+import { dashboardFieldClass } from "./formStyles";
 
-const fieldClass =
-  "mt-2 min-h-10 border-orange-300 bg-white text-gray-950 focus-visible:ring-orange-600";
+const fieldClass = `${dashboardFieldClass} min-h-10`;
 const statuses = [
   ProjectStatus.InProgress,
   ProjectStatus.Ideation,

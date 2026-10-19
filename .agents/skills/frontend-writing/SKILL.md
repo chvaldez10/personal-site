@@ -11,6 +11,7 @@ Work within the project's `AGENTS.md` constraints. Use the versions and librarie
 
 - Read the target component and its parent page or layout. Find a comparable component already in the app, then inspect its controls, variants, styles, tokens, and responsive behavior before creating a new pattern. Look for inherited colors and transparent backgrounds before changing a surface.
 - Identify the existing interaction, loading, empty, and error states. Preserve behavior outside the requested change.
+- Before changing shared styles or controls, inspect the rendered baseline when practical. Note hover effects, cursor, motion, icon alignment, and what each control does; preserve them unless the user asks to change them. Do not suppress established animation solely because a reduced-motion rule seems preferable.
 
 ## Implement
 
@@ -25,4 +26,5 @@ Work within the project's `AGENTS.md` constraints. Use the versions and librarie
 - Review the affected page at desktop and narrow widths when practical. Exercise the changed interaction and inspect nearby controls and relevant states, not only the edited component.
 - For viewport-sized scenes, also check a short phone and the longest content state for clipping, overlays, and usable text and controls. A section matching viewport height does not prove its content fits; use a simpler composition or natural scrolling when the request permits.
 - When motion matters to the experience, verify its behavior with reduced motion enabled as well as with ordinary motion.
+- After a UI refactor, compare those affected interactions with the baseline in the browser. Check the actual hover state, animation, and click result, plus icon placement at narrow and desktop widths. A passing typecheck or lint does not verify visual behavior.
 - Run the checks required by `AGENTS.md`. If browser access is unavailable, inspect the page, parent, and shared styles in code and report that visual behavior was not verified.

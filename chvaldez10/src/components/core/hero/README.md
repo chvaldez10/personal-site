@@ -1,17 +1,12 @@
-# Hero Guide
+# Home sections
 
-This is a guide for the hero section of the website.
+`src/app/(main)/page.tsx` composes the active sections exported from `index.tsx`.
 
-## Simple Layout
-
-Use either grid or flex layout depending on your needs.
+## Layout
 
 Use `home-container` for consistent section width and responsive side padding.
+Keep scene-specific styling in its CSS module.
 
-Use increments of 4 or 2 for spacing.
+## Retained explorations
 
-## Molecules
-
-Put all small components in molecules.
-
-You can also put css classes in molecules.
+`MainHeader`, `ProcessCardStack`, `ThermalTicket`, `HeroStack`, and `BreadCrumbWithChangingContainers` are not mounted on the current home page. They remain available as references rather than alternate shared UI components.

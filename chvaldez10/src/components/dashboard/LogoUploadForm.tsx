@@ -5,16 +5,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IMAGE_TYPES } from "@/lib/validation/logoUpload";
+import { dashboardFieldClass as fieldClass } from "./formStyles";
 import { useLogoUpload } from "./useLogoUpload";
-
-const fieldClass =
-  "mt-2 border-orange-300 bg-white text-gray-950 focus-visible:ring-orange-600";
 
 export default function LogoUploadForm() {
   const { pending, feedback, submit, resetImage } = useLogoUpload();
 
   return (
-    <Card className=" border-orange-200 bg-white text-gray-950">
+    <Card className="border-orange-200 bg-white text-gray-950">
       <CardHeader>
         <h2 id="add-logo-title" className="text-xl font-semibold">
           Add a logo

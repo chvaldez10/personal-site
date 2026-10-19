@@ -3,7 +3,7 @@ import { TriangleAlert } from "lucide-react";
 import styles from "./hero.module.css";
 import {
   BrandedLink,
-  SocialButton,
+  SocialLink,
   PdfDialogButton,
 } from "@/components/ui/buttons";
 import { Typography } from "@/components/ui/text";
@@ -48,19 +48,20 @@ const AboutDescription = () => {
           Say hello
         </BrandedLink>
 
-        <SocialButton
+        <SocialLink
           icon={<FaGithub />}
           variant="link"
           size="iconFit"
           href="https://github.com/chvaldez10"
-        ></SocialButton>
+          aria-label="GitHub"
+        />
 
         <PdfDialogButton
           variant="link"
           size="iconFit"
           pdfUrl="/api/resume"
           downloadUrl="/api/resume?download=1"
-          className="items-start hover-scale-effect"
+          className="hover-scale-effect"
           label="Resume"
         ></PdfDialogButton>
       </div>

@@ -2,7 +2,7 @@ import React from "react";
 import { FaGithub } from "react-icons/fa";
 
 // Components
-import { SocialButton } from "@/components/ui/buttons";
+import { SocialLink } from "@/components/ui/buttons";
 import { PdfDialogButton } from "@/components/ui/buttons";
 
 // Styles
@@ -34,13 +34,13 @@ const MainHeader: React.FC = () => {
       {/* Buttons */}
       <div className="flex flex-col md:flex-row gap-4">
         {/* GitHub */}
-        <SocialButton
+        <SocialLink
           variant="outline"
           icon={<FaGithub />}
           href="https://github.com/chvaldez10"
         >
           GitHub
-        </SocialButton>
+        </SocialLink>
 
         {/* Resume */}
         <PdfDialogButton
