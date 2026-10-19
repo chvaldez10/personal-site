@@ -51,17 +51,17 @@ export default function ResumeHighlights() {
         <div className="max-w-2xl">
           <p className="flex items-center gap-3 text-sm font-semibold tracking-widest text-orange-700 uppercase">
             <span className="h-1 w-6 bg-orange-500" aria-hidden="true" />
-            The path so far
+            How I got here
           </p>
           <h2
             id="background-heading"
             className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl"
           >
-            Built across code, quality, and research.
+            I learned by building and testing.
           </h2>
           <p className="mt-5 text-base leading-7 text-gray-700">
-            My engineering background shapes how I build, test, and improve
-            software.
+            My background in engineering, research, and QA shapes how I work:
+            make something useful, check it carefully, and keep improving it.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export default function ResumeHighlights() {
                 02 / Skills
               </p>
               <h3 className="mt-5 text-xl font-bold text-gray-900">
-                The toolkit
+                Tools I work with
               </h3>
               <dl className="mt-5 divide-y divide-orange-100">
                 {skillGroups.map(({ label, items }) => (
@@ -153,11 +153,11 @@ export default function ResumeHighlights() {
               Math and science / Grades 7–12
             </p>
             <h3 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-              Math and science tutoring for grades 7–12
+              I help students make sense of math and science
             </h3>
             <p className="mt-2 max-w-xl text-sm leading-6 text-gray-700 sm:text-base">
-              Clear explanations and practice with the topics students are
-              learning in class.
+              For grades 7–12, I work through what they’re learning in class
+              with clear explanations and practice.
             </p>
           </div>
           <span className="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-orange-100 px-4 py-3 text-sm font-semibold text-orange-900 transition-transform group-hover:translate-x-1 sm:self-auto">

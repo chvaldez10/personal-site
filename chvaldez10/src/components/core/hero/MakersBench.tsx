@@ -9,29 +9,27 @@ type BenchObject =
 const notes: Record<BenchObject, { title: string; description: string }> = {
   sketch: {
     title: "Start with a sketch",
-    description:
-      "Find the shape of an idea before getting attached to the details.",
+    description: "I sketch the idea before I get attached to the details.",
   },
   build: {
     title: "Make it work",
-    description: "Turn the useful parts into a thoughtful, working experience.",
+    description: "I build a version I can actually use, then improve it.",
   },
   prototype: {
-    title: "Put it in someone's hands",
-    description:
-      "Test the small details, learn from real use, and keep improving.",
+    title: "Try it in real life",
+    description: "I test the details, learn from using it, and keep improving.",
   },
   ruler: {
     title: "Check the details",
-    description: "Good constraints make ideas sharper and more useful.",
+    description: "I check the little things that make it easier to use.",
   },
   mug: {
     title: "Make room to think",
-    description: "A short pause can make the next decision clearer.",
+    description: "A short pause helps me see the next step.",
   },
   pencil: {
     title: "Keep refining",
-    description: "Small revisions can make the biggest difference.",
+    description: "A small change can make the whole thing work better.",
   },
 };
 

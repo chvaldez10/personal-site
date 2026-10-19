@@ -50,13 +50,13 @@ const ProjectGallery: FC<ProjectGalleryProps> = ({ projects }) => {
             {project.projectGithub && (
               <div className="text-center p-4">
                 <span className="text-sm text-gray-600">
-                  GitHub repo:{" "}
+                  Code:{" "}
                   <Link
                     href={project.projectGithub}
                     target="_blank"
                     className="text-pink-500 hover:underline"
                   >
-                    link
+                    View on GitHub
                   </Link>
                 </span>
               </div>

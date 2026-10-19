@@ -1,4 +1,5 @@
 import { FaGithub } from "react-icons/fa";
+import { TriangleAlert } from "lucide-react";
 import styles from "./hero.module.css";
 import {
   BrandedLink,
@@ -22,11 +23,9 @@ export default function AboutMeJumbotron() {
 const AboutDescription = () => {
   return (
     <div className={`${styles.intro} content`}>
-      <div className="flex items-center justify-center gap-2 sm:gap-4">
-        <hr className="w-4 sm:w-6 h-1 bg-orange-500 border-none" />
-        <span className="text-sm sm:text-lg font-medium text-gray-600">
-          Self-Proclaimed Product Engineer
-        </span>
+      <div className={styles.hazardSign}>
+        <TriangleAlert aria-hidden="true" />
+        <strong>Caution: Ideas in motion</strong>
       </div>
 
       <Typography
@@ -37,7 +36,7 @@ const AboutDescription = () => {
 
       <Typography
         variant="p"
-        text="I like making useful things from rough ideas. I sketch, build, test, and refine until the details feel right. Explore the bench to see how I work."
+        text="I like making things I use every day, and things others can use too. I get an idea, build it, test it, and keep improving it. Welcome to my workspace."
         className="mx-auto mt-4 max-w-xl leading-7 text-gray-800"
       />
 
@@ -46,7 +45,7 @@ const AboutDescription = () => {
           href="https://www.linkedin.com/in/chvaldez10/"
           target="_blank"
         >
-          Get In Touch
+          Say hello
         </BrandedLink>
 
         <SocialButton

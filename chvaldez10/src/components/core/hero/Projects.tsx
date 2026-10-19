@@ -12,11 +12,24 @@ export default function Projects() {
     <section
       className="min-h-screen flex-items-center bg-(--brand-secondary-100) py-24 sm:py-32"
       id="projects"
+      aria-labelledby="projects-heading"
     >
       <div className="home-container">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2
+            id="projects-heading"
+            className="text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl"
+          >
+            Things I’m working on
+          </h2>
+          <p className="mt-4 text-base leading-7 text-gray-700">
+            Some are in progress, some are still ideas, and some I keep
+            improving.
+          </p>
+        </div>
         <fieldset
           aria-label="Filter projects by status"
-          className="flex flex-wrap items-center justify-center gap-1.5 py-4 text-sm text-muted-foreground"
+          className="mt-6 flex flex-wrap items-center justify-center gap-1.5 py-4 text-sm text-muted-foreground"
         >
           {statuses.map((status, index) => (
             <Fragment key={status}>

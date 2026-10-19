@@ -20,13 +20,13 @@ export default function CurrentWorkExperience() {
 
         <div className={styles.layout}>
           <div className={styles.story}>
-            <p className={styles.eyebrow}>Now showing / My current work</p>
+            <p className={styles.eyebrow}>Now showing / What I do at work</p>
             <h2 id="experience-heading">
-              Tickets that work. Shows that shine.
+              I help make ticketing work.
             </h2>
             <p className={styles.description}>
-              I’m a Software QA Analyst at Showpass. I make ticketing reliable
-              so fans can focus on the show.
+              I’m a Software QA Analyst at Showpass. I test ticketing so it works
+              reliably when people need it.
             </p>
             <div className={styles.roleSlip}>
               <span className={styles.roleDot} aria-hidden="true" />
@@ -36,7 +36,7 @@ export default function CurrentWorkExperience() {
               </div>
             </div>
             <p className={styles.invitation}>
-              Pick a show at the window and watch a sample ticket come through.
+              Pick a show to see a sample ticket come through.
             </p>
           </div>
 

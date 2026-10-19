@@ -48,6 +48,30 @@
   text-align: center;
 }
 
+.hazardSign {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  border: 2px solid #713f12;
+  border-radius: 3px;
+  padding: 0.25em 0.55em;
+  background: #fbbf24;
+  color: #422006;
+  box-shadow: 3px 3px 0 #713f12;
+  font-size: clamp(0.75rem, 1vw, 1.875rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.hazardSign svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+
 @media (max-width: 1199px) {
   .heroContent {
     height: 45%;

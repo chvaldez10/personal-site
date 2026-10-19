@@ -2,9 +2,9 @@ import { ProjectData } from "@/types/Profile";
 
 // Define enums for project statuses
 export enum ProjectStatus {
-  InProgress = "In Progress",
-  Ideation = "Ideation",
-  Maintenance = "Maintenance",
+  InProgress = "Building",
+  Ideation = "Ideas",
+  Maintenance = "Maintaining",
 }
 
 export interface ProjectDataCollection {
@@ -15,22 +15,22 @@ export const projectData: ProjectDataCollection = {
   [ProjectStatus.InProgress]: [
     {
       projectName: "K-pop Profile",
-      projectDescription: "A K-pop profile showcasing my favorite group",
+      projectDescription: "A profile page for my favorite K-pop group.",
       projectImage: "/images/kpop-image.jpg",
     },
   ],
   [ProjectStatus.Ideation]: [
     {
-      projectName: "TBD",
+      projectName: "QA Toolbox",
       projectDescription:
-        "I'm planning to create an app that provides common QA tools for software testing",
+        "An idea for the QA tools I reach for most, gathered in one place.",
       projectImage: "/images/toolbox.jpg",
     },
   ],
   [ProjectStatus.Maintenance]: [
     {
       projectName: "Church Website",
-      projectDescription: "A website for my church",
+      projectDescription: "A website I help maintain for my church.",
       projectImage: "/images/church-image.jpg",
       projectGithub: "https://github.com/chvaldez10/cfmc-web-app",
     },

@@ -10,22 +10,22 @@ export default async function TechFinds() {
       <div className="content py-4 text-center">
         <Typography
           variant="h2"
-          text="Essential Tech for My Daily Workflow"
+          text="Tools I use every day"
           className="text-xl text-gray-800 sm:text-2xl"
         />
         <Typography
           variant="p"
-          text="Explore the tools and technologies that streamline my everyday tasks."
+          text="The apps and tools I reach for when I’m building, testing, or figuring something out."
           className="mt-4 text-sm text-gray-600 sm:text-base"
         />
       </div>
       {brandLogos === null ? (
         <output className="px-6 py-10 text-center text-muted-foreground">
-          Tech Finds are temporarily unavailable. Please try again later.
+          My tools are temporarily unavailable. Please try again later.
         </output>
       ) : brandLogos.length === 0 ? (
         <p className="px-6 py-10 text-center text-muted-foreground">
-          No Tech Finds have been added yet.
+          I haven’t added any tools here yet.
         </p>
       ) : (
         <MarqueeIcons brandLogos={brandLogos} />

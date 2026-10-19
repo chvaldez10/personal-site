@@ -114,7 +114,7 @@ export default function MarqueeIcons({
               rel="noopener noreferrer"
               className="text-pink-600 underline"
             >
-              Check it out <span aria-hidden="true">→</span>
+              Visit the site <span aria-hidden="true">→</span>
             </Link>
           )}
         </DialogContent>

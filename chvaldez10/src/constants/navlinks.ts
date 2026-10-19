@@ -2,7 +2,7 @@ import { NavbarLinks } from "@/types/shared";
 
 // Define enums for labels and hrefs
 enum NavLinkLabel {
-  TechFinds = "Tech Finds",
+  TechFinds = "Tools",
   Experience = "Experience",
   Background = "Background",
   Projects = "Projects",
