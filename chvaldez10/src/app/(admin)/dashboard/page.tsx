@@ -9,7 +9,7 @@ const sections = [
   {
     href: "/dashboard/projects",
     title: "Projects",
-    description: "Project editing is coming later.",
+    description: "Edit project cards, images, and section copy.",
   },
   {
     href: "/dashboard/tutoring-inquiries",

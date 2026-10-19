@@ -1,4 +1,4 @@
-import { ProjectData } from "@/types/Profile";
+import type { ProjectData } from "../types/Profile";
 
 // Define enums for project statuses
 export enum ProjectStatus {
@@ -6,6 +6,12 @@ export enum ProjectStatus {
   Ideation = "Ideas",
   Maintenance = "Maintaining",
 }
+
+export const projectSectionDefaults = {
+  heading: "Things I’m working on",
+  description:
+    "Some are in progress, some are still ideas, and some I keep improving.",
+};
 
 export interface ProjectDataCollection {
   [status: string]: ProjectData[];

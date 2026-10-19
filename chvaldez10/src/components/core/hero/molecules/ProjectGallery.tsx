@@ -15,7 +15,7 @@ const ProjectGallery: FC<ProjectGalleryProps> = ({ projects }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {projects.map((project, index) => (
           <div
-            key={index}
+            key={`${project.projectName}-${index}`}
             className="bg-(--brand-secondary-100) shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-2xl flex flex-col justify-between group cursor-pointer"
           >
             {/* Image */}
@@ -23,6 +23,7 @@ const ProjectGallery: FC<ProjectGalleryProps> = ({ projects }) => {
               <Image
                 src={project.projectImage}
                 alt={project.projectName}
+                unoptimized={project.projectImage.startsWith("https://")}
                 fill={true}
                 style={{ objectFit: "cover", objectPosition: "center" }}
                 className="rounded-t-lg object-center"

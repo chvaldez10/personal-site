@@ -180,6 +180,19 @@ export const completeUpload = action({
     });
   },
 });
+export const completeProjectUpload = action({
+  args: { imageId: v.string() },
+  returns: v.string(),
+  handler: async (ctx, { imageId }): Promise<string> => {
+    await ctx.runQuery(internal.admin.requireAccess, {});
+    const pending = await ctx.runQuery(internal.imageRecords.pending, { imageId });
+    if (pending.expiresAt < Date.now())
+      throw new ConvexError("Upload expired. Please choose the file again.");
+    const image = await providerRequest(`v1/${encodeURIComponent(imageId)}`);
+    validateCompleted(image, imageId);
+    return displayURL(imageId);
+  },
+});
 export const migrateLegacyImage = internalAction({
   args: { legacyId: v.number() },
   returns: v.object({
