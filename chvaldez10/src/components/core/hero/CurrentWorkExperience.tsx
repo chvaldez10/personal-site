@@ -1,32 +1,48 @@
-import React from "react";
+import BoxOffice from "./BoxOffice";
+import styles from "./CurrentWorkExperience.module.css";
 
-// Components
-import HeroStack from "./layouts/HeroStack";
-import ThermalTicket from "./molecules/ThermalTicket";
-import { Typography } from "@/components/ui/text";
-
-const CurrentWorkExperience: React.FC = () => {
+export default function CurrentWorkExperience() {
   return (
-    <HeroStack id="current-work-experience">
-      {/* Verbiage */}
-      <div className="content">
-        <Typography
-          variant="h2"
-          text="Software QA Analyst"
-          className="text-2xl lg:text-4xl font-bold"
-        />
+    <section
+      id="current-work-experience"
+      aria-labelledby="experience-heading"
+      className={styles.section}
+    >
+      <div className={styles.wall} aria-hidden="true" />
+      <div className={styles.room}>
+        <div className={styles.marquee} aria-hidden="true">
+          <div className={styles.marqueeFace}>
+            <span className={styles.marqueeStar}>✦</span>
+            <span>SHOWPASS BOX OFFICE</span>
+            <span className={styles.marqueeStar}>✦</span>
+          </div>
+        </div>
 
-        <Typography
-          variant="p"
-          text="At Showpass, we're all about making live experiences unforgettable. As a Software QA Analyst, I ensure our software runs smoothly so fans can focus on the fun!"
-          className="mt-4 text-sm sm:text-base text-gray-800"
-        />
+        <div className={styles.layout}>
+          <div className={styles.story}>
+            <p className={styles.eyebrow}>Now showing / My current work</p>
+            <h2 id="experience-heading">
+              Tickets that work. Shows that shine.
+            </h2>
+            <p className={styles.description}>
+              I’m a Software QA Analyst at Showpass. I make ticketing reliable
+              so fans can focus on the show.
+            </p>
+            <div className={styles.roleSlip}>
+              <span className={styles.roleDot} aria-hidden="true" />
+              <div>
+                <strong>Software QA Analyst</strong>
+                <span>Showpass · Live experiences</span>
+              </div>
+            </div>
+            <p className={styles.invitation}>
+              Pick a show at the window and watch a sample ticket come through.
+            </p>
+          </div>
+
+          <BoxOffice />
+        </div>
       </div>
-
-      {/* Content */}
-      <ThermalTicket />
-    </HeroStack>
+    </section>
   );
-};
-
-export default CurrentWorkExperience;
+}
