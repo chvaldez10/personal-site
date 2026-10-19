@@ -993,7 +993,7 @@
 @media (max-width: 599px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);
-    gap: 0.85rem;
+    gap: 1.25rem;
   }
 
   .story {
@@ -1016,7 +1016,7 @@
 
 @media (max-width: 599px) {
   .section {
-    padding: 4rem 0 1rem;
+    padding: 3.25rem 0 0.75rem;
   }
 
   .room {
@@ -1024,7 +1024,7 @@
   }
 
   .marquee {
-    margin-bottom: 0.85rem;
+    margin-bottom: 0.75rem;
     padding: 6px;
   }
 
@@ -1037,13 +1037,14 @@
 
   .story h2 {
     margin-top: 0.45rem;
-    font-size: clamp(1.95rem, 8vw, 2.8rem);
+    max-width: 17ch;
+    font-size: clamp(1.9rem, 7.5vw, 2.5rem);
   }
 
   .description {
-    margin-top: 0.6rem;
-    font-size: 0.88rem;
-    line-height: 1.4;
+    margin-top: 0.75rem;
+    font-size: 0.94rem;
+    line-height: 1.45;
   }
 
   .roleSlip,
@@ -1057,8 +1058,26 @@
     border-bottom-width: 12px;
   }
 
+  .boothCrown {
+    min-height: 36px;
+    padding: 0.5rem 0.9rem;
+  }
+
   .windowInner {
-    padding: 0.8rem;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .boardContent {
+    max-width: 100%;
+    padding-block: 0.2rem;
+  }
+
+  .boardRule {
+    margin: 0.35rem 0 0.3rem;
+  }
+
+  .windowFooter {
+    display: none;
   }
 
   .boardContent h3 {
@@ -1069,12 +1088,8 @@
     display: none;
   }
 
-  .boardContent {
-    max-width: 100%;
-  }
-
   .counter {
-    padding: 0.65rem 0.85rem 0.85rem;
+    padding: 0.75rem 0.85rem 0.85rem;
   }
 
   .showChoices {
@@ -1082,9 +1097,9 @@
   }
 
   .showChoice {
-    min-height: 52px;
-    padding: 0.45rem;
-    font-size: 0.7rem;
+    min-height: 56px;
+    padding: 0.5rem;
+    font-size: 0.75rem;
   }
 
   .counterActions {
@@ -1092,7 +1107,11 @@
   }
 
   .counterActions > span {
-    font-size: 0.65rem;
+    display: none;
+  }
+
+  .printButton {
+    width: 100%;
   }
 
   .ticketWell {
@@ -1112,11 +1131,7 @@
   }
 
   .story h2 {
-    font-size: 2.15rem;
-  }
-
-  .showChoice {
-    font-size: 0.65rem;
+    font-size: 1.9rem;
   }
 
   .ticket {
@@ -1139,170 +1154,52 @@
 
 @media (max-width: 599px) and (max-height: 700px) {
   .section {
-    padding: 4rem 0 0.4rem;
-  }
-
-  .room {
-    width: min(100% - 1rem, 500px);
+    padding: 3.25rem 0 1rem;
   }
 
   .marquee {
-    margin-bottom: 0.4rem;
-    padding: 4px;
+    margin-bottom: 0.75rem;
   }
 
   .marqueeFace {
-    min-height: 32px;
-    font-size: 0.82rem;
+    min-height: 38px;
   }
 
-  .marqueeStar,
   .eyebrow {
     display: none;
   }
 
   .layout {
-    gap: 0.35rem;
+    gap: 0.8rem;
   }
 
   .story h2 {
-    max-width: 15ch;
     margin-top: 0;
-    font-size: clamp(1.5rem, 7vw, 1.9rem);
-    line-height: 1.02;
   }
 
   .description {
-    max-width: 38ch;
-    margin-top: 0.25rem;
-    font-size: 0.76rem;
-    line-height: 1.25;
+    margin-top: 0.5rem;
   }
 
   .boothCrown {
-    min-height: 25px;
-    padding: 0.3rem 0.65rem;
-    border-width: 2px;
-    font-size: 0.52rem;
-  }
-
-  .window {
-    height: 120px;
-    border-width: 5px;
-  }
-
-  .windowInner {
-    padding: 0.45rem 0.6rem;
-  }
-
-  .boardHeading {
-    font-size: 0.5rem;
-  }
-
-  .boardContent p {
-    font-size: 0.55rem;
-  }
-
-  .boardContent h3 {
-    margin-top: 0.1rem;
-    font-size: 1.15rem;
-  }
-
-  .boardRule {
-    margin: 0.25rem 0;
-  }
-
-  .boardContent > span {
-    font-size: 0.55rem;
-  }
-
-  .windowFooter {
-    font-size: 0.44rem;
+    min-height: 32px;
+    padding: 0.4rem 0.75rem;
   }
 
   .counter {
-    padding: 0.45rem 0.55rem 0.55rem;
-    border-top-width: 7px;
-  }
-
-  .counterTop {
-    font-size: 0.55rem;
+    padding: 0.6rem 0.7rem 0.7rem;
   }
 
   .showChoices {
-    gap: 0.2rem;
-    margin-top: 0.3rem;
-  }
-
-  .showChoice {
-    min-height: 38px;
-    gap: 0.1rem;
-    padding: 0.25rem;
-    font-size: 0.58rem;
+    margin-top: 0.5rem;
   }
 
   .counterActions {
-    margin-top: 0.4rem;
-  }
-
-  .counterActions > span {
-    display: none;
-  }
-
-  .printButton {
-    min-height: 30px;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.65rem;
-  }
-
-  .printButton svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .ticketSlot {
-    height: 8px;
+    margin-top: 0.55rem;
   }
 
   .ticketWell {
-    height: 62px;
-  }
-
-  .ticket {
-    grid-template-columns: minmax(0, 1fr) 45px;
-    width: 78%;
-    min-height: 55px;
-    margin-top: 0;
-  }
-
-  .ticketMain {
-    padding: 0.2rem 0.5rem;
-  }
-
-  .ticketEyebrow {
-    font-size: 0.4rem;
-  }
-
-  .ticketMain strong {
-    font-size: 0.75rem;
-  }
-
-  .ticketMain > span:nth-child(3) {
-    font-size: 0.55rem;
-  }
-
-  .ticketDetails {
-    display: none;
-  }
-
-  .ticketStub {
-    gap: 0.2rem;
-    font-size: 0.8rem;
-  }
-
-  .barcode {
-    width: 25px;
-    height: 20px;
+    height: 115px;
   }
 }
 
