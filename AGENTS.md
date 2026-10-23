@@ -32,8 +32,8 @@ This is a small personal site maintained by one person. Keep the code, workflow,
 
 ## Verify proportionately
 
-- After code changes, run pnpm typecheck and pnpm lint. The lint command uses Oxlint; do not substitute ESLint.
-- Run pnpm build for route, server, configuration, dependency, or other build-sensitive changes.
+- After code changes, run pnpm typecheck. Lint only the files changed for the task with `pnpm exec oxlint <files>`; use Oxlint, not ESLint.
+- Do not run `pnpm build` as a routine check. Run it only when requested or when a specific build-only risk needs verification, and explain that reason.
 - Check the affected behavior in a browser when practical. A focused manual check is enough for ordinary UI changes.
 - Unit tests and full test suites are not routine requirements. Documentation-only edits do not need application tests or builds.
 - Keep maintained formatting consistent. Report what changed, what was checked, and any real remaining issue concisely.

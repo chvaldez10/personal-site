@@ -1,9 +1,7 @@
 import { FC } from "react";
-import Link from "next/link";
-import Image from "next/image";
 
 import { ProjectData } from "@/types/Profile";
-import { Typography } from "@/components/ui/text";
+import ImageCard from "@/components/ui/ImageCard";
 
 interface ProjectGalleryProps {
   projects: ProjectData[];
@@ -14,55 +12,13 @@ const ProjectGallery: FC<ProjectGalleryProps> = ({ projects }) => {
     <div className="content">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {projects.map((project, index) => (
-          <div
+          <ImageCard
             key={`${project.projectName}-${index}`}
-            className="bg-(--brand-secondary-100) shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-2xl flex flex-col justify-between group cursor-pointer"
-          >
-            {/* Image */}
-            <div className="relative w-full h-80">
-              <Image
-                src={project.projectImage}
-                alt={project.projectName}
-                unoptimized={project.projectImage.startsWith("https://")}
-                fill={true}
-                style={{ objectFit: "cover", objectPosition: "center" }}
-                className="rounded-t-lg object-center"
-                loading="lazy"
-              />
-              {/* Dark overlay */}
-              <div className="absolute inset-0 bg-black opacity-40 transition-opacity duration-300 group-hover:opacity-0 rounded-t-lg" />
-            </div>
-
-            {/* Description */}
-            <div className="text-center grow p-4">
-              <Typography
-                variant="h5"
-                text={project.projectName}
-                className="mb-2 text-gray-800 font-bold"
-              />
-              <Typography
-                variant="p"
-                text={project.projectDescription}
-                className="text-gray-600 mb-4"
-              />
-            </div>
-
-            {/* GitHub Repository Link */}
-            {project.projectGithub && (
-              <div className="text-center p-4">
-                <span className="text-sm text-gray-600">
-                  Code:{" "}
-                  <Link
-                    href={project.projectGithub}
-                    target="_blank"
-                    className="text-pink-500 hover:underline"
-                  >
-                    View on GitHub
-                  </Link>
-                </span>
-              </div>
-            )}
-          </div>
+            title={project.projectName}
+            description={project.projectDescription}
+            imageSrc={project.projectImage}
+            href={project.projectGithub}
+          />
         ))}
       </div>
     </div>

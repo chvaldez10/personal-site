@@ -3,7 +3,10 @@
 import { Fragment, useState } from "react";
 import { Slash } from "lucide-react";
 import ProjectGallery from "./molecules/ProjectGallery";
-import { ProjectStatus, type ProjectDataCollection } from "@/constants/projectData";
+import {
+  ProjectStatus,
+  type ProjectDataCollection,
+} from "@/constants/projectData";
 
 const statuses = [
   ProjectStatus.InProgress,
