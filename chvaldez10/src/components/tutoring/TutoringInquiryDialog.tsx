@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import styles from "./TutoringInquiryDialog.module.css";
 
 const fieldClass =
   "mt-2 min-h-11 border-orange-200 bg-white text-gray-950 focus-visible:ring-orange-500";
@@ -96,9 +95,8 @@ export default function TutoringInquiryDialog({
         )}
       </DialogTrigger>
       <DialogContent
-        disableDefaultAnimation
-        overlayClassName={`bg-gray-950/45 ${styles.overlay}`}
-        className={`max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-2xl border-orange-200 bg-[#fffaf4] p-6 text-gray-950 sm:p-8 ${styles.content}`}
+        overlayClassName="bg-gray-950/45"
+        className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-2xl border-orange-200 bg-[#fffaf4] p-6 text-gray-950 sm:p-8"
       >
         <DialogHeader className="pr-6 text-left">
           <p className="text-xs font-bold tracking-[0.18em] text-orange-700 uppercase">

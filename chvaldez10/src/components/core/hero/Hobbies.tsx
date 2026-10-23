@@ -7,12 +7,14 @@ const hobbies = [
     imageAlt: "An MMA octagon inside an arena",
     cardDescription:
       "The technique, strategy, and energy of mixed martial arts.",
+    href: "/hobbies/mma",
   },
   {
     title: "K-pop",
     imageSrc: "/images/kpop-image.jpg",
     imageAlt: "A K-pop display in a city street",
     cardDescription: "The music, performances, and creativity of K-pop.",
+    href: "/hobbies/k-pop",
   },
 ];
 
@@ -44,6 +46,7 @@ export default function Hobbies() {
               description={hobby.cardDescription}
               imageSrc={hobby.imageSrc}
               imageAlt={hobby.imageAlt}
+              href={hobby.href}
             />
           ))}
         </div>
