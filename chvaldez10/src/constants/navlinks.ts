@@ -6,6 +6,7 @@ enum NavLinkLabel {
   Experience = "Experience",
   Background = "Background",
   Projects = "Projects",
+  Hobbies = "Hobbies",
 }
 
 enum NavLinkHref {
@@ -13,6 +14,7 @@ enum NavLinkHref {
   Experience = "current-work-experience",
   Background = "background",
   Projects = "projects",
+  Hobbies = "hobbies",
 }
 
 export const navlinks: NavbarLinks[] = [
@@ -35,6 +37,10 @@ export const navlinks: NavbarLinks[] = [
   {
     label: NavLinkLabel.Projects,
     href: NavLinkHref.Projects,
+  },
+  {
+    label: NavLinkLabel.Hobbies,
+    href: NavLinkHref.Hobbies,
   },
   // {
   //   label: "Contact",

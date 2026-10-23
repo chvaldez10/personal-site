@@ -6,7 +6,7 @@ import { Typography } from "@/components/ui/text";
 export default async function TechFinds() {
   const brandLogos = await fetchBrandLogos();
   return (
-    <CenteredVertical background="bg-(--brand-secondary-100)" id="tech-finds">
+    <CenteredVertical background="bg-white" id="tech-finds">
       <div className="content py-4 text-center">
         <Typography
           variant="h2"

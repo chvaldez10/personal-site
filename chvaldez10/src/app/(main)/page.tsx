@@ -4,6 +4,7 @@ import {
   CurrentWorkExperience,
   ResumeHighlights,
   Projects,
+  Hobbies,
 } from "@/components/core/hero";
 
 export default async function Home() {
@@ -14,6 +15,7 @@ export default async function Home() {
       <CurrentWorkExperience />
       <ResumeHighlights />
       <Projects />
+      <Hobbies />
     </>
   );
 }

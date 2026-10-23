@@ -45,7 +45,7 @@ export default function ResumeHighlights() {
     <section
       id="background"
       aria-labelledby="background-heading"
-      className="min-h-screen bg-(--brand-secondary-100) py-24 sm:py-32"
+      className="min-h-screen bg-white py-24 sm:py-32"
     >
       <div className="home-container">
         <div className="max-w-2xl">
