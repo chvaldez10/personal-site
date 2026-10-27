@@ -48,7 +48,7 @@ export default function Navbar() {
     scroller.scrollTo(section, { smooth: true, duration, offset: -80 });
   }
   return (
-    <header className="fixed top-0 z-50 flex h-20 w-full shrink-0 items-center px-4 md:px-6">
+    <header className="fixed top-0 z-50 flex h-20 w-full shrink-0 items-center border-b border-orange-100/80 bg-[#fffaf1]/90 px-4 shadow-sm shadow-orange-950/5 backdrop-blur-md md:px-6">
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="md:hidden">

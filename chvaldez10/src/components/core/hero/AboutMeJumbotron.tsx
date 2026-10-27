@@ -36,14 +36,13 @@ const AboutDescription = () => {
 
       <Typography
         variant="p"
-        text="I like making things I use every day, and things others can use too. I get an idea, build it, test it, and keep improving it. Welcome to my workspace."
+        text="I’m a software QA analyst who likes making useful things. I build, test, and improve ideas as I go. Welcome to my workspace."
         className="mx-auto mt-4 max-w-xl leading-7 text-gray-800"
       />
 
       <div className="mt-8 flex flex-wrap justify-center gap-2">
         <BrandedLink
-          href="https://www.linkedin.com/in/chvaldez10/"
-          target="_blank"
+          href="mailto:christianvaldez021@gmail.com"
         >
           Say hello
         </BrandedLink>
