@@ -19,6 +19,7 @@ import type * as images from "../images.js";
 import type * as migrations from "../migrations.js";
 import type * as permissions from "../permissions.js";
 import type * as projects from "../projects.js";
+import type * as shadowboxingWorkouts from "../shadowboxingWorkouts.js";
 import type * as siteAssets from "../siteAssets.js";
 import type * as tutoringInquiries from "../tutoringInquiries.js";
 
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   migrations: typeof migrations;
   permissions: typeof permissions;
   projects: typeof projects;
+  shadowboxingWorkouts: typeof shadowboxingWorkouts;
   siteAssets: typeof siteAssets;
   tutoringInquiries: typeof tutoringInquiries;
 }>;

@@ -26,7 +26,7 @@ export default async function MmaPage() {
         imageAlt="An MMA octagon inside an arena"
         imageClassName="object-cover object-[center_65%]"
         sectionHref="#shadowboxing"
-        sectionLinkText="Explore shadowboxing training"
+        sectionLinkText="Explore shadowboxing practice"
       />
 
       <section
@@ -43,12 +43,13 @@ export default async function MmaPage() {
               id="shadowboxing-heading"
               className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl"
             >
-              Shadowboxing Training
+              Shadowboxing practice
             </h2>
             <p className="mt-5 text-base leading-7 text-gray-700">
-              Build a session one round at a time. Choose your style and focus,
-              set a technical objective for each round, then review the full
-              plan. {isOwner && "You can also generate a plan with AI."}
+              Take a few minutes to work on one skill before or after training,
+              or during a break. Set a technical objective for each round, then
+              practice at your own pace.{" "}
+              {isOwner && "You can also generate a plan with AI."}
             </p>
           </div>
           <ShadowboxingWorkoutBuilder

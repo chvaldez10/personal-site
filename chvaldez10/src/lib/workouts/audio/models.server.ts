@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { availableGeminiModelIds } from "../gemini-models.server";
 import type { VoiceModelOption, VoiceOption } from "./schema";
+import { kokoroModel, kokoroVoices } from "./kokoro";
 
 const modelCatalog = [
   {
@@ -43,7 +44,7 @@ export async function availableAudioOptions(): Promise<{
   voices: VoiceOption[];
 }> {
   const key = process.env.GEMINI_API_KEY?.trim();
-  if (!key) return { models: [], voices: [] };
+  if (!key) return { models: [kokoroModel], voices: [...kokoroVoices] };
 
   try {
     const [availableModels, voicesResponse] = await Promise.all([
@@ -59,29 +60,40 @@ export async function availableAudioOptions(): Promise<{
     ]);
     if (!voicesResponse.ok) {
       console.error("Gemini audio options could not be checked.");
-      return { models: [], voices: [] };
+      return { models: [kokoroModel], voices: [...kokoroVoices] };
     }
     const voicesResult = voicesResponseSchema.safeParse(
       await voicesResponse.json(),
     );
     if (!voicesResult.success) {
       console.error("Gemini audio options response was invalid.");
-      return { models: [], voices: [] };
+      return { models: [kokoroModel], voices: [...kokoroVoices] };
     }
 
     const availableVoices = new Set(
       voicesResult.data.voices.map((voice) => voice.display_name),
     );
     return {
-      models: modelCatalog
-        .filter((model) => availableModels.has(`models/${model.id}`))
-        .map(({ id, label, provider }) => ({ id, label, provider })),
-      voices: voiceCatalog
-        .filter((voice) => availableVoices.has(voice.id))
-        .map(({ id, label, description }) => ({ id, label, description })),
+      models: [
+        ...modelCatalog
+          .filter((model) => availableModels.has(`models/${model.id}`))
+          .map(({ id, label, provider }) => ({ id, label, provider })),
+        kokoroModel,
+      ],
+      voices: [
+        ...voiceCatalog
+          .filter((voice) => availableVoices.has(voice.id))
+          .map(({ id, label, description }) => ({
+            id,
+            label,
+            description,
+            provider: "gemini",
+          })),
+        ...kokoroVoices,
+      ],
     };
   } catch {
     console.error("Gemini audio options are temporarily unavailable.");
-    return { models: [], voices: [] };
+    return { models: [kokoroModel], voices: [...kokoroVoices] };
   }
 }

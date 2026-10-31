@@ -12,6 +12,11 @@ const sections = [
     description: "Edit project cards, images, and section copy.",
   },
   {
+    href: "/dashboard/workouts",
+    title: "Shadowboxing sessions",
+    description: "Open, tune, or remove short practice plans.",
+  },
+  {
     href: "/dashboard/tutoring-inquiries",
     title: "Tutoring inquiries",
     description: "View and manage tutoring inquiries.",

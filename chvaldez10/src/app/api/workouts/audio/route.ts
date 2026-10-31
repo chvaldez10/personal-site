@@ -8,7 +8,7 @@ import {
 } from "@/lib/workouts/audio/providers/index.server";
 import {
   audioRequestSchema,
-  voicePreviewText,
+  audioRequestText,
 } from "@/lib/workouts/audio/schema";
 import { workoutOwnerAccess } from "@/lib/workouts/owner.server";
 
@@ -56,21 +56,7 @@ export async function POST(request: Request) {
       { status: 503 },
     );
 
-  const text =
-    parsed.data.kind === "preview"
-      ? voicePreviewText
-      : parsed.data.kind === "transition"
-        ? [
-            `Round ${parsed.data.roundNumber}. ${parsed.data.name}.`,
-            parsed.data.objective,
-            parsed.data.coachingCue,
-            parsed.data.techniqueReminder,
-          ]
-            .filter(Boolean)
-            .join(" ")
-        : [parsed.data.coachingCue, parsed.data.techniqueReminder]
-            .filter(Boolean)
-            .join(" ");
+  const text = audioRequestText(parsed.data);
 
   try {
     const audio = await generateCoachingAudio(model, voice.id, text);

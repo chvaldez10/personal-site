@@ -1,23 +1,20 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
-import { GripVertical } from "lucide-react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
+import Link from "next/link";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
 import { z } from "zod";
 import { Button } from "@/components/ui/buttons/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import CoachingAudioBuilder from "@/components/mma/CoachingAudioBuilder";
+import RoundEditor from "@/components/mma/RoundEditor";
+import WorkoutPreviewDialog from "@/components/mma/WorkoutPreviewDialog";
+import { workoutInputClass } from "@/components/mma/fieldStyles";
 import type {
   VoiceModelOption,
   VoiceOption,
@@ -28,18 +25,30 @@ import {
   workoutSchema,
   type WorkoutModelOption,
 } from "@/lib/workouts/schema";
+import { savedWorkoutSchema } from "@/lib/workouts/saved";
+import { minutes, type WorkoutRound } from "@/lib/workouts/draft";
 
 const generationResponseSchema = z.object({ workout: workoutSchema });
 const generationErrorSchema = z.object({ error: z.string() });
-
-interface WorkoutRound {
-  id: number;
-  name: string;
-  lengthMinutes: string;
-  objective: string;
-  coachingCue: string;
-  techniqueReminder: string;
-}
+const draftKey = "shadowboxing-session-draft-v1";
+const draftSchema = z.object({
+  title: z.string().max(80),
+  targetMinutes: z.string().max(4),
+  roundLengthMinutes: z.string().max(3),
+  discipline: z.string().max(40),
+  focus: z.string().max(40),
+  rounds: z
+    .array(
+      z.object({
+        name: z.string().max(80),
+        lengthMinutes: z.string().max(3),
+        objective: z.string().max(240),
+        coachingCue: z.string().max(180),
+        techniqueReminder: z.string().max(160),
+      }),
+    )
+    .max(12),
+});
 
 interface RoundDrag {
   pointerId: number;
@@ -56,32 +65,24 @@ const sampleRounds: WorkoutRound[] = [
     coachingCue: "Stay light and let your feet set the distance.",
     techniqueReminder: "Keep your stance under you as you step.",
   },
-  {
-    id: 2,
-    name: "Defense",
-    lengthMinutes: "3",
-    objective:
-      "Return to guard after every strike and move off the center line.",
-    coachingCue: "Reset your hands before the next exchange.",
-    techniqueReminder: "",
-  },
-  {
-    id: 3,
-    name: "Combinations",
-    lengthMinutes: "3",
-    objective: "Finish each combination with an angle change.",
-    coachingCue: "Make the exit part of the movement, not an afterthought.",
-    techniqueReminder: "",
-  },
 ];
 
-const inputClass =
-  "mt-2 h-11 border-orange-200 bg-white text-base text-gray-900 shadow-none focus-visible:ring-orange-600 md:text-base";
-function minutes(value: string, maximum: number): number | null {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed >= 1 && parsed <= maximum
-    ? parsed
-    : null;
+function planSnapshot(
+  title: string,
+  targetMinutes: string,
+  roundLengthMinutes: string,
+  discipline: string,
+  focus: string,
+  rounds: WorkoutRound[],
+) {
+  return JSON.stringify({
+    title,
+    targetMinutes,
+    roundLengthMinutes,
+    discipline,
+    focus,
+    rounds: rounds.map(({ id: _id, ...round }) => round),
+  });
 }
 
 export default function ShadowboxingWorkoutBuilder({
@@ -95,11 +96,30 @@ export default function ShadowboxingWorkoutBuilder({
   voiceModels: VoiceModelOption[];
   voices: VoiceOption[];
 }) {
-  const [targetMinutes, setTargetMinutes] = useState("9");
+  const [targetMinutes, setTargetMinutes] = useState("3");
   const [roundLengthMinutes, setRoundLengthMinutes] = useState("3");
   const [discipline, setDiscipline] = useState("MMA");
   const [focus, setFocus] = useState("Technique");
   const [rounds, setRounds] = useState<WorkoutRound[]>(sampleRounds);
+  const [workoutName, setWorkoutName] = useState("Movement reset");
+  const [savedWorkoutId, setSavedWorkoutId] =
+    useState<Id<"shadowboxingWorkouts"> | null>(null);
+  const [selectedSavedId, setSelectedSavedId] = useState("");
+  const [savedSnapshot, setSavedSnapshot] = useState(() =>
+    planSnapshot("Movement reset", "3", "3", "MMA", "Technique", sampleRounds),
+  );
+  const [saving, setSaving] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [saveNotice, setSaveNotice] = useState("");
+  const [audioSession, setAudioSession] = useState(0);
+  const loadedFromUrl = useRef(false);
+  const { isAuthenticated } = useConvexAuth();
+  const savedWorkouts = useQuery(
+    api.shadowboxingWorkouts.list,
+    isOwner && isAuthenticated ? {} : "skip",
+  );
+  const saveToConvex = useMutation(api.shadowboxingWorkouts.save);
   const [modelId, setModelId] = useState(models[0]?.id ?? "");
   const [generationMode, setGenerationMode] = useState<"customize" | "fresh">(
     "customize",
@@ -115,7 +135,7 @@ export default function ShadowboxingWorkoutBuilder({
   const previousObjectives = useRef<string[]>([]);
   const [draggedRoundId, setDraggedRoundId] = useState<number | null>(null);
   const [dropRoundId, setDropRoundId] = useState<number | null>(null);
-  const nextRoundId = useRef(4);
+  const nextRoundId = useRef(2);
   const activeDrag = useRef<RoundDrag | null>(null);
 
   const target = minutes(targetMinutes, 180);
@@ -132,9 +152,195 @@ export default function ShadowboxingWorkoutBuilder({
     roundLengthsValid &&
     rounds.every((round) => round.name.trim() && round.objective.trim());
   const canPreview = target !== null && roundsComplete;
+  const currentSnapshot = planSnapshot(
+    workoutName,
+    targetMinutes,
+    roundLengthMinutes,
+    discipline,
+    focus,
+    rounds,
+  );
+  const hasUnsavedChanges = currentSnapshot !== savedSnapshot;
   const availableModelId = models.some((model) => model.id === modelId)
     ? modelId
     : (models[0]?.id ?? "");
+
+  function applySavedWorkout(
+    workout: NonNullable<typeof savedWorkouts>[number],
+  ) {
+    setDraftReady(false);
+    try {
+      window.localStorage.removeItem(draftKey);
+    } catch {
+      /* Browser storage is optional. */
+    }
+    const loadedRounds = workout.rounds.map((round, index) => ({
+      ...round,
+      id: index + 1,
+      lengthMinutes: String(round.lengthMinutes),
+    }));
+    setWorkoutName(workout.title);
+    setTargetMinutes(String(workout.targetMinutes));
+    setRoundLengthMinutes(String(workout.roundLengthMinutes));
+    setDiscipline(workout.discipline);
+    setFocus(workout.focus);
+    setRounds(loadedRounds);
+    setSavedWorkoutId(workout._id);
+    setSelectedSavedId(workout._id);
+    setSavedSnapshot(
+      planSnapshot(
+        workout.title,
+        String(workout.targetMinutes),
+        String(workout.roundLengthMinutes),
+        workout.discipline,
+        workout.focus,
+        loadedRounds,
+      ),
+    );
+    nextRoundId.current = loadedRounds.length + 1;
+    previousObjectives.current = [];
+    setLastGeneratedRounds([]);
+    setHasGenerated(false);
+    setGenerationNotice("");
+    setAudioSession((current) => current + 1);
+    setSaveError("");
+    setSaveNotice(`Loaded ${workout.title}.`);
+    const url = new URL(window.location.href);
+    url.searchParams.set("workout", workout._id);
+    window.history.replaceState(window.history.state, "", url);
+  }
+
+  useEffect(() => {
+    if (loadedFromUrl.current || !savedWorkouts) return;
+    const timer = window.setTimeout(() => {
+      if (loadedFromUrl.current) return;
+      loadedFromUrl.current = true;
+      const id = new URLSearchParams(window.location.search).get("workout");
+      const workout = savedWorkouts.find((item) => item._id === id);
+      if (workout) applySavedWorkout(workout);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [savedWorkouts]);
+
+  useEffect(() => {
+    if (!isOwner) return;
+    const timer = window.setTimeout(() => {
+      if (new URLSearchParams(window.location.search).has("workout")) return;
+      try {
+        const raw = window.localStorage.getItem(draftKey);
+        if (raw) {
+          const parsed = draftSchema.safeParse(JSON.parse(raw));
+          if (parsed.success) {
+            const draft = parsed.data;
+            setWorkoutName(draft.title);
+            setTargetMinutes(draft.targetMinutes);
+            setRoundLengthMinutes(draft.roundLengthMinutes);
+            setDiscipline(draft.discipline);
+            setFocus(draft.focus);
+            setRounds(
+              draft.rounds.map((round, index) => ({ ...round, id: index + 1 })),
+            );
+            nextRoundId.current = draft.rounds.length + 1;
+            setSaveNotice(
+              "Restored your unsaved session draft from this browser.",
+            );
+          } else setSaveError("The local draft could not be restored.");
+        }
+      } catch {
+        setSaveError(
+          "Browser storage is unavailable. Use Save session to keep your plan.",
+        );
+      }
+      setDraftReady(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [isOwner]);
+
+  useEffect(() => {
+    if (!draftReady || !isOwner) return;
+    if (!hasUnsavedChanges) {
+      try {
+        window.localStorage.removeItem(draftKey);
+      } catch {
+        /* Browser storage is optional. */
+      }
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(draftKey, currentSnapshot);
+      } catch {
+        setSaveError(
+          "Browser storage is unavailable. Use Save session to keep your plan.",
+        );
+      }
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [draftReady, hasUnsavedChanges, isOwner, currentSnapshot]);
+
+  async function saveWorkout(asNew = false) {
+    if (saving || !isOwner || !isAuthenticated) return;
+    setSaveError("");
+    setSaveNotice("");
+    const parsed = savedWorkoutSchema.safeParse({
+      title: workoutName,
+      discipline,
+      focus,
+      targetMinutes: target,
+      roundLengthMinutes: roundLength,
+      rounds: rounds.map((round) => ({
+        ...round,
+        lengthMinutes: Number(round.lengthMinutes),
+      })),
+    });
+    if (!parsed.success) {
+      setSaveError(
+        "Add a name and complete 1–12 rounds with coaching cues. Workouts can be up to 45 minutes.",
+      );
+      return;
+    }
+    setSaving(true);
+    try {
+      const id = await saveToConvex({
+        id: asNew ? undefined : (savedWorkoutId ?? undefined),
+        ...parsed.data,
+      });
+      setSavedWorkoutId(id);
+      setSelectedSavedId(id);
+      setSavedSnapshot(currentSnapshot);
+      setDraftReady(false);
+      try {
+        window.localStorage.removeItem(draftKey);
+      } catch {
+        /* Browser storage is optional. */
+      }
+      setSaveNotice(
+        asNew || !savedWorkoutId
+          ? "Session saved. Keep tuning it anytime."
+          : "Session changes saved.",
+      );
+      const url = new URL(window.location.href);
+      url.searchParams.set("workout", id);
+      window.history.replaceState(window.history.state, "", url);
+    } catch {
+      setSaveError(
+        "Could not save the session. Check your connection and try again.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function loadSelectedWorkout() {
+    const workout = savedWorkouts?.find((item) => item._id === selectedSavedId);
+    if (!workout) return;
+    if (
+      hasUnsavedChanges &&
+      !window.confirm("Replace your unsaved session changes?")
+    )
+      return;
+    applySavedWorkout(workout);
+  }
 
   function updateRound(id: number, changes: Partial<Omit<WorkoutRound, "id">>) {
     setRounds((current) =>
@@ -158,7 +364,7 @@ export default function ShadowboxingWorkoutBuilder({
   }
 
   function addRound() {
-    if (roundLength === null) return;
+    if (roundLength === null || rounds.length >= 12) return;
     const id = nextRoundId.current++;
     setRounds((current) => [
       ...current,
@@ -221,14 +427,14 @@ export default function ShadowboxingWorkoutBuilder({
         setGenerationError(
           parsed.success
             ? parsed.data.error
-            : "The workout could not be generated. Please try again.",
+            : "The session could not be generated. Please try again.",
         );
         return;
       }
       const parsed = generationResponseSchema.safeParse(payload);
       if (!parsed.success) {
         setGenerationError(
-          "The AI returned an invalid workout. Please try again.",
+          "The AI returned an invalid session. Please try again.",
         );
         return;
       }
@@ -243,11 +449,11 @@ export default function ShadowboxingWorkoutBuilder({
       previousObjectives.current = generated.map((round) => round.objective);
       setHasGenerated(true);
       setGenerationNotice(
-        "Workout generated. Edit any round or regenerate it.",
+        "Session generated. Edit any round or regenerate it.",
       );
     } catch {
       setGenerationError(
-        "The AI service could not be reached. Your current workout is still here.",
+        "The AI service could not be reached. Your current session is still here.",
       );
     } finally {
       setGenerating(false);
@@ -324,11 +530,11 @@ export default function ShadowboxingWorkoutBuilder({
   return (
     <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)] lg:items-start">
       <div className="rounded-2xl border border-orange-200 bg-(--brand-secondary-100) p-6 shadow-sm sm:p-8">
-        <h3 className="text-xl font-bold text-gray-900">Workout setup</h3>
+        <h3 className="text-xl font-bold text-gray-900">Practice setup</h3>
         <div className="mt-6 space-y-5">
           <div>
             <Label htmlFor="workout-duration" className="text-gray-800">
-              Workout duration (minutes)
+              Practice time (minutes)
             </Label>
             <Input
               id="workout-duration"
@@ -340,13 +546,13 @@ export default function ShadowboxingWorkoutBuilder({
               onChange={(event) => setTargetMinutes(event.target.value)}
               aria-invalid={target === null}
               aria-describedby="workout-duration-help"
-              className={inputClass}
+              className={workoutInputClass}
             />
             <p
               id="workout-duration-help"
               className="mt-2 text-xs text-gray-600"
             >
-              Your target time, from 1 to 180 minutes.
+              Start with one 3-minute round; adjust the time when you need to.
             </p>
           </div>
           <div>
@@ -363,7 +569,7 @@ export default function ShadowboxingWorkoutBuilder({
               onChange={(event) => changeRoundLength(event.target.value)}
               aria-invalid={roundLength === null}
               aria-describedby="round-length-help"
-              className={inputClass}
+              className={workoutInputClass}
             />
             <p id="round-length-help" className="mt-2 text-xs text-gray-600">
               Updates every round. You can still edit each round&apos;s minutes.
@@ -411,8 +617,67 @@ export default function ShadowboxingWorkoutBuilder({
           </div>
           {isOwner && (
             <div className="border-t border-orange-200 pt-6">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-bold tracking-[0.16em] text-orange-700 uppercase">
+                  Saved sessions
+                </p>
+                <Link
+                  href="/dashboard/workouts"
+                  className="text-sm font-semibold text-orange-800 underline underline-offset-4 hover:text-orange-900 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700"
+                >
+                  Dashboard
+                </Link>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-gray-700">
+                Review and save your plan from Preview and save below. Open a
+                saved plan here, or manage them in the dashboard.
+              </p>
+              {savedWorkoutId && hasUnsavedChanges && (
+                <p className="mt-2 text-xs text-orange-900">Unsaved changes</p>
+              )}
+              {savedWorkouts && savedWorkouts.length > 0 && (
+                <div className="mt-5 border-t border-orange-200 pt-5">
+                  <Label htmlFor="saved-workout-list" className="text-gray-800">
+                    Open a saved session
+                  </Label>
+                  <Select
+                    id="saved-workout-list"
+                    value={selectedSavedId}
+                    onValueChange={setSelectedSavedId}
+                    options={savedWorkouts.map((workout) => ({
+                      value: workout._id,
+                      label: workout.title,
+                    }))}
+                    placeholder="Choose a session"
+                    wrapperClassName="mt-2"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={loadSelectedWorkout}
+                    disabled={!selectedSavedId || saving}
+                    className="mt-3"
+                  >
+                    Load session
+                  </Button>
+                </div>
+              )}
+              {saveError && (
+                <p role="alert" className="mt-3 text-sm text-red-700">
+                  {saveError}
+                </p>
+              )}
+              {saveNotice && (
+                <p aria-live="polite" className="mt-3 text-sm text-gray-700">
+                  {saveNotice}
+                </p>
+              )}
+            </div>
+          )}
+          {isOwner && (
+            <div className="border-t border-orange-200 pt-6">
               <p className="text-xs font-bold tracking-[0.16em] text-orange-700 uppercase">
-                AI workout
+                AI session
               </p>
               <p className="mt-2 text-sm leading-6 text-gray-700">
                 Generate technical round objectives, then edit anything you
@@ -464,7 +729,7 @@ export default function ShadowboxingWorkoutBuilder({
                       }
                       options={[
                         { value: "customize", label: "Use my current rounds" },
-                        { value: "fresh", label: "Create a new workout" },
+                        { value: "fresh", label: "Create a new session" },
                       ]}
                       aria-labelledby="generation-mode-label"
                       wrapperClassName="mt-2"
@@ -497,13 +762,13 @@ export default function ShadowboxingWorkoutBuilder({
                       roundLength === null ||
                       (generationMode === "customize" && !roundLengthsValid)
                     }
-                    className="min-h-11 w-full bg-orange-700 text-white hover:bg-orange-800 focus-visible:ring-orange-600"
+                    className="w-full"
                   >
                     {generating
                       ? "Generating…"
                       : hasGenerated
-                        ? "Regenerate workout"
-                        : "Generate workout"}
+                        ? "Regenerate session"
+                        : "Generate session"}
                   </Button>
                   {generationMode === "customize" && !roundLengthsValid && (
                     <p className="text-sm text-orange-900">
@@ -534,15 +799,15 @@ export default function ShadowboxingWorkoutBuilder({
             <h3 className="text-xl font-bold text-gray-900">Rounds</h3>
             <p className="mt-1 text-sm text-gray-600">
               Drag a round by its handle or use Up and Down. Set a name, length,
-              and technical objective for each round.
+              and technical objective for each round. Sessions support up to 12
+              rounds.
             </p>
           </div>
           <Button
             type="button"
             variant="outline"
             onClick={addRound}
-            disabled={roundLength === null}
-            className="h-10 border-orange-300 bg-white px-4 text-orange-900 hover:bg-orange-50 hover:text-orange-900 focus-visible:ring-orange-600"
+            disabled={roundLength === null || rounds.length >= 12}
           >
             Add round
           </Button>
@@ -550,320 +815,64 @@ export default function ShadowboxingWorkoutBuilder({
 
         {rounds.length === 0 ? (
           <p className="mt-5 rounded-2xl border border-dashed border-orange-300 p-8 text-center text-gray-700">
-            No rounds yet. Add a round to build your workout.
+            No rounds yet. Add one to build your session.
           </p>
         ) : (
           <ol className="mt-5 space-y-4">
             {rounds.map((round, index) => (
-              <li
+              <RoundEditor
                 key={round.id}
-                data-round-id={round.id}
-                className={`rounded-2xl border border-orange-200 bg-white p-5 shadow-sm sm:p-6 ${
-                  draggedRoundId === round.id
-                    ? "opacity-60"
-                    : dropRoundId === round.id
-                      ? "ring-2 ring-pink-600 ring-offset-2"
-                      : ""
-                }`}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-sm font-bold tracking-wide text-orange-700 uppercase">
-                    Round {index + 1}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onPointerDown={(event) => startDrag(event, round.id)}
-                      onPointerMove={updateDrag}
-                      onPointerUp={endDrag}
-                      onPointerCancel={cancelDrag}
-                      onLostPointerCapture={cancelDrag}
-                      onKeyDown={(event) => {
-                        if (event.key === "ArrowUp" && index > 0) {
-                          event.preventDefault();
-                          moveRound(index, -1);
-                        } else if (
-                          event.key === "ArrowDown" &&
-                          index < rounds.length - 1
-                        ) {
-                          event.preventDefault();
-                          moveRound(index, 1);
-                        }
-                      }}
-                      aria-label={`Drag round ${index + 1} to reorder, or use arrow keys`}
-                      className="touch-none cursor-grab border-orange-200 bg-white text-gray-800 select-none hover:bg-orange-50 active:cursor-grabbing focus-visible:ring-orange-600"
-                    >
-                      <GripVertical aria-hidden="true" />
-                      Drag
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={index === 0}
-                      onClick={() => moveRound(index, -1)}
-                      aria-label={`Move round ${index + 1} up`}
-                      className="border-orange-200 bg-white text-gray-800 hover:bg-orange-50 focus-visible:ring-orange-600"
-                    >
-                      Up
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={index === rounds.length - 1}
-                      onClick={() => moveRound(index, 1)}
-                      aria-label={`Move round ${index + 1} down`}
-                      className="border-orange-200 bg-white text-gray-800 hover:bg-orange-50 focus-visible:ring-orange-600"
-                    >
-                      Down
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() =>
-                        setRounds((current) =>
-                          current.filter((item) => item.id !== round.id),
-                        )
-                      }
-                      aria-label={`Remove round ${index + 1}`}
-                      className="text-red-700 hover:bg-red-50 hover:text-red-800 focus-visible:ring-red-700"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_8rem]">
-                  <div>
-                    <Label
-                      htmlFor={`round-${round.id}-name`}
-                      className="text-gray-800"
-                    >
-                      Round name
-                    </Label>
-                    <Input
-                      id={`round-${round.id}-name`}
-                      value={round.name}
-                      onChange={(event) =>
-                        updateRound(round.id, { name: event.target.value })
-                      }
-                      maxLength={80}
-                      placeholder="e.g. Defense and counters"
-                      aria-invalid={!round.name.trim()}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor={`round-${round.id}-length`}
-                      className="text-gray-800"
-                    >
-                      Minutes
-                    </Label>
-                    <Input
-                      id={`round-${round.id}-length`}
-                      type="number"
-                      min={1}
-                      max={30}
-                      step={1}
-                      value={round.lengthMinutes}
-                      onChange={(event) =>
-                        updateRound(round.id, {
-                          lengthMinutes: event.target.value,
-                        })
-                      }
-                      aria-label={`Round ${index + 1} length in minutes`}
-                      aria-invalid={minutes(round.lengthMinutes, 30) === null}
-                      className={inputClass}
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label
-                      htmlFor={`round-${round.id}-objective`}
-                      className="text-gray-800"
-                    >
-                      Technical objective
-                    </Label>
-                    <Textarea
-                      id={`round-${round.id}-objective`}
-                      value={round.objective}
-                      onChange={(event) =>
-                        updateRound(round.id, { objective: event.target.value })
-                      }
-                      rows={2}
-                      maxLength={240}
-                      placeholder="What technique will you work on?"
-                      aria-invalid={!round.objective.trim()}
-                      className="mt-2"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label
-                      htmlFor={`round-${round.id}-cue`}
-                      className="text-gray-800"
-                    >
-                      Coaching cue (optional)
-                    </Label>
-                    <Textarea
-                      id={`round-${round.id}-cue`}
-                      value={round.coachingCue}
-                      onChange={(event) =>
-                        updateRound(round.id, {
-                          coachingCue: event.target.value,
-                        })
-                      }
-                      rows={2}
-                      maxLength={180}
-                      placeholder="A short instruction you can use during the round"
-                      className="mt-2"
-                    />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label
-                      htmlFor={`round-${round.id}-reminder`}
-                      className="text-gray-800"
-                    >
-                      Technique reminder (optional)
-                    </Label>
-                    <Input
-                      id={`round-${round.id}-reminder`}
-                      value={round.techniqueReminder}
-                      onChange={(event) =>
-                        updateRound(round.id, {
-                          techniqueReminder: event.target.value,
-                        })
-                      }
-                      maxLength={160}
-                      placeholder="e.g. Keep your chin tucked"
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-              </li>
+                round={round}
+                index={index}
+                count={rounds.length}
+                dragging={draggedRoundId === round.id}
+                dropTarget={dropRoundId === round.id}
+                onUpdate={updateRound}
+                onMove={moveRound}
+                onRemove={(id) =>
+                  setRounds((current) =>
+                    current.filter((item) => item.id !== id),
+                  )
+                }
+                onDragStart={startDrag}
+                onDragMove={updateDrag}
+                onDragEnd={endDrag}
+                onDragCancel={cancelDrag}
+              />
             ))}
           </ol>
         )}
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-orange-200 bg-(--brand-secondary-100) p-5 sm:p-6">
-          <div>
-            <p className="font-semibold text-gray-900">
-              {plannedMinutes} of {targetMinutes || "—"} minutes planned
-            </p>
-            <output className="mt-1 block text-sm text-gray-700">
-              {target === null
-                ? "Enter a workout duration from 1 to 180 minutes."
-                : !roundLengthsValid
-                  ? "Set every round length from 1 to 30 minutes."
-                  : plannedMinutes === target
-                    ? "Your rounds match the workout duration."
-                    : plannedMinutes < target
-                      ? `Add ${target - plannedMinutes} minutes of rounds to reach your target.`
-                      : `Your rounds are ${plannedMinutes - target} minutes over your target.`}
-            </output>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                type="button"
-                disabled={!canPreview}
-                className="h-11 bg-pink-700 px-5 text-white hover:bg-pink-800 focus-visible:ring-pink-700"
-              >
-                Preview workout
-              </Button>
-            </DialogTrigger>
-            <DialogContent
-              overlayClassName="bg-gray-950/45"
-              className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-2xl border-orange-200 bg-white p-6 text-gray-900 sm:p-8"
-            >
-              <DialogHeader className="pr-6 text-left">
-                <DialogTitle className="text-2xl font-bold tracking-tight sm:text-3xl">
-                  Workout preview
-                </DialogTitle>
-                <DialogDescription className="pt-1 text-base leading-6 text-gray-700">
-                  Review the complete round plan before your session.
-                </DialogDescription>
-              </DialogHeader>
-              <dl className="grid grid-cols-2 gap-4 rounded-xl bg-(--brand-secondary-100) p-5 text-sm sm:grid-cols-4">
-                <div>
-                  <dt className="text-gray-600">Style</dt>
-                  <dd className="mt-1 font-semibold">{discipline}</dd>
-                </div>
-                <div>
-                  <dt className="text-gray-600">Focus</dt>
-                  <dd className="mt-1 font-semibold">{focus}</dd>
-                </div>
-                <div>
-                  <dt className="text-gray-600">Target</dt>
-                  <dd className="mt-1 font-semibold">{targetMinutes} min</dd>
-                </div>
-                <div>
-                  <dt className="text-gray-600">Planned</dt>
-                  <dd className="mt-1 font-semibold">{plannedMinutes} min</dd>
-                </div>
-              </dl>
-              {target !== null && plannedMinutes !== target && (
-                <p className="rounded-lg border border-orange-300 bg-orange-50 p-3 text-sm text-orange-900">
-                  Your rounds total {plannedMinutes} minutes, which differs from
-                  your {target}-minute target.
-                </p>
-              )}
-              <ol className="space-y-3">
-                {rounds.map((round, index) => (
-                  <li
-                    key={round.id}
-                    className="rounded-xl border border-orange-200 p-4"
-                  >
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <h3 className="font-bold">
-                        Round {index + 1}: {round.name.trim()}
-                      </h3>
-                      <span className="text-sm text-gray-600">
-                        {round.lengthMinutes} min
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-gray-700">
-                      {round.objective.trim()}
-                    </p>
-                    {round.coachingCue.trim() && (
-                      <p className="mt-2 text-sm leading-6 text-gray-700">
-                        <strong className="text-gray-900">Coach:</strong>{" "}
-                        {round.coachingCue.trim()}
-                      </p>
-                    )}
-                    {round.techniqueReminder.trim() && (
-                      <p className="mt-3 rounded-lg bg-orange-50 px-3 py-2 text-sm leading-6 text-orange-900">
-                        <strong>Remember:</strong>{" "}
-                        {round.techniqueReminder.trim()}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ol>
-              <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="justify-self-start border-orange-300 bg-white text-orange-900 hover:bg-orange-50 hover:text-orange-900 focus-visible:ring-orange-600"
-                >
-                  Back to editing
-                </Button>
-              </DialogClose>
-            </DialogContent>
-          </Dialog>
-        </div>
-        {!canPreview && (
-          <p className="mt-2 text-sm text-gray-600">
-            Add at least one round and complete every name, length, and
-            technical objective to preview.
-          </p>
-        )}
+        <WorkoutPreviewDialog
+          rounds={rounds}
+          target={target}
+          targetMinutes={targetMinutes}
+          plannedMinutes={plannedMinutes}
+          roundLengthsValid={roundLengthsValid}
+          canPreview={canPreview}
+          discipline={discipline}
+          focus={focus}
+          save={
+            isOwner
+              ? {
+                  title: workoutName,
+                  onTitleChange: setWorkoutName,
+                  onSave: (asNew) => void saveWorkout(asNew),
+                  saved: savedWorkoutId !== null,
+                  hasUnsavedChanges,
+                  saving,
+                  disabled: saving || !isAuthenticated,
+                  error: saveError,
+                  notice: saveNotice,
+                }
+              : undefined
+          }
+        />
       </div>
       {isOwner && (
         <div className="lg:col-span-2">
           <CoachingAudioBuilder
+            key={audioSession}
             rounds={rounds}
             generatedRounds={lastGeneratedRounds}
             models={voiceModels}

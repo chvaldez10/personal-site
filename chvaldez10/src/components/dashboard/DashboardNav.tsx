@@ -19,6 +19,7 @@ const links = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/tech-finds", label: "Tech Finds" },
   { href: "/dashboard/projects", label: "Projects" },
+  { href: "/dashboard/workouts", label: "Shadowboxing sessions" },
   { href: "/dashboard/tutoring-inquiries", label: "Tutoring inquiries" },
 ];
 

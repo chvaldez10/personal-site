@@ -29,6 +29,23 @@ export const audioRequestSchema = z.discriminatedUnion("kind", [
 
 export type AudioRequest = z.infer<typeof audioRequestSchema>;
 
+export function audioRequestText(request: AudioRequest): string {
+  return request.kind === "preview"
+    ? voicePreviewText
+    : request.kind === "transition"
+      ? [
+          `Round ${request.roundNumber}. ${request.name}.`,
+          request.objective,
+          request.coachingCue,
+          request.techniqueReminder,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      : [request.coachingCue, request.techniqueReminder]
+          .filter(Boolean)
+          .join(" ");
+}
+
 export type VoiceModelOption = {
   id: string;
   label: string;
@@ -39,4 +56,5 @@ export type VoiceOption = {
   id: string;
   label: string;
   description: string;
+  provider: string;
 };

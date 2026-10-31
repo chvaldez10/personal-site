@@ -71,4 +71,22 @@ export default defineSchema({
       v.literal("closed"),
     ),
   }).index("by_status", ["status"]),
+  shadowboxingWorkouts: defineTable({
+    ownerId: v.id("users"),
+    title: v.string(),
+    discipline: v.string(),
+    focus: v.string(),
+    targetMinutes: v.number(),
+    roundLengthMinutes: v.number(),
+    rounds: v.array(
+      v.object({
+        name: v.string(),
+        lengthMinutes: v.number(),
+        objective: v.string(),
+        coachingCue: v.string(),
+        techniqueReminder: v.string(),
+      }),
+    ),
+    updatedAt: v.number(),
+  }).index("by_ownerId_and_updatedAt", ["ownerId", "updatedAt"]),
 });
