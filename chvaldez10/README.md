@@ -56,6 +56,14 @@ The dashboard uploads images directly to Cloudflare using a short-lived upload U
 
 Résumé links use /api/resume, which serves the PDF from Convex and falls back to /docs/resume.pdf if it is unavailable. Keep public/docs/resume.pdf current. Logo failures show an icon while keeping their text and details usable.
 
+## AI shadowboxing
+
+The manual builder at `/hobbies/mma` remains public. Workout generation appears only for the signed-in owner. Add `GEMINI_API_KEY` to `.env.local` and restart Next; set the same server-only variable in Vercel if you want generation on the hosted site. Never use a `NEXT_PUBLIC_` key. The model selector lists only configured Gemini models that the key reports as available. Gemini 3.5 Flash-Lite is the default, with Gemini 3.1 Flash-Lite as another free-tier option. The API route validates requests and generated workouts with Zod, and each regeneration makes another API call. Google sets the actual quota for your project; check [AI Studio rate limits](https://ai.google.dev/gemini-api/docs/rate-limits) if you receive a limit message.
+
+Owner-only coaching audio uses the same key. Choose the current edited workout or the last AI-generated workout, select a voice and Gemini 3.8 TTS model, then prepare audio. The player combines round introductions, shared technique prompts, and silence into one track before Start; it supports pause, resume, restart, and stop. Prepare up to 12 rounds and 45 minutes. A fresh three-round workout needs up to five voice requests; previewing a voice adds one. Voice clips are cached in that browser, so preparing unchanged text and settings again does not call the API. Long pauses inside spoken clips are shortened locally, including previously cached clips; use Prepare again to rebuild the track. Changing the voice or model needs fresh clips. Start the track before locking a phone; verify background playback and headset controls on your actual device. The model and voice catalog is in `src/lib/workouts/audio/models.server.ts`; provider code is in `src/lib/workouts/audio/providers/`. The [Gemini TTS guide](https://ai.google.dev/gemini-api/docs/speech-generation) describes the supported models and voices.
+
+For a phone check, prepare two one-minute rounds, tap Start, then lock the screen. Listen through the round change and use headphone pause/resume. Unlock and confirm the round and remaining time match the audio. Repeat in iPhone Safari or Android Chrome on the device you will train with.
+
 See the [Convex setup and preview guide](docs/convex-migration/README.md) for the existing deployment workflow.
 
 ## Architecture at a glance
@@ -72,14 +80,14 @@ flowchart LR
   React -->|direct image upload URL| Cloudflare
 ```
 
-| Piece | What it does here | Where to look |
-| --- | --- | --- |
-| Next.js App Router | Routes, layouts, server rendering, and the résumé HTTP route | `src/app/` |
-| React client components | Interactive forms, dashboard editors, and live Convex queries | `src/components/` |
-| Convex | Schema, reads, writes, auth checks, upload coordination, and scheduled cleanup | `convex/` |
-| Zod | Friendly validation before selected forms submit | `src/lib/validation/` |
-| Tailwind, CSS modules, shadcn/Radix | Styling and accessible UI primitives | `src/styles/`, `src/components/ui/` |
-| `cn` | Combines conditional classes and resolves conflicting Tailwind classes | `src/lib/utils.ts` |
+| Piece                               | What it does here                                                              | Where to look                       |
+| ----------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------- |
+| Next.js App Router                  | Routes, layouts, server rendering, and the résumé HTTP route                   | `src/app/`                          |
+| React client components             | Interactive forms, dashboard editors, and live Convex queries                  | `src/components/`                   |
+| Convex                              | Schema, reads, writes, auth checks, upload coordination, and scheduled cleanup | `convex/`                           |
+| Zod                                 | Friendly validation before selected forms submit                               | `src/lib/validation/`               |
+| Tailwind, CSS modules, shadcn/Radix | Styling and accessible UI primitives                                           | `src/styles/`, `src/components/ui/` |
+| `cn`                                | Combines conditional classes and resolves conflicting Tailwind classes         | `src/lib/utils.ts`                  |
 
 The `@/` import alias points to `src/`; `@convex/` points to `convex/`. Generated references in `convex/_generated/` give frontend calls typed names such as `api.projects.list`.
 
@@ -93,10 +101,7 @@ Interactive components use `useQuery`, `useMutation`, or `useAction` from `conve
 
 ```tsx
 const { isAuthenticated } = useConvexAuth();
-const data = useQuery(
-  api.projects.listForAdmin,
-  isAuthenticated ? {} : "skip",
-);
+const data = useQuery(api.projects.listForAdmin, isAuthenticated ? {} : "skip");
 ```
 
 The Next route `src/app/api/resume/route.ts` is a small HTTP adapter: it asks Convex for the résumé storage URL, serves a valid PDF, and redirects to `public/docs/resume.pdf` when needed. Most data access goes directly through Convex functions; there is no separate Next API route for each table.
@@ -105,15 +110,15 @@ The Next route `src/app/api/resume/route.ts` is a small HTTP adapter: it asks Co
 
 `convex/schema.ts` defines tables, field types, and indexes. Files such as `projects.ts`, `brandLogos.ts`, and `tutoringInquiries.ts` define functions for their feature. A `query` reads data, a `mutation` changes data transactionally, and an `action` calls external services such as Cloudflare. Internal functions support backend workflows and are not browser APIs.
 
-| Data | Used for | Read/write boundary |
-| --- | --- | --- |
-| Auth tables | Owner account and sessions | Convex Auth; owner setup is restricted |
-| `projectSection`, `projects` | Home page copy and project cards | Public read; owner write |
-| `brandLogos` | Tech Finds entries and Cloudflare image references | Public active list; owner management |
-| `tutoringInquiries` | Public requests and follow-up status | Public submit; owner read and manage |
-| `pendingImages` | Temporary, owner-bound upload tickets | Internal functions |
-| `siteAssets` | Résumé storage reference | Public résumé URL query; internal file management |
-| `featureFlags` | Legacy imported flags | Public signup query currently returns `false` |
+| Data                         | Used for                                           | Read/write boundary                               |
+| ---------------------------- | -------------------------------------------------- | ------------------------------------------------- |
+| Auth tables                  | Owner account and sessions                         | Convex Auth; owner setup is restricted            |
+| `projectSection`, `projects` | Home page copy and project cards                   | Public read; owner write                          |
+| `brandLogos`                 | Tech Finds entries and Cloudflare image references | Public active list; owner management              |
+| `tutoringInquiries`          | Public requests and follow-up status               | Public submit; owner read and manage              |
+| `pendingImages`              | Temporary, owner-bound upload tickets              | Internal functions                                |
+| `siteAssets`                 | Résumé storage reference                           | Public résumé URL query; internal file management |
+| `featureFlags`               | Legacy imported flags                              | Public signup query currently returns `false`     |
 
 Queries use indexes and bounded reads. For example, `projects.list` reads at most 100 projects by `sortOrder`; `tutoringInquiries.listForOwner` reads the newest 100 for one status through `by_status`. The public Tech Finds list includes active logos; the owner list includes all logos.
 
@@ -208,7 +213,7 @@ Tailwind utilities and `src/styles/globals.css` supply the site’s light palett
 ```tsx
 import { cn } from "@/lib/utils";
 
-<div className={cn("rounded-md p-4", selected && "bg-orange-50", className)} />
+<div className={cn("rounded-md p-4", selected && "bg-orange-50", className)} />;
 ```
 
 Use it when a component accepts `className` or has conditional utilities. Plain fixed class strings do not need it.

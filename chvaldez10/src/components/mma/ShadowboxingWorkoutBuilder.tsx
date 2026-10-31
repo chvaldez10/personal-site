@@ -2,6 +2,7 @@
 
 import { useRef, useState, type PointerEvent } from "react";
 import { GripVertical } from "lucide-react";
+import { z } from "zod";
 import { Button } from "@/components/ui/buttons/button";
 import {
   Dialog,
@@ -16,12 +17,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import CoachingAudioBuilder from "@/components/mma/CoachingAudioBuilder";
+import type {
+  VoiceModelOption,
+  VoiceOption,
+} from "@/lib/workouts/audio/schema";
+import {
+  disciplines,
+  focuses,
+  workoutSchema,
+  type WorkoutModelOption,
+} from "@/lib/workouts/schema";
+
+const generationResponseSchema = z.object({ workout: workoutSchema });
+const generationErrorSchema = z.object({ error: z.string() });
 
 interface WorkoutRound {
   id: number;
   name: string;
   lengthMinutes: string;
   objective: string;
+  coachingCue: string;
+  techniqueReminder: string;
 }
 
 interface RoundDrag {
@@ -36,6 +53,8 @@ const sampleRounds: WorkoutRound[] = [
     name: "Movement",
     lengthMinutes: "3",
     objective: "Keep a balanced stance while moving in and out of range.",
+    coachingCue: "Stay light and let your feet set the distance.",
+    techniqueReminder: "Keep your stance under you as you step.",
   },
   {
     id: 2,
@@ -43,22 +62,17 @@ const sampleRounds: WorkoutRound[] = [
     lengthMinutes: "3",
     objective:
       "Return to guard after every strike and move off the center line.",
+    coachingCue: "Reset your hands before the next exchange.",
+    techniqueReminder: "",
   },
   {
     id: 3,
     name: "Combinations",
     lengthMinutes: "3",
     objective: "Finish each combination with an angle change.",
+    coachingCue: "Make the exit part of the movement, not an afterthought.",
+    techniqueReminder: "",
   },
-];
-
-const disciplines = ["MMA", "Muay Thai", "Kickboxing", "Boxing"];
-const focuses = [
-  "Technique",
-  "Footwork",
-  "Defense",
-  "Combinations",
-  "Conditioning",
 ];
 
 const inputClass =
@@ -70,12 +84,35 @@ function minutes(value: string, maximum: number): number | null {
     : null;
 }
 
-export default function ShadowboxingWorkoutBuilder() {
+export default function ShadowboxingWorkoutBuilder({
+  isOwner,
+  models,
+  voiceModels,
+  voices,
+}: {
+  isOwner: boolean;
+  models: WorkoutModelOption[];
+  voiceModels: VoiceModelOption[];
+  voices: VoiceOption[];
+}) {
   const [targetMinutes, setTargetMinutes] = useState("9");
   const [roundLengthMinutes, setRoundLengthMinutes] = useState("3");
   const [discipline, setDiscipline] = useState("MMA");
   const [focus, setFocus] = useState("Technique");
   const [rounds, setRounds] = useState<WorkoutRound[]>(sampleRounds);
+  const [modelId, setModelId] = useState(models[0]?.id ?? "");
+  const [generationMode, setGenerationMode] = useState<"customize" | "fresh">(
+    "customize",
+  );
+  const [generationNotes, setGenerationNotes] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState("");
+  const [generationNotice, setGenerationNotice] = useState("");
+  const [hasGenerated, setHasGenerated] = useState(false);
+  const [lastGeneratedRounds, setLastGeneratedRounds] = useState<
+    WorkoutRound[]
+  >([]);
+  const previousObjectives = useRef<string[]>([]);
   const [draggedRoundId, setDraggedRoundId] = useState<number | null>(null);
   const [dropRoundId, setDropRoundId] = useState<number | null>(null);
   const nextRoundId = useRef(4);
@@ -95,6 +132,9 @@ export default function ShadowboxingWorkoutBuilder() {
     roundLengthsValid &&
     rounds.every((round) => round.name.trim() && round.objective.trim());
   const canPreview = target !== null && roundsComplete;
+  const availableModelId = models.some((model) => model.id === modelId)
+    ? modelId
+    : (models[0]?.id ?? "");
 
   function updateRound(id: number, changes: Partial<Omit<WorkoutRound, "id">>) {
     setRounds((current) =>
@@ -127,8 +167,91 @@ export default function ShadowboxingWorkoutBuilder() {
         name: "",
         lengthMinutes: String(roundLength),
         objective: "",
+        coachingCue: "",
+        techniqueReminder: "",
       },
     ]);
+  }
+
+  async function generateWorkout() {
+    if (
+      generating ||
+      target === null ||
+      roundLength === null ||
+      !availableModelId
+    )
+      return;
+    if (generationMode === "customize" && !roundLengthsValid) {
+      setGenerationError("Set every round length from 1 to 30 minutes first.");
+      return;
+    }
+
+    setGenerating(true);
+    setGenerationError("");
+    setGenerationNotice("");
+    try {
+      const response = await fetch("/api/workouts/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          modelId: availableModelId,
+          mode: generationMode,
+          targetMinutes: target,
+          preferredRoundMinutes: roundLength,
+          discipline,
+          focus,
+          notes: generationMode === "customize" ? generationNotes : "",
+          currentRounds:
+            generationMode === "customize"
+              ? rounds.slice(0, 12).map((round) => ({
+                  name: round.name,
+                  lengthMinutes:
+                    minutes(round.lengthMinutes, 30) ?? roundLength,
+                  objective: round.objective,
+                  coachingCue: round.coachingCue,
+                  techniqueReminder: round.techniqueReminder,
+                }))
+              : [],
+          previousObjectives: previousObjectives.current,
+        }),
+      });
+      const payload: unknown = await response.json();
+      if (!response.ok) {
+        const parsed = generationErrorSchema.safeParse(payload);
+        setGenerationError(
+          parsed.success
+            ? parsed.data.error
+            : "The workout could not be generated. Please try again.",
+        );
+        return;
+      }
+      const parsed = generationResponseSchema.safeParse(payload);
+      if (!parsed.success) {
+        setGenerationError(
+          "The AI returned an invalid workout. Please try again.",
+        );
+        return;
+      }
+      const generated = parsed.data.workout.rounds;
+      const nextRounds = generated.map((round) => ({
+        ...round,
+        id: nextRoundId.current++,
+        lengthMinutes: String(round.lengthMinutes),
+      }));
+      setRounds(nextRounds);
+      setLastGeneratedRounds(nextRounds);
+      previousObjectives.current = generated.map((round) => round.objective);
+      setHasGenerated(true);
+      setGenerationNotice(
+        "Workout generated. Edit any round or regenerate it.",
+      );
+    } catch {
+      setGenerationError(
+        "The AI service could not be reached. Your current workout is still here.",
+      );
+    } finally {
+      setGenerating(false);
+    }
   }
 
   function moveRound(index: number, direction: -1 | 1) {
@@ -286,6 +409,122 @@ export default function ShadowboxingWorkoutBuilder() {
               wrapperClassName="mt-2"
             />
           </div>
+          {isOwner && (
+            <div className="border-t border-orange-200 pt-6">
+              <p className="text-xs font-bold tracking-[0.16em] text-orange-700 uppercase">
+                AI workout
+              </p>
+              <p className="mt-2 text-sm leading-6 text-gray-700">
+                Generate technical round objectives, then edit anything you
+                want. Each generation uses one API request.
+              </p>
+              <a
+                href="#coaching-audio"
+                className="mt-2 inline-block text-sm font-semibold text-orange-800 underline underline-offset-4 hover:text-orange-900 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-700"
+              >
+                Voice and audio settings ↓
+              </a>
+              {models.length ? (
+                <div className="mt-5 space-y-5">
+                  <div>
+                    <Label
+                      id="ai-model-label"
+                      htmlFor="ai-model"
+                      className="text-gray-800"
+                    >
+                      Model
+                    </Label>
+                    <Select
+                      id="ai-model"
+                      value={availableModelId}
+                      onValueChange={setModelId}
+                      options={models.map((model) => ({
+                        value: model.id,
+                        label: model.label,
+                      }))}
+                      aria-labelledby="ai-model-label"
+                      wrapperClassName="mt-2"
+                    />
+                  </div>
+                  <div>
+                    <Label
+                      id="generation-mode-label"
+                      htmlFor="generation-mode"
+                      className="text-gray-800"
+                    >
+                      Starting point
+                    </Label>
+                    <Select
+                      id="generation-mode"
+                      value={generationMode}
+                      onValueChange={(value) =>
+                        setGenerationMode(
+                          value === "fresh" ? "fresh" : "customize",
+                        )
+                      }
+                      options={[
+                        { value: "customize", label: "Use my current rounds" },
+                        { value: "fresh", label: "Create a new workout" },
+                      ]}
+                      aria-labelledby="generation-mode-label"
+                      wrapperClassName="mt-2"
+                    />
+                  </div>
+                  {generationMode === "customize" && (
+                    <div>
+                      <Label htmlFor="ai-notes" className="text-gray-800">
+                        Extra direction (optional)
+                      </Label>
+                      <Textarea
+                        id="ai-notes"
+                        value={generationNotes}
+                        onChange={(event) =>
+                          setGenerationNotes(event.target.value)
+                        }
+                        maxLength={500}
+                        rows={3}
+                        placeholder="e.g. More defensive movement and fewer power shots"
+                        className="mt-2"
+                      />
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    onClick={generateWorkout}
+                    disabled={
+                      generating ||
+                      target === null ||
+                      roundLength === null ||
+                      (generationMode === "customize" && !roundLengthsValid)
+                    }
+                    className="min-h-11 w-full bg-orange-700 text-white hover:bg-orange-800 focus-visible:ring-orange-600"
+                  >
+                    {generating
+                      ? "Generating…"
+                      : hasGenerated
+                        ? "Regenerate workout"
+                        : "Generate workout"}
+                  </Button>
+                  {generationMode === "customize" && !roundLengthsValid && (
+                    <p className="text-sm text-orange-900">
+                      Set every round length from 1 to 30 minutes first.
+                    </p>
+                  )}
+                  <p role="alert" className="text-sm text-red-700">
+                    {generationError}
+                  </p>
+                  <p aria-live="polite" className="text-sm text-gray-700">
+                    {generationNotice}
+                  </p>
+                </div>
+              ) : (
+                <p className="mt-3 text-sm leading-6 text-gray-700">
+                  AI models are unavailable. Check the server API key and model
+                  access, then refresh this page.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -461,6 +700,47 @@ export default function ShadowboxingWorkoutBuilder() {
                       className="mt-2"
                     />
                   </div>
+                  <div className="sm:col-span-2">
+                    <Label
+                      htmlFor={`round-${round.id}-cue`}
+                      className="text-gray-800"
+                    >
+                      Coaching cue (optional)
+                    </Label>
+                    <Textarea
+                      id={`round-${round.id}-cue`}
+                      value={round.coachingCue}
+                      onChange={(event) =>
+                        updateRound(round.id, {
+                          coachingCue: event.target.value,
+                        })
+                      }
+                      rows={2}
+                      maxLength={180}
+                      placeholder="A short instruction you can use during the round"
+                      className="mt-2"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label
+                      htmlFor={`round-${round.id}-reminder`}
+                      className="text-gray-800"
+                    >
+                      Technique reminder (optional)
+                    </Label>
+                    <Input
+                      id={`round-${round.id}-reminder`}
+                      value={round.techniqueReminder}
+                      onChange={(event) =>
+                        updateRound(round.id, {
+                          techniqueReminder: event.target.value,
+                        })
+                      }
+                      maxLength={160}
+                      placeholder="e.g. Keep your chin tucked"
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
               </li>
             ))}
@@ -547,6 +827,18 @@ export default function ShadowboxingWorkoutBuilder() {
                     <p className="mt-2 text-sm leading-6 text-gray-700">
                       {round.objective.trim()}
                     </p>
+                    {round.coachingCue.trim() && (
+                      <p className="mt-2 text-sm leading-6 text-gray-700">
+                        <strong className="text-gray-900">Coach:</strong>{" "}
+                        {round.coachingCue.trim()}
+                      </p>
+                    )}
+                    {round.techniqueReminder.trim() && (
+                      <p className="mt-3 rounded-lg bg-orange-50 px-3 py-2 text-sm leading-6 text-orange-900">
+                        <strong>Remember:</strong>{" "}
+                        {round.techniqueReminder.trim()}
+                      </p>
+                    )}
                   </li>
                 ))}
               </ol>
@@ -569,6 +861,16 @@ export default function ShadowboxingWorkoutBuilder() {
           </p>
         )}
       </div>
+      {isOwner && (
+        <div className="lg:col-span-2">
+          <CoachingAudioBuilder
+            rounds={rounds}
+            generatedRounds={lastGeneratedRounds}
+            models={voiceModels}
+            voices={voices}
+          />
+        </div>
+      )}
     </div>
   );
 }

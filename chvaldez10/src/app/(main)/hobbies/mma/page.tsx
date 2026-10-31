@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
 import HobbyHero from "@/components/hobbies/HobbyHero";
 import ShadowboxingWorkoutBuilder from "@/components/mma/ShadowboxingWorkoutBuilder";
+import { availableAudioOptions } from "@/lib/workouts/audio/models.server";
+import { availableWorkoutModels } from "@/lib/workouts/models.server";
+import { workoutOwnerAccess } from "@/lib/workouts/owner.server";
 
 export const metadata: Metadata = {
   title: "MMA | Christian Valdez",
   description: "Christian Valdez's MMA hub and shadowboxing training space.",
 };
 
-export default function MmaPage() {
+export default async function MmaPage() {
+  const isOwner = (await workoutOwnerAccess()) === "owner";
+  const [models, audioOptions] = isOwner
+    ? await Promise.all([availableWorkoutModels(), availableAudioOptions()])
+    : [[], { models: [], voices: [] }];
+
   return (
     <>
       <HobbyHero
@@ -40,10 +48,15 @@ export default function MmaPage() {
             <p className="mt-5 text-base leading-7 text-gray-700">
               Build a session one round at a time. Choose your style and focus,
               set a technical objective for each round, then review the full
-              plan.
+              plan. {isOwner && "You can also generate a plan with AI."}
             </p>
           </div>
-          <ShadowboxingWorkoutBuilder />
+          <ShadowboxingWorkoutBuilder
+            isOwner={isOwner}
+            models={models}
+            voiceModels={audioOptions.models}
+            voices={audioOptions.voices}
+          />
         </div>
       </section>
     </>
