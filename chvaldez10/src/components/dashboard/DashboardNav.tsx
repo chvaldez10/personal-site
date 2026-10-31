@@ -71,23 +71,16 @@ export default function DashboardNav({ mobile = false }: { mobile?: boolean }) {
           <Menu aria-hidden="true" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="bg-white text-gray-950">
+      <SheetContent
+        side="left"
+        className="flex flex-col overflow-y-auto bg-white text-gray-950"
+      >
         <SheetHeader className="mb-8 text-left">
           <SheetTitle>Dashboard</SheetTitle>
         </SheetHeader>
         <NavLinks mobile />
-        <div className="mt-8 border-t border-orange-100 pt-5">
-          <SheetClose asChild>
-            <Link
-              href="/"
-              className="text-sm text-gray-700 underline-offset-4 hover:underline"
-            >
-              Back to the site
-            </Link>
-          </SheetClose>
-          <div className="mt-5">
-            <SignOut />
-          </div>
+        <div className="mt-auto border-t border-orange-100 pt-5">
+          <SignOut />
         </div>
       </SheetContent>
     </Sheet>

@@ -4,6 +4,7 @@ import { fetchQuery } from "convex/nextjs";
 import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 import { api } from "@convex/_generated/api";
 import DashboardNav from "@/components/dashboard/DashboardNav";
+import DashboardSiteLink from "@/components/dashboard/DashboardSiteLink";
 import SignOut from "@/components/ui/forms/SignOut";
 
 export default async function DashboardLayout({
@@ -27,26 +28,24 @@ export default async function DashboardLayout({
           Dashboard
         </Link>
         <p className="mt-1 truncate text-sm text-gray-600">{owner.email}</p>
-        <div className="mt-10 flex-1">
+        <DashboardSiteLink className="mt-6 w-full" />
+        <div className="mt-8 flex-1">
           <DashboardNav />
         </div>
-        <div className="space-y-4 border-t border-orange-100 pt-5">
-          <Link
-            href="/"
-            className="text-sm text-gray-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-orange-700"
-          >
-            Back to the site
-          </Link>
+        <div className="border-t border-orange-100 pt-5">
           <SignOut />
         </div>
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="flex items-center justify-between gap-4 border-b border-orange-100 bg-white px-4 py-3 lg:hidden">
-          <Link href="/dashboard" className="text-lg font-semibold">
+        <header className="flex items-center gap-2 border-b border-orange-100 bg-white px-4 py-3 lg:hidden">
+          <DashboardSiteLink className="px-2" />
+          <Link href="/dashboard" className="min-w-0 text-lg font-semibold">
             Dashboard
           </Link>
-          <DashboardNav mobile />
+          <div className="ml-auto">
+            <DashboardNav mobile />
+          </div>
         </header>
         <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
           {children}
