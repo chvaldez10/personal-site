@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { action, internalAction, env } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 
 type ProviderImage = {
@@ -108,8 +108,14 @@ export const requestUpload = action({
     ctx,
     args,
   ): Promise<{ uploadURL: string; imageId: string }> => {
-    await ctx.runQuery(internal.admin.requireAccess, {});
     text(args.filename, "Filename", 255);
+    const usage = await ctx.runMutation(api.admin.consumeExternalRequest, {
+      kind: "imageUpload",
+    });
+    if (!usage.ok)
+      throw new ConvexError(
+        `Upload limit reached. Try again in ${usage.retryAfterSeconds} seconds.`,
+      );
     const expiresAt = Date.now() + 15 * 60 * 1000;
     const data = new FormData();
     data.set("expiry", new Date(expiresAt).toISOString());
@@ -166,6 +172,13 @@ export const completeUpload = action({
       )
         throw new ConvexError("Use an HTTPS website link.");
     }
+    const usage = await ctx.runMutation(api.admin.consumeExternalRequest, {
+      kind: "imageVerification",
+    });
+    if (!usage.ok)
+      throw new ConvexError(
+        `Image verification limit reached. Try again in ${usage.retryAfterSeconds} seconds.`,
+      );
     const image = await providerRequest(
       `v1/${encodeURIComponent(args.imageId)}`,
     );
@@ -188,6 +201,13 @@ export const completeProjectUpload = action({
     const pending = await ctx.runQuery(internal.imageRecords.pending, { imageId });
     if (pending.expiresAt < Date.now())
       throw new ConvexError("Upload expired. Please choose the file again.");
+    const usage = await ctx.runMutation(api.admin.consumeExternalRequest, {
+      kind: "imageVerification",
+    });
+    if (!usage.ok)
+      throw new ConvexError(
+        `Image verification limit reached. Try again in ${usage.retryAfterSeconds} seconds.`,
+      );
     const image = await providerRequest(`v1/${encodeURIComponent(imageId)}`);
     validateCompleted(image, imageId);
     return displayURL(imageId);

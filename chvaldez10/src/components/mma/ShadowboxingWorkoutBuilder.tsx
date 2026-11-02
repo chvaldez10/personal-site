@@ -2,13 +2,19 @@
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import Link from "next/link";
-import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import {
+  useConvex,
+  useConvexAuth,
+  useMutation,
+  usePaginatedQuery,
+} from "convex/react";
 import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
+import type { Doc, Id } from "@convex/_generated/dataModel";
 import { z } from "zod";
 import { Button } from "@/components/ui/buttons/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PaginatedListFooter from "@/components/ui/PaginatedListFooter";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import CoachingAudioBuilder from "@/components/mma/CoachingAudioBuilder";
@@ -109,15 +115,22 @@ export default function ShadowboxingWorkoutBuilder({
     planSnapshot("Movement reset", "3", "3", "MMA", "Technique", sampleRounds),
   );
   const [saving, setSaving] = useState(false);
+  const [loadingSaved, setLoadingSaved] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saveNotice, setSaveNotice] = useState("");
   const [audioSession, setAudioSession] = useState(0);
   const loadedFromUrl = useRef(false);
   const { isAuthenticated } = useConvexAuth();
-  const savedWorkouts = useQuery(
-    api.shadowboxingWorkouts.list,
+  const convex = useConvex();
+  const {
+    results: savedWorkouts,
+    status: savedStatus,
+    loadMore: loadMoreSaved,
+  } = usePaginatedQuery(
+    api.shadowboxingWorkouts.page,
     isOwner && isAuthenticated ? {} : "skip",
+    { initialNumItems: 12 },
   );
   const saveToConvex = useMutation(api.shadowboxingWorkouts.save);
   const [modelId, setModelId] = useState(models[0]?.id ?? "");
@@ -165,9 +178,7 @@ export default function ShadowboxingWorkoutBuilder({
     ? modelId
     : (models[0]?.id ?? "");
 
-  function applySavedWorkout(
-    workout: NonNullable<typeof savedWorkouts>[number],
-  ) {
+  function applySavedWorkout(workout: Doc<"shadowboxingWorkouts">) {
     setDraftReady(false);
     try {
       window.localStorage.removeItem(draftKey);
@@ -211,16 +222,34 @@ export default function ShadowboxingWorkoutBuilder({
   }
 
   useEffect(() => {
-    if (loadedFromUrl.current || !savedWorkouts) return;
-    const timer = window.setTimeout(() => {
-      if (loadedFromUrl.current) return;
+    if (loadedFromUrl.current || !isOwner || !isAuthenticated) return;
+    const id = new URLSearchParams(window.location.search).get("workout");
+    if (!id) {
       loadedFromUrl.current = true;
-      const id = new URLSearchParams(window.location.search).get("workout");
-      const workout = savedWorkouts.find((item) => item._id === id);
-      if (workout) applySavedWorkout(workout);
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [savedWorkouts]);
+      return;
+    }
+    let cancelled = false;
+    void convex
+      .query(api.shadowboxingWorkouts.get, { id })
+      .then((workout) => {
+        if (cancelled) return;
+        loadedFromUrl.current = true;
+        if (workout) applySavedWorkout(workout);
+        else
+          setSaveError(
+            "That saved session is unavailable. Choose another session or start a new draft.",
+          );
+      })
+      .catch(() => {
+        if (!cancelled)
+          setSaveError(
+            "The saved session could not be loaded. Try opening it again from the dashboard.",
+          );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [convex, isOwner, isAuthenticated]);
 
   useEffect(() => {
     if (!isOwner) return;
@@ -279,7 +308,7 @@ export default function ShadowboxingWorkoutBuilder({
   }, [draftReady, hasUnsavedChanges, isOwner, currentSnapshot]);
 
   async function saveWorkout(asNew = false) {
-    if (saving || !isOwner || !isAuthenticated) return;
+    if (saving || loadingSaved || !isOwner || !isAuthenticated) return;
     setSaveError("");
     setSaveNotice("");
     const parsed = savedWorkoutSchema.safeParse({
@@ -331,15 +360,31 @@ export default function ShadowboxingWorkoutBuilder({
     }
   }
 
-  function loadSelectedWorkout() {
-    const workout = savedWorkouts?.find((item) => item._id === selectedSavedId);
-    if (!workout) return;
+  async function loadSelectedWorkout() {
+    if (!selectedSavedId || loadingSaved || saving || generating) return;
     if (
       hasUnsavedChanges &&
       !window.confirm("Replace your unsaved session changes?")
     )
       return;
-    applySavedWorkout(workout);
+    setLoadingSaved(true);
+    setSaveError("");
+    try {
+      const workout = await convex.query(api.shadowboxingWorkouts.get, {
+        id: selectedSavedId,
+      });
+      if (workout) applySavedWorkout(workout);
+      else
+        setSaveError(
+          "That saved session is unavailable. Your current draft is still here.",
+        );
+    } catch {
+      setSaveError(
+        "Could not load the session. Your current draft is still here. Please try again.",
+      );
+    } finally {
+      setLoadingSaved(false);
+    }
   }
 
   function updateRound(id: number, changes: Partial<Omit<WorkoutRound, "id">>) {
@@ -635,7 +680,7 @@ export default function ShadowboxingWorkoutBuilder({
               {savedWorkoutId && hasUnsavedChanges && (
                 <p className="mt-2 text-xs text-orange-900">Unsaved changes</p>
               )}
-              {savedWorkouts && savedWorkouts.length > 0 && (
+              {savedWorkouts.length > 0 && (
                 <div className="mt-5 border-t border-orange-200 pt-5">
                   <Label htmlFor="saved-workout-list" className="text-gray-800">
                     Open a saved session
@@ -644,10 +689,19 @@ export default function ShadowboxingWorkoutBuilder({
                     id="saved-workout-list"
                     value={selectedSavedId}
                     onValueChange={setSelectedSavedId}
-                    options={savedWorkouts.map((workout) => ({
-                      value: workout._id,
-                      label: workout.title,
-                    }))}
+                    disabled={saving || loadingSaved || generating}
+                    options={[
+                      ...savedWorkouts.map((workout) => ({
+                        value: workout._id,
+                        label: workout.title,
+                      })),
+                      ...(savedWorkoutId &&
+                      !savedWorkouts.some(
+                        (workout) => workout._id === savedWorkoutId,
+                      )
+                        ? [{ value: savedWorkoutId, label: workoutName }]
+                        : []),
+                    ]}
                     placeholder="Choose a session"
                     wrapperClassName="mt-2"
                   />
@@ -655,11 +709,19 @@ export default function ShadowboxingWorkoutBuilder({
                     type="button"
                     variant="outline"
                     onClick={loadSelectedWorkout}
-                    disabled={!selectedSavedId || saving}
+                    disabled={
+                      !selectedSavedId || saving || loadingSaved || generating
+                    }
                     className="mt-3"
                   >
-                    Load session
+                    {loadingSaved ? "Loading…" : "Load session"}
                   </Button>
+                  <PaginatedListFooter
+                    status={savedStatus}
+                    count={savedWorkouts.length}
+                    itemLabel="sessions"
+                    onLoadMore={() => loadMoreSaved(12)}
+                  />
                 </div>
               )}
               {saveError && (

@@ -1,15 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState, type SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useAction, useConvexAuth, useMutation, useQuery } from "convex/react";
+import {
+  useAction,
+  useConvexAuth,
+  useMutation,
+  usePaginatedQuery,
+  useQuery,
+} from "convex/react";
+import { ConvexError } from "convex/values";
 import type { Doc, Id } from "@convex/_generated/dataModel";
 import { api } from "@convex/_generated/api";
 import { Button } from "@/components/ui/buttons/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PaginatedListFooter from "@/components/ui/PaginatedListFooter";
 import { ProjectStatus } from "@/constants/projectData";
 import { IMAGE_TYPES, MAX_IMAGE_BYTES } from "@/lib/validation/logoUpload";
 import { dashboardFieldClass } from "./formStyles";
@@ -150,8 +158,10 @@ function ProjectEditor({
       else await create(details);
       form.reset();
       onSaved();
-    } catch {
-      setFeedback("Could not save this project. Check the fields and try again.");
+    } catch (error) {
+      setFeedback(error instanceof ConvexError && typeof error.data === "string"
+        ? error.data
+        : "Could not save this project. Check the fields and try again.");
     } finally {
       setPending(false);
     }
@@ -209,25 +219,26 @@ function ProjectEditor({
 
 export default function ProjectManager() {
   const { isLoading, isAuthenticated } = useConvexAuth();
-  const data = useQuery(api.projects.listForAdmin, isAuthenticated ? {} : "skip");
+  const section = useQuery(
+    api.projects.sectionForAdmin,
+    isAuthenticated ? {} : "skip",
+  );
+  const { results: projects, status, loadMore } = usePaginatedQuery(
+    api.projects.pageForAdmin,
+    isAuthenticated ? {} : "skip",
+    { initialNumItems: 20 },
+  );
   const importCurrent = useMutation(api.projects.importCurrent);
   const remove = useMutation(api.projects.remove);
   const move = useMutation(api.projects.move);
-  const importRequested = useRef(false);
   const [importFailed, setImportFailed] = useState(false);
   const [editingId, setEditingId] = useState<Id<"projects"> | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState("");
 
-  useEffect(() => {
-    if (!isAuthenticated || !data || data.section || importRequested.current) return;
-    importRequested.current = true;
-    void importCurrent({}).catch(() => setImportFailed(true));
-  }, [isAuthenticated, data, importCurrent]);
-
   if (isLoading) return <p>Connecting to your dashboard…</p>;
   if (!isAuthenticated) return <p>Your dashboard session is unavailable. <Link href="/login" className="underline">Sign in again</Link>.</p>;
-  if (data === undefined) return <p>Loading projects…</p>;
+  if (section === undefined || status === "LoadingFirstPage") return <p>Loading projects…</p>;
 
   async function importProjects() {
     setPendingId("import");
@@ -268,33 +279,30 @@ export default function ProjectManager() {
     }
   }
 
-  if (!data.section) {
+  if (!section) {
     return (
       <Card className="border-orange-200 bg-white text-gray-950">
         <CardHeader><h2 className="text-xl font-semibold">Current projects</h2></CardHeader>
         <CardContent className="space-y-4">
-          {importFailed ? (
-            <>
-              <p className="text-sm text-red-700">Could not load the current projects into the editor.</p>
-              <Button type="button" onClick={importProjects} disabled={pendingId === "import"}>{pendingId === "import" ? "Retrying…" : "Retry"}</Button>
-            </>
-          ) : <p className="text-sm text-gray-700">Getting your current projects ready to edit…</p>}
+          <p className="text-sm text-gray-700">Import the current home page cards to start editing them. This saves a copy in your database.</p>
+          {importFailed && <p role="alert" className="text-sm text-red-700">Could not import the current projects. Please try again.</p>}
+          <Button type="button" onClick={importProjects} disabled={pendingId === "import"}>{pendingId === "import" ? "Importing…" : "Import current projects"}</Button>
         </CardContent>
       </Card>
     );
   }
 
-  const editing = data.projects.find((project) => project._id === editingId);
+  const editing = projects.find((project) => project._id === editingId);
   return (
     <div className="space-y-6">
       <Card id="project-list" className="border-orange-200 bg-white text-gray-950">
         <CardHeader><h2 className="text-xl font-semibold">Current projects</h2></CardHeader>
         <CardContent>
           <output className="mb-4 block text-sm text-gray-700">{feedback}</output>
-          {data.projects.length === 0 ? <p className="text-sm text-gray-700">No projects yet. Add one below.</p> : (
+          {projects.length === 0 ? <p className="text-sm text-gray-700">No projects yet. Add one below.</p> : (
             <ul className="space-y-3">
-              {data.projects.map((project) => {
-                const peers = data.projects.filter((item) => item.status === project.status);
+              {projects.map((project) => {
+                const peers = projects.filter((item) => item.status === project.status);
                 const position = peers.findIndex((item) => item._id === project._id);
                 return (
                   <li key={project._id} className="flex flex-col gap-3 rounded-lg border border-orange-200 bg-[#fffbf5] p-3 sm:flex-row sm:items-center">
@@ -313,7 +321,7 @@ export default function ProjectManager() {
                         document.getElementById("project-editor")?.scrollIntoView();
                       }} disabled={pendingId !== null}>Edit</Button>
                       <Button type="button" size="sm" variant="outline" onClick={() => changeOrder(project._id, "up")} disabled={pendingId !== null || position === 0} aria-label={`Move ${project.projectName} up`}>↑</Button>
-                      <Button type="button" size="sm" variant="outline" onClick={() => changeOrder(project._id, "down")} disabled={pendingId !== null || position === peers.length - 1} aria-label={`Move ${project.projectName} down`}>↓</Button>
+                      <Button type="button" size="sm" variant="outline" onClick={() => changeOrder(project._id, "down")} disabled={pendingId !== null || (status === "Exhausted" && position === peers.length - 1)} aria-label={`Move ${project.projectName} down`}>↓</Button>
                       <Button type="button" size="sm" variant="destructive" onClick={() => deleteProject(project._id, project.projectName)} disabled={pendingId !== null}>Delete</Button>
                     </div>
                   </li>
@@ -321,6 +329,12 @@ export default function ProjectManager() {
               })}
             </ul>
           )}
+          <PaginatedListFooter
+            status={status}
+            count={projects.length}
+            itemLabel="projects"
+            onLoadMore={() => loadMore(20)}
+          />
         </CardContent>
       </Card>
       <ProjectEditor
@@ -333,7 +347,7 @@ export default function ProjectManager() {
         }}
         onCancel={() => setEditingId(null)}
       />
-      <SectionEditor section={data.section} />
+      <SectionEditor section={section} />
     </div>
   );
 }

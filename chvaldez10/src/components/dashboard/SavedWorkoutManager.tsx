@@ -2,16 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, usePaginatedQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { Button } from "@/components/ui/buttons/button";
+import PaginatedListFooter from "@/components/ui/PaginatedListFooter";
 
 export default function SavedWorkoutManager() {
-  const { isAuthenticated } = useConvexAuth();
-  const workouts = useQuery(
-    api.shadowboxingWorkouts.list,
+  const { isLoading, isAuthenticated } = useConvexAuth();
+  const {
+    results: workouts,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.shadowboxingWorkouts.page,
     isAuthenticated ? {} : "skip",
+    { initialNumItems: 12 },
   );
   const remove = useMutation(api.shadowboxingWorkouts.remove);
   const [removingId, setRemovingId] =
@@ -31,6 +37,18 @@ export default function SavedWorkoutManager() {
     }
   }
 
+  if (isLoading) return <p>Connecting to your dashboard…</p>;
+  if (!isAuthenticated)
+    return (
+      <p>
+        Your dashboard session is unavailable.{" "}
+        <Link href="/login" className="underline">
+          Sign in again
+        </Link>
+        .
+      </p>
+    );
+
   return (
     <div>
       <Button asChild>
@@ -41,7 +59,7 @@ export default function SavedWorkoutManager() {
           {error}
         </p>
       )}
-      {workouts === undefined ? (
+      {status === "LoadingFirstPage" ? (
         <p className="mt-6 text-sm text-gray-700">Loading sessions…</p>
       ) : workouts.length === 0 ? (
         <p className="mt-6 rounded-xl border border-dashed border-orange-200 bg-white p-6 text-sm text-gray-700">
@@ -66,13 +84,9 @@ export default function SavedWorkoutManager() {
                 </time>
               </div>
               <p className="mt-2 text-sm text-gray-700">
-                {workout.discipline} · {workout.focus} · {workout.rounds.length}{" "}
-                {workout.rounds.length === 1 ? "round" : "rounds"} ·{" "}
-                {workout.rounds.reduce(
-                  (sum, round) => sum + round.lengthMinutes,
-                  0,
-                )}{" "}
-                min
+                {workout.discipline} · {workout.focus} · {workout.roundCount}{" "}
+                {workout.roundCount === 1 ? "round" : "rounds"} ·{" "}
+                {workout.totalMinutes} min
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 <Button asChild size="sm">
@@ -96,6 +110,12 @@ export default function SavedWorkoutManager() {
           ))}
         </ul>
       )}
+      <PaginatedListFooter
+        status={status}
+        count={workouts.length}
+        itemLabel="sessions"
+        onLoadMore={() => loadMore(12)}
+      />
     </div>
   );
 }

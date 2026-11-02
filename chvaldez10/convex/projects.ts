@@ -1,4 +1,5 @@
 import { ConvexError, v } from "convex/values";
+import { paginationOptsValidator, paginationResultValidator } from "convex/server";
 import { mutation, query, type QueryCtx } from "./_generated/server";
 import schema from "./schema";
 import { requireOwner } from "./permissions";
@@ -88,6 +89,30 @@ export const listForAdmin = query({
   handler: async (ctx) => {
     await requireOwner(ctx);
     return readProjects(ctx);
+  },
+});
+
+export const sectionForAdmin = query({
+  args: {},
+  returns: v.union(schema.doc("projectSection"), v.null()),
+  handler: async (ctx) => {
+    await requireOwner(ctx);
+    return ctx.db
+      .query("projectSection")
+      .withIndex("by_name", (q) => q.eq("name", sectionName))
+      .unique();
+  },
+});
+
+export const pageForAdmin = query({
+  args: { paginationOpts: paginationOptsValidator },
+  returns: paginationResultValidator(schema.doc("projects")),
+  handler: async (ctx, args) => {
+    await requireOwner(ctx);
+    return ctx.db
+      .query("projects")
+      .withIndex("by_sortOrder")
+      .paginate(args.paginationOpts);
   },
 });
 
@@ -222,10 +247,20 @@ export const move = mutation({
     await requireOwner(ctx);
     const project = await ctx.db.get("projects", id);
     if (!project) throw new ConvexError("Project not found.");
-    const rows = await ctx.db.query("projects").withIndex("by_sortOrder").take(100);
-    const sameStatus = rows.filter((row) => row.status === project.status);
-    const position = sameStatus.findIndex((row) => row._id === id);
-    const neighbor = sameStatus[position + (direction === "up" ? -1 : 1)];
+    const neighbor = direction === "up"
+      ? await ctx.db
+          .query("projects")
+          .withIndex("by_status_and_sortOrder", (q) =>
+            q.eq("status", project.status).lt("sortOrder", project.sortOrder),
+          )
+          .order("desc")
+          .first()
+      : await ctx.db
+          .query("projects")
+          .withIndex("by_status_and_sortOrder", (q) =>
+            q.eq("status", project.status).gt("sortOrder", project.sortOrder),
+          )
+          .first();
     if (!neighbor) return null;
     await ctx.db.patch("projects", project._id, { sortOrder: neighbor.sortOrder });
     await ctx.db.patch("projects", neighbor._id, { sortOrder: project.sortOrder });

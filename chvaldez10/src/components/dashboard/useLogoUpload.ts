@@ -2,6 +2,7 @@
 
 import { useRef, useState, type SubmitEvent } from "react";
 import { useAction } from "convex/react";
+import { ConvexError } from "convex/values";
 import { api } from "@convex/_generated/api";
 import {
   IMAGE_TYPES,
@@ -78,11 +79,14 @@ export function useLogoUpload() {
       form.reset();
       uploaded.current = null;
       setFeedback({ text: "Logo added.", error: false });
-    } catch {
+    } catch (error) {
       setFeedback({
-        text: uploaded.current
-          ? "The image uploaded, but its details could not be saved. Try again to finish saving."
-          : "The image could not be uploaded. Please try again.",
+        text:
+          error instanceof ConvexError && typeof error.data === "string"
+            ? error.data
+            : uploaded.current
+              ? "The image uploaded, but its details could not be saved. Try again to finish saving."
+              : "The image could not be uploaded. Please try again.",
         error: true,
       });
     } finally {

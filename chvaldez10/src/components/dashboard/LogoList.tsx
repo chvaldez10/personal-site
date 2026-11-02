@@ -3,7 +3,7 @@ import type { api } from "@convex/_generated/api";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import LogoImage from "@/components/ui/LogoImage";
 
-type Logos = FunctionReturnType<typeof api.brandLogos.listForAdmin>;
+type Logos = FunctionReturnType<typeof api.brandLogos.pageForAdmin>["page"];
 
 export default function LogoList({ logos }: { logos: Logos | undefined }) {
   return (

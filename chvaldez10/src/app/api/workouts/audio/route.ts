@@ -11,6 +11,7 @@ import {
   audioRequestText,
 } from "@/lib/workouts/audio/schema";
 import { workoutOwnerAccess } from "@/lib/workouts/owner.server";
+import { reserveWorkoutRequest } from "@/lib/workouts/usage.server";
 
 export const runtime = "nodejs";
 
@@ -57,6 +58,9 @@ export async function POST(request: Request) {
     );
 
   const text = audioRequestText(parsed.data);
+
+  const limited = await reserveWorkoutRequest("coachingAudio");
+  if (limited) return limited;
 
   try {
     const audio = await generateCoachingAudio(model, voice.id, text);

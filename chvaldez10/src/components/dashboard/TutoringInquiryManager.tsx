@@ -1,27 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import Link from "next/link";
+import {
+  useConvexAuth,
+  useMutation,
+  usePaginatedQuery,
+} from "convex/react";
 import { api } from "@convex/_generated/api";
 import { Button } from "@/components/ui/buttons/button";
+import PaginatedListFooter from "@/components/ui/PaginatedListFooter";
 
 type InquiryStatus = "new" | "contacted" | "closed";
 const statuses: InquiryStatus[] = ["new", "contacted", "closed"];
 
 export default function TutoringInquiryManager() {
-  const { isAuthenticated } = useConvexAuth();
+  const { isLoading, isAuthenticated } = useConvexAuth();
   const [status, setStatus] = useState<InquiryStatus>("new");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const inquiries = useQuery(
-    api.tutoringInquiries.listForOwner,
+  const { results: inquiries, status: pageStatus, loadMore } = usePaginatedQuery(
+    api.tutoringInquiries.pageForOwner,
     isAuthenticated ? { status } : "skip",
+    { initialNumItems: 20 },
   );
   const setInquiryStatus = useMutation(api.tutoringInquiries.setStatus);
   const removeInquiry = useMutation(api.tutoringInquiries.remove);
 
   async function update(
-    id: NonNullable<typeof inquiries>[number]["_id"],
+    id: (typeof inquiries)[number]["_id"],
     nextStatus: InquiryStatus,
   ) {
     setBusyId(id);
@@ -35,7 +42,7 @@ export default function TutoringInquiryManager() {
     }
   }
 
-  async function remove(id: NonNullable<typeof inquiries>[number]["_id"]) {
+  async function remove(id: (typeof inquiries)[number]["_id"]) {
     if (!window.confirm("Delete this inquiry permanently?")) return;
     setBusyId(id);
     setError("");
@@ -48,6 +55,9 @@ export default function TutoringInquiryManager() {
     }
   }
 
+  if (isLoading) return <p>Connecting to your dashboard…</p>;
+  if (!isAuthenticated) return <p>Your dashboard session is unavailable. <Link href="/login" className="underline">Sign in again</Link>.</p>;
+
   return (
     <section className="space-y-5" aria-labelledby="tutoring-inquiries-title">
       <div>
@@ -55,7 +65,7 @@ export default function TutoringInquiryManager() {
           Tutoring inquiries
         </h2>
         <p className="text-sm text-muted-foreground">
-          The newest 100 inquiries in each status.
+          Newest inquiries first. Load more to see older requests.
         </p>
       </div>
       <div className="flex flex-wrap gap-2" aria-label="Filter inquiries">
@@ -65,6 +75,7 @@ export default function TutoringInquiryManager() {
             type="button"
             variant={status === item ? "default" : "outline"}
             onClick={() => setStatus(item)}
+            aria-pressed={status === item}
             className="capitalize"
           >
             {item}
@@ -76,7 +87,7 @@ export default function TutoringInquiryManager() {
           {error}
         </p>
       )}
-      {inquiries === undefined ? (
+      {pageStatus === "LoadingFirstPage" ? (
         <p>Loading inquiries…</p>
       ) : inquiries.length === 0 ? (
         <p>No {status} inquiries.</p>
@@ -138,6 +149,12 @@ export default function TutoringInquiryManager() {
           ))}
         </ul>
       )}
+      <PaginatedListFooter
+        status={pageStatus}
+        count={inquiries.length}
+        itemLabel="inquiries"
+        onLoadMore={() => loadMore(20)}
+      />
     </section>
   );
 }

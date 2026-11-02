@@ -6,6 +6,7 @@ import {
 import { roundSchedule, workoutPrompt } from "@/lib/workouts/generation";
 import { resolveWorkoutModel } from "@/lib/workouts/models.server";
 import { workoutOwnerAccess } from "@/lib/workouts/owner.server";
+import { reserveWorkoutRequest } from "@/lib/workouts/usage.server";
 import {
   generateStructuredWorkout,
   WorkoutGenerationError,
@@ -56,6 +57,9 @@ export async function POST(request: Request) {
     parsed.data.preferredRoundMinutes,
   );
   const prompt = workoutPrompt(parsed.data, schedule);
+
+  const limited = await reserveWorkoutRequest("workoutGeneration");
+  if (limited) return limited;
 
   try {
     const raw = await generateStructuredWorkout(model, prompt);

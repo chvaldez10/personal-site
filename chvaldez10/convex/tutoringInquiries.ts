@@ -1,4 +1,8 @@
 import { ConvexError, v } from "convex/values";
+import {
+  paginationOptsValidator,
+  paginationResultValidator,
+} from "convex/server";
 import { HOUR, RateLimiter } from "@convex-dev/rate-limiter";
 import { mutation, query } from "./_generated/server";
 import { components } from "./_generated/api";
@@ -79,6 +83,19 @@ export const listForOwner = query({
       .withIndex("by_status", (q) => q.eq("status", args.status))
       .order("desc")
       .take(100);
+  },
+});
+
+export const pageForOwner = query({
+  args: { status, paginationOpts: paginationOptsValidator },
+  returns: paginationResultValidator(schema.doc("tutoringInquiries")),
+  handler: async (ctx, args) => {
+    await requireOwner(ctx);
+    return ctx.db
+      .query("tutoringInquiries")
+      .withIndex("by_status", (q) => q.eq("status", args.status))
+      .order("desc")
+      .paginate(args.paginationOpts);
   },
 });
 

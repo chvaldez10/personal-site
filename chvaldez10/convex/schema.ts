@@ -23,6 +23,7 @@ export default defineSchema({
   })
     .index("by_legacyId", ["legacyId"])
     .index("by_sortOrder", ["sortOrder"])
+    .index("by_active_and_sortOrder", ["active", "sortOrder"])
     .index("by_cloudflareImageId", ["cloudflareImageId"]),
   featureFlags: defineTable({
     name: v.string(),
@@ -54,7 +55,9 @@ export default defineSchema({
       v.literal("Maintaining"),
     ),
     sortOrder: v.number(),
-  }).index("by_sortOrder", ["sortOrder"]),
+  })
+    .index("by_sortOrder", ["sortOrder"])
+    .index("by_status_and_sortOrder", ["status", "sortOrder"]),
   tutoringInquiries: defineTable({
     contactName: v.string(),
     email: v.string(),

@@ -1,4 +1,8 @@
 import { ConvexError, v } from "convex/values";
+import {
+  paginationOptsValidator,
+  paginationResultValidator,
+} from "convex/server";
 import { mutation, query } from "./_generated/server";
 import schema from "./schema";
 import { requireOwner } from "./permissions";
@@ -43,6 +47,58 @@ export const list = query({
       .withIndex("by_ownerId_and_updatedAt", (q) => q.eq("ownerId", owner._id))
       .order("desc")
       .take(50);
+  },
+});
+
+export const page = query({
+  args: { paginationOpts: paginationOptsValidator },
+  returns: paginationResultValidator(
+    v.object({
+      _id: v.id("shadowboxingWorkouts"),
+      title: v.string(),
+      discipline: v.string(),
+      focus: v.string(),
+      updatedAt: v.number(),
+      roundCount: v.number(),
+      totalMinutes: v.number(),
+    }),
+  ),
+  handler: async (ctx, args) => {
+    const owner = await requireOwner(ctx);
+    const result = await ctx.db
+      .query("shadowboxingWorkouts")
+      .withIndex("by_ownerId_and_updatedAt", (q) => q.eq("ownerId", owner._id))
+      .order("desc")
+      .paginate(args.paginationOpts);
+    return {
+      ...result,
+      page: result.page.map((workout) => ({
+        _id: workout._id,
+        title: workout.title,
+        discipline: workout.discipline,
+        focus: workout.focus,
+        updatedAt: workout.updatedAt,
+        roundCount: workout.rounds.length,
+        totalMinutes: workout.rounds.reduce(
+          (sum, round) => sum + round.lengthMinutes,
+          0,
+        ),
+      })),
+    };
+  },
+});
+
+export const get = query({
+  // A string allows malformed/deleted URL parameters to produce a usable
+  // not-found state without casting an untrusted value to an Id in the UI.
+  args: { id: v.string() },
+  returns: v.union(schema.doc("shadowboxingWorkouts"), v.null()),
+  handler: async (ctx, args) => {
+    const owner = await requireOwner(ctx);
+    const id = ctx.db.normalizeId("shadowboxingWorkouts", args.id);
+    if (!id) return null;
+    const workout = await ctx.db.get("shadowboxingWorkouts", id);
+    return workout?.ownerId === owner._id ? workout : null;
   },
 });
 
@@ -93,14 +149,6 @@ export const save = mutation({
       await ctx.db.replace("shadowboxingWorkouts", args.id, document);
       return args.id;
     }
-    const saved = await ctx.db
-      .query("shadowboxingWorkouts")
-      .withIndex("by_ownerId_and_updatedAt", (q) => q.eq("ownerId", owner._id))
-      .take(50);
-    if (saved.length >= 50)
-      throw new ConvexError(
-        "You can save up to 50 sessions. Delete one first.",
-      );
     return ctx.db.insert("shadowboxingWorkouts", document);
   },
 });
