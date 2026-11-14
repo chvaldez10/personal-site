@@ -2,7 +2,7 @@
 
 import { Canvas, useThree } from "@react-three/fiber";
 import { useEffect, useState } from "react";
-import { CanvasTexture, DoubleSide, RepeatWrapping } from "three";
+import { CanvasTexture, DoubleSide, RepeatWrapping, Spherical } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 const radius = 3.25;
@@ -51,28 +51,34 @@ function Camera({ onReady }: { onReady: (ready: boolean) => void }) {
     const redraw = () => invalidate();
     controls.addEventListener("change", redraw);
 
+    const offset = camera.position.clone();
+    const orbit = new Spherical();
+
     function rotate(event: Event) {
       if (!(event instanceof KeyboardEvent)) return;
+      orbit.setFromVector3(offset.copy(camera.position).sub(controls.target));
       switch (event.key) {
         case "ArrowLeft":
-          controls.rotateLeft(0.15);
+          orbit.theta -= 0.15;
           break;
         case "ArrowRight":
-          controls.rotateLeft(-0.15);
+          orbit.theta += 0.15;
           break;
         case "ArrowUp":
-          controls.rotateUp(0.13);
+          orbit.phi -= 0.13;
           break;
         case "ArrowDown":
-          controls.rotateUp(-0.13);
+          orbit.phi += 0.13;
           break;
         case "Home":
-          camera.position.set(...cameraSettings.position);
-          controls.update();
+          orbit.setFromVector3(offset.set(...cameraSettings.position).sub(controls.target));
           break;
         default:
           return;
       }
+      orbit.phi = Math.min(controls.maxPolarAngle, Math.max(controls.minPolarAngle, orbit.phi));
+      camera.position.copy(offset.setFromSpherical(orbit).add(controls.target));
+      controls.update();
       event.preventDefault();
     }
 

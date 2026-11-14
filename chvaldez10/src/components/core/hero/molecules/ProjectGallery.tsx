@@ -17,6 +17,7 @@ const ProjectGallery: FC<ProjectGalleryProps> = ({ projects }) => {
             title={project.projectName}
             description={project.projectDescription}
             imageSrc={project.projectImage}
+            imageSizes="(min-width: 80rem) 21.67rem, (min-width: 72rem) 33rem, (min-width: 64rem) calc(50vw - 3rem), (min-width: 48rem) calc(50vw - 2.5rem), (min-width: 40rem) calc(100vw - 4rem), calc(100vw - 2.5rem)"
             href={project.projectGithub}
           />
         ))}

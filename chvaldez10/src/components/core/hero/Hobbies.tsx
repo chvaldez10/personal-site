@@ -45,6 +45,7 @@ export default function Hobbies() {
               title={hobby.title}
               description={hobby.cardDescription}
               imageSrc={hobby.imageSrc}
+              imageSizes="(min-width: 60rem) 27.25rem, (min-width: 48rem) calc(50vw - 2.75rem), (min-width: 40rem) calc(100vw - 4rem), calc(100vw - 2.5rem)"
               imageAlt={hobby.imageAlt}
               href={hobby.href}
             />

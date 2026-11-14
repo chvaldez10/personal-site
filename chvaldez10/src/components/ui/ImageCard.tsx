@@ -7,6 +7,7 @@ interface ImageCardProps {
   title: string;
   description: string;
   imageSrc: string;
+  imageSizes: string;
   imageAlt?: string;
   href?: string;
 }
@@ -26,6 +27,7 @@ export default function ImageCard({
   title,
   description,
   imageSrc,
+  imageSizes,
   imageAlt = title,
   href,
 }: ImageCardProps) {
@@ -37,6 +39,7 @@ export default function ImageCard({
           alt={imageAlt}
           unoptimized={imageSrc.startsWith("https://")}
           fill={true}
+          sizes={imageSizes}
           style={{ objectFit: "cover", objectPosition: "center" }}
           className="rounded-t-lg object-center"
           loading="lazy"
