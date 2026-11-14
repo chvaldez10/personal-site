@@ -1,18 +1,18 @@
 import {
-  AboutMeJumbotron,
   TechFinds,
-  CurrentWorkExperience,
   ResumeHighlights,
   Projects,
   Hobbies,
 } from "@/components/core/hero";
+import AboutMeJumbotron3D from "@/components/core/hero/showcase/AboutMeJumbotron3D";
+import CurrentWorkExperience3D from "@/components/core/hero/showcase/CurrentWorkExperience3D";
 
 export default async function Home() {
   return (
     <>
-      <AboutMeJumbotron />
+      <AboutMeJumbotron3D />
       <TechFinds />
-      <CurrentWorkExperience />
+      <CurrentWorkExperience3D />
       <ResumeHighlights />
       <Projects />
       <Hobbies />

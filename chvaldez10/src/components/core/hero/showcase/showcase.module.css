@@ -1,0 +1,386 @@
+.about,
+.experience {
+  display: grid;
+  align-items: center;
+  min-height: 100svh;
+  color: #302321;
+}
+
+.about {
+  padding-block: 5rem 1.75rem;
+  background:
+    radial-gradient(ellipse at 77% 46%, #f8debd 0%, transparent 55%),
+    linear-gradient(150deg, #fffaf0, #fffdf8 75%, #fff);
+}
+
+.aboutLayout,
+.experienceLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.81fr) minmax(0, 1.19fr);
+  align-items: center;
+  gap: clamp(1rem, 3vw, 3rem);
+}
+
+.intro,
+.story {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #88462c;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.intro h1,
+.story h2 {
+  margin-top: 0.85rem;
+  font-weight: 800;
+  letter-spacing: -0.07em;
+  line-height: 0.99;
+  text-wrap: balance;
+}
+
+.intro h1 {
+  font-size: clamp(3rem, 6vw, 5.5rem);
+}
+
+.story h2 {
+  max-width: 13ch;
+  font-size: clamp(2.65rem, 4.65vw, 4.25rem);
+}
+
+.description {
+  max-width: 36ch;
+  margin-top: 1.45rem;
+  color: #5d4942;
+  font-size: clamp(1rem, 1.5vw, 1.12rem);
+  line-height: 1.65;
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.8rem;
+}
+
+.workbench,
+.boxOffice {
+  min-width: 0;
+}
+
+.preview {
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 1.48;
+  background: radial-gradient(ellipse at 50% 67%, #e69d7359, transparent 65%);
+}
+
+.preview[data-scene="workbench"]::before {
+  position: absolute;
+  inset: 7% 2% 26% 4%;
+  border: 1px solid #ba896032;
+  border-radius: 0.65rem;
+  background:
+    radial-gradient(circle, #90563745 1px, transparent 1.4px) 0 0 / 14px 14px,
+    linear-gradient(140deg, #f4dfc7, #edc59d);
+  mask-image: linear-gradient(#000 20%, #000c 58%, transparent);
+  content: "";
+}
+
+.preview[data-scene="box-office"] {
+  background: radial-gradient(ellipse at 51% 59%, #d7818052, transparent 67%);
+}
+
+.poster,
+.canvas {
+  position: absolute;
+  inset: 0;
+  transition: opacity 220ms ease-out;
+}
+
+.poster {
+  background: center / 100% auto no-repeat
+    url("/images/showcase/workbench.webp");
+}
+
+[data-scene="box-office"] .poster {
+  background-image: url("/images/showcase/box-office.webp");
+}
+
+.canvas,
+.preview[data-ready="true"] .poster {
+  opacity: 0;
+}
+
+.preview[data-ready="true"] .canvas {
+  opacity: 1;
+}
+
+.preview[data-scene="workbench"][data-ready="true"] {
+  cursor: grab;
+}
+
+.preview[data-scene="workbench"][data-ready="true"]:active {
+  cursor: grabbing;
+}
+
+.preview[data-exploring="true"] {
+  touch-action: none;
+}
+
+.sceneControls {
+  position: absolute;
+  inset: 1rem 1rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.dragHint {
+  margin-right: auto;
+  padding: 0.35rem 0.55rem;
+  border-radius: 0.4rem;
+  background: #fff9ec;
+  color: #643b32;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.exploreBench {
+  min-height: 2.75rem;
+  cursor: pointer;
+  background: #fff9ec;
+  pointer-events: auto;
+}
+
+.exploreBench[aria-pressed="true"] {
+  border-color: #7f3347;
+  background: #7f3347;
+  color: #fff7ed;
+}
+
+.workbenchControls {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+.propChoices {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #e5c9ae;
+  border-radius: 0.8rem;
+  background: #fff9ec;
+}
+
+.propChoices button {
+  min-width: 4.5rem;
+  color: #704635;
+}
+
+.propChoices button[aria-pressed="true"],
+.showChoices button[aria-pressed="true"] {
+  border-color: #7f3347;
+  background: #7f3347;
+  color: #fff7ed;
+}
+
+.note {
+  min-height: 2.8em;
+  max-width: 36ch;
+  color: #634e43;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.experience {
+  padding-block: clamp(2.5rem, 6svh, 5rem);
+  scroll-margin-top: 5rem;
+  background:
+    radial-gradient(ellipse at 73% 46%, #f4d7cf 0%, transparent 60%),
+    linear-gradient(#fff, #fff7ee 28%, #fff7ee 76%, #fff);
+}
+
+.story .eyebrow {
+  color: #8b3d54;
+}
+
+.boxOfficeControls {
+  display: grid;
+  justify-items: start;
+  gap: 0.95rem;
+  width: min(100%, 29rem);
+  margin-inline: auto;
+}
+
+.showChoices {
+  min-width: 0;
+}
+
+.showChoices legend {
+  margin-bottom: 0.55rem;
+  color: #583940;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.showChoices > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.showChoices button {
+  border-color: #dab0a6;
+  color: #642d3c;
+}
+
+.ticketWell {
+  width: 100%;
+  overflow: hidden;
+  padding: 0.2rem 0.45rem 0.55rem 0;
+}
+
+.ticket {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 6rem;
+  border: 1px solid #dfb8a0;
+  border-radius: 0.25rem;
+  background: #fff9ee;
+  box-shadow: 3px 4px 0 #a7516530;
+  color: #4b2933;
+  animation: slide-ticket 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ticket > div {
+  display: grid;
+  align-content: center;
+  gap: 0.2rem;
+  padding: 0.8rem 1rem;
+}
+
+.ticket strong {
+  font-size: 1.15rem;
+  line-height: 1.1;
+}
+
+.ticket span {
+  font-size: 0.75rem;
+}
+
+.ticketLabel {
+  color: #8a3d4a;
+  font-weight: 700;
+}
+
+.stub {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.35rem;
+  min-width: 3.7rem;
+  border-left: 1px dashed #bd807e;
+  background: #f7e4da;
+}
+
+.stub > span {
+  width: 1.8rem;
+  height: 1.4rem;
+  background: repeating-linear-gradient(
+    90deg,
+    #703246 0 1px,
+    transparent 1px 3px,
+    #703246 3px 5px,
+    transparent 5px 7px
+  );
+}
+
+@keyframes slide-ticket {
+  from {
+    opacity: 0;
+    transform: translateY(-65%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .about {
+    padding-top: 6.5rem;
+  }
+
+  .aboutLayout,
+  .experienceLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aboutLayout {
+    gap: 0;
+  }
+
+  .intro,
+  .story {
+    text-align: center;
+  }
+
+  .eyebrow,
+  .contact {
+    justify-content: center;
+  }
+
+  .description,
+  .story h2 {
+    margin-inline: auto;
+  }
+
+  .description {
+    margin-top: 1rem;
+  }
+
+  .contact {
+    margin-top: 1.25rem;
+  }
+
+  .workbench,
+  .boxOffice {
+    width: min(100%, 32rem);
+    margin-inline: auto;
+  }
+
+  .propChoices button,
+  .showChoices button {
+    min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview > div,
+  .ticket {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .ticket {
+    min-height: 7rem;
+  }
+}
