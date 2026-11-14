@@ -10,10 +10,9 @@ type SceneProps = ScenePreviewProps & {
   frame: RefObject<HTMLDivElement | null>;
   nearby: boolean;
   onReady: (ready: boolean) => void;
-  exploring: boolean;
 };
 
-function CameraMotion({ kind, frame, nearby, onReady, exploring }: SceneProps) {
+function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
   const invalidate = useThree((state) => state.invalidate);
   const canvas = useThree((state) => state.gl.domElement);
   const motion = useRef({
@@ -46,11 +45,10 @@ function CameraMotion({ kind, frame, nearby, onReady, exploring }: SceneProps) {
     function start(event: PointerEvent) {
       if (
         !element ||
+        element.dataset.ready !== "true" ||
         drag ||
         !event.isPrimary ||
-        event.button !== 0 ||
-        (event.pointerType !== "mouse" && !exploring) ||
-        (event.target instanceof Element && event.target.closest("button"))
+        event.button !== 0
       )
         return;
 
@@ -66,7 +64,9 @@ function CameraMotion({ kind, frame, nearby, onReady, exploring }: SceneProps) {
         const scale = 240 / element.clientHeight;
         adjustView(
           (drag.x - event.clientX) * scale * 0.006,
-          (event.clientY - drag.y) * scale * 0.025,
+          event.pointerType === "touch"
+            ? 0
+            : (event.clientY - drag.y) * scale * 0.025,
         );
         drag.x = event.clientX;
         drag.y = event.clientY;
@@ -90,7 +90,7 @@ function CameraMotion({ kind, frame, nearby, onReady, exploring }: SceneProps) {
     }
 
     function useKeys(event: KeyboardEvent) {
-      if (!exploring) return;
+      if (element?.dataset.ready !== "true") return;
       switch (event.key) {
         case "ArrowLeft":
           adjustView(-0.12, 0);
@@ -160,7 +160,7 @@ function CameraMotion({ kind, frame, nearby, onReady, exploring }: SceneProps) {
       window.removeEventListener("scroll", scroll);
       window.removeEventListener("resize", scroll);
     };
-  }, [exploring, frame, invalidate, kind, nearby]);
+  }, [frame, invalidate, kind, nearby]);
 
   useEffect(() => {
     function hide() {
@@ -182,14 +182,11 @@ function CameraMotion({ kind, frame, nearby, onReady, exploring }: SceneProps) {
     const state = motion.current;
     const workbench = kind === "workbench";
     const offset = state.scroll;
-    const still = firstFrame.current || state.reduced || !nearby || exploring;
+    const still = firstFrame.current || state.reduced || !nearby;
     const angle =
-      state.orbit +
-      (exploring ? -0.26 : 0) +
-      (still ? 0 : state.pointer * 0.3 + offset * 0.36);
+      state.orbit + (still ? 0 : state.pointer * 0.3 + offset * 0.36);
     const lift =
       state.elevation +
-      (exploring ? 0.65 : 0) +
       (still ? 0 : offset * 0.95 + (workbench ? state.pointerY * 0.7 : 0));
 
     const step = Math.min(delta, 0.035);

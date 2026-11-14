@@ -1,5 +1,6 @@
-import type { RefObject } from "react";
+import { useContext, useEffect, type RefObject } from "react";
 import { Button } from "@/components/ui/buttons/button";
+import { UpdateOctagonClock } from "./OctagonClock";
 import type { TimelineCaption } from "@/lib/workouts/audio/timeline";
 import type { WorkoutRound } from "@/lib/workouts/draft";
 
@@ -85,6 +86,27 @@ export default function SessionPlayer({
   const nextInstruction = displayedTrack?.captions.find(
     (item) => item.start > displayedElapsed + 0.5,
   );
+  const updateClock = useContext(UpdateOctagonClock);
+  const roundTime = clock(roundRemaining);
+  const roundTotal = displayRounds.length;
+  const hasRound = Boolean(activeRound && displayedTrack);
+  const phase = started
+    ? playing
+      ? "Work"
+      : "Paused"
+    : displayedTrack && displayedElapsed >= displayedTrack.totalSeconds
+      ? "Complete"
+      : "Ready";
+
+  useEffect(() => {
+    updateClock(
+      hasRound
+        ? { phase, round: activeIndex + 1, total: roundTotal, time: roundTime }
+        : null,
+    );
+  }, [activeIndex, hasRound, phase, roundTime, roundTotal, updateClock]);
+
+  useEffect(() => () => updateClock(null), [updateClock]);
 
   return (
     <div className="mt-6 rounded-2xl border border-orange-200 bg-white p-5 sm:p-6">
@@ -121,7 +143,7 @@ export default function SessionPlayer({
               className="font-mono text-lg font-semibold tabular-nums text-orange-900"
               aria-label="Time remaining in round"
             >
-              {clock(roundRemaining)}
+              {roundTime}
             </p>
           </div>
           <p className="mt-2 text-sm leading-6 text-gray-700">

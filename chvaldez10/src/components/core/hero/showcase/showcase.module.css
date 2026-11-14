@@ -127,47 +127,16 @@
 
 .preview[data-scene="workbench"][data-ready="true"] {
   cursor: grab;
+  touch-action: pan-y pinch-zoom;
+}
+
+.preview[data-scene="workbench"][data-ready="true"]:focus-visible {
+  outline: 2px solid #a55436;
+  outline-offset: 3px;
 }
 
 .preview[data-scene="workbench"][data-ready="true"]:active {
   cursor: grabbing;
-}
-
-.preview[data-exploring="true"] {
-  touch-action: none;
-}
-
-.sceneControls {
-  position: absolute;
-  inset: 1rem 1rem auto;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  pointer-events: none;
-}
-
-.dragHint {
-  margin-right: auto;
-  padding: 0.35rem 0.55rem;
-  border-radius: 0.4rem;
-  background: #fff9ec;
-  color: #643b32;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.exploreBench {
-  min-height: 2.75rem;
-  cursor: pointer;
-  background: #fff9ec;
-  pointer-events: auto;
-}
-
-.exploreBench[aria-pressed="true"] {
-  border-color: #7f3347;
-  background: #7f3347;
-  color: #fff7ed;
 }
 
 .workbenchControls {

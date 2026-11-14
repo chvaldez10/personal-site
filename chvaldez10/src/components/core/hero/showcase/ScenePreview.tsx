@@ -1,15 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import {
-  Component,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import { Button } from "@/components/ui/buttons";
+import { useEffect, useRef, useState } from "react";
+import { canRenderScene, CanvasBoundary } from "@/components/ui/WebGLPreview";
 import styles from "./showcase.module.css";
 
 export type ScenePreviewProps =
@@ -20,44 +13,12 @@ const ShowcaseCanvas = dynamic(() => import("./ShowcaseCanvas"), {
   ssr: false,
 });
 
-let supportsWebGL: boolean | undefined;
-
-function canRenderScene() {
-  if (supportsWebGL === undefined) {
-    const context = document.createElement("canvas").getContext("webgl2");
-    supportsWebGL = context !== null;
-    context?.getExtension("WEBGL_lose_context")?.loseContext();
-  }
-  return supportsWebGL;
-}
-
-class CanvasBoundary extends Component<
-  { children: ReactNode; onFailure: () => void },
-  { failed: boolean }
-> {
-  state = { failed: false };
-
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-
-  componentDidCatch() {
-    this.props.onFailure();
-  }
-
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
-}
-
 export default function ScenePreview(props: ScenePreviewProps) {
   const frame = useRef<HTMLDivElement>(null);
   const [nearby, setNearby] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [exploring, setExploring] = useState(false);
-  const instructions = useId();
   const interactive = props.kind === "workbench" && ready && !failed;
 
   useEffect(() => {
@@ -78,10 +39,17 @@ export default function ScenePreview(props: ScenePreviewProps) {
   return (
     <div
       ref={frame}
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- The workbench handles arrow keys and Home.
+      tabIndex={interactive ? 0 : undefined}
+      role={interactive ? "application" : undefined}
+      aria-label={
+        interactive
+          ? "3D workbench. Use arrow keys to rotate and Home to reset."
+          : undefined
+      }
       className={styles.preview}
       data-scene={props.kind}
       data-ready={ready && !failed}
-      data-exploring={interactive && exploring}
     >
       <div className={styles.poster} aria-hidden="true" />
       {loaded && !failed && (
@@ -92,34 +60,8 @@ export default function ScenePreview(props: ScenePreviewProps) {
               frame={frame}
               nearby={nearby}
               onReady={setReady}
-              exploring={interactive && exploring}
             />
           </CanvasBoundary>
-        </div>
-      )}
-      {interactive && (
-        <div className={styles.sceneControls}>
-          {exploring && (
-            <span className={styles.dragHint}>Drag to look around</span>
-          )}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className={styles.exploreBench}
-            aria-pressed={exploring}
-            aria-describedby={instructions}
-            onClick={() => setExploring((active) => !active)}
-            onKeyDown={(event) => {
-              if (exploring && event.key === "Escape") setExploring(false);
-            }}
-          >
-            {exploring ? "Done" : "Explore 3D"}
-          </Button>
-          <span id={instructions} className="sr-only">
-            Activate, then drag the workbench or use the arrow keys to change
-            your view. Press Home to reset the view or Escape to finish.
-          </span>
         </div>
       )}
     </div>

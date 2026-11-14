@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 interface HobbyHeroProps {
   title: string;
@@ -8,8 +9,9 @@ interface HobbyHeroProps {
   imageSrc: string;
   imageAlt: string;
   imageClassName?: string;
-  sectionHref: string;
-  sectionLinkText: string;
+  scene?: ReactNode;
+  sectionHref?: string;
+  sectionLinkText?: string;
 }
 
 export default function HobbyHero({
@@ -19,6 +21,7 @@ export default function HobbyHero({
   imageSrc,
   imageAlt,
   imageClassName = "object-cover",
+  scene,
   sectionHref,
   sectionLinkText,
 }: HobbyHeroProps) {
@@ -41,12 +44,14 @@ export default function HobbyHero({
           <p className="mt-6 max-w-xl text-lg leading-8 text-gray-700">
             {description}
           </p>
-          <Link
-            href={sectionHref}
-            className="mt-8 inline-flex font-semibold text-pink-700 underline decoration-orange-500 decoration-2 underline-offset-4 hover:text-pink-800 focus-visible:outline-2 focus-visible:outline-offset-4"
-          >
-            {sectionLinkText} ↓
-          </Link>
+          {sectionHref && sectionLinkText && (
+            <Link
+              href={sectionHref}
+              className="mt-8 inline-flex font-semibold text-pink-700 underline decoration-orange-500 decoration-2 underline-offset-4 hover:text-pink-800 focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
+              {sectionLinkText} ↓
+            </Link>
+          )}
         </div>
         <div className="relative aspect-4/3 overflow-hidden rounded-2xl shadow-lg">
           <Image
@@ -56,6 +61,7 @@ export default function HobbyHero({
             sizes="(max-width: 1024px) 100vw, 50vw"
             className={imageClassName}
           />
+          {scene}
         </div>
       </div>
     </section>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import HobbyHero from "@/components/hobbies/HobbyHero";
+import { OctagonClockProvider } from "@/components/mma/OctagonClock";
+import OctagonPreview from "@/components/mma/OctagonPreview";
 import ShadowboxingWorkoutBuilder from "@/components/mma/ShadowboxingWorkoutBuilder";
 import { availableAudioOptions } from "@/lib/workouts/audio/models.server";
 import { availableWorkoutModels } from "@/lib/workouts/models.server";
@@ -17,7 +19,7 @@ export default async function MmaPage() {
     : [[], { models: [], voices: [] }];
 
   return (
-    <>
+    <OctagonClockProvider>
       <HobbyHero
         title="MMA"
         eyebrow="Hobbies / MMA"
@@ -25,8 +27,7 @@ export default async function MmaPage() {
         imageSrc="/images/octagon.jpg"
         imageAlt="An MMA octagon inside an arena"
         imageClassName="object-cover object-[center_65%]"
-        sectionHref="#shadowboxing"
-        sectionLinkText="Explore shadowboxing practice"
+        scene={<OctagonPreview />}
       />
 
       <section
@@ -60,6 +61,6 @@ export default async function MmaPage() {
           />
         </div>
       </section>
-    </>
+    </OctagonClockProvider>
   );
 }
