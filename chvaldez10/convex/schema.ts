@@ -1,6 +1,7 @@
 import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { itunesTrack } from "../src/lib/itunes/track";
 
 export const logoFields = {
   legacyId: v.union(v.number(), v.null()),
@@ -16,6 +17,11 @@ export const logoFields = {
 
 export default defineSchema({
   ...authTables,
+  kpopGroups: defineTable({
+    name: v.string(),
+    nameKey: v.string(),
+    songs: v.array(itunesTrack),
+  }).index("by_nameKey", ["nameKey"]),
   brandLogos: defineTable({
     ...logoFields,
     sortOrder: v.number(),

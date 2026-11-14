@@ -17,6 +17,11 @@ const sections = [
     description: "Open, tune, or remove short practice plans.",
   },
   {
+    href: "/dashboard/k-pop",
+    title: "K-pop",
+    description: "Manage groups and iTunes song previews.",
+  },
+  {
     href: "/dashboard/tutoring-inquiries",
     title: "Tutoring inquiries",
     description: "View and manage tutoring inquiries.",

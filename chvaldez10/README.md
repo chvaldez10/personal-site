@@ -23,6 +23,8 @@ pnpm dev
 
 Open http://localhost:3000. One runner starts Next and the Convex development watcher. dev:web and dev:backend also work separately. Starting the backend watcher updates the selected cloud development deployment; routine checks do not.
 
+Open `/dashboard/k-pop` to add a group, search the Canadian iTunes catalog by song title, and choose a preview to publish. You can rename groups or remove songs there. The public collection lives at `/hobbies/k-pop#songs`.
+
 Cloudflare's API token and auth secrets belong in the Convex deployment settings. Never put them in NEXT_PUBLIC_ variables.
 
 For owner account setup, follow [the short Convex guide](docs/convex-migration/README.md).

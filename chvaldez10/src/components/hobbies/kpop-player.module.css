@@ -1,0 +1,56 @@
+.art {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1.38;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 86%);
+  border-radius: 1.35rem;
+  background:
+    radial-gradient(
+      ellipse at 50% 44%,
+      #fff9fe 2%,
+      #fff9fe88 43%,
+      transparent 72%
+    ),
+    repeating-linear-gradient(0deg, transparent 0 19px, #fff6 19px 20px),
+    repeating-linear-gradient(90deg, transparent 0 19px, #fff6 19px 20px),
+    linear-gradient(145deg, #fff8fb, transparent 82%);
+}
+
+.expanded {
+  aspect-ratio: auto;
+  height: clamp(22rem, 66vh, 42rem);
+}
+
+.disc {
+  width: 56%;
+  max-width: 17rem;
+  aspect-ratio: 1;
+  margin-bottom: 5%;
+  border: 1px solid #fff9;
+  border-radius: 50%;
+  background-image:
+    radial-gradient(
+      circle,
+      #fff9fe 0 7%,
+      #9c7fa9 7.5% 9%,
+      #f8e9ff 9.5% 17%,
+      transparent 17.5%
+    ),
+    repeating-radial-gradient(circle, transparent 0 2px, #fff4 2px 3px),
+    conic-gradient(
+      from -17deg,
+      #fff9,
+      #f9c3fd,
+      #eef8ff,
+      #c7cafa,
+      #fff7b5,
+      #f9d3ed,
+      #fff9
+    );
+  box-shadow: 0 16px 30px #55376d38;
+  transform: rotate(-20deg) scaleY(0.94);
+}

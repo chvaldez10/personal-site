@@ -1,10 +1,10 @@
 "use client";
 import { useConvexAuth, usePaginatedQuery } from "convex/react";
-import Link from "next/link";
 import { api } from "@convex/_generated/api";
 import LogoUploadForm from "./LogoUploadForm";
 import LogoList from "./LogoList";
 import PaginatedListFooter from "@/components/ui/PaginatedListFooter";
+import DashboardSessionStatus from "./DashboardSessionStatus";
 
 export default function LogoManager() {
   const { isLoading, isAuthenticated } = useConvexAuth();
@@ -18,18 +18,8 @@ export default function LogoManager() {
     isAuthenticated ? {} : "skip",
     { initialNumItems: 20 },
   );
-  if (isLoading) return <output>Connecting to your dashboard…</output>;
-  if (!isAuthenticated) {
-    return (
-      <output>
-        Your dashboard session is unavailable.{" "}
-        <Link href="/login" className="underline">
-          Sign in again
-        </Link>
-        .
-      </output>
-    );
-  }
+  if (isLoading || !isAuthenticated)
+    return <DashboardSessionStatus loading={isLoading} />;
   return (
     <div className="space-y-8">
       <LogoUploadForm />

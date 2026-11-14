@@ -1,82 +1,66 @@
 import type { Metadata } from "next";
-import HobbyHero from "@/components/hobbies/HobbyHero";
+import Link from "next/link";
+import { connection } from "next/server";
+import { fetchQuery } from "convex/nextjs";
+import { api } from "@convex/_generated/api";
+import KpopPlayer from "@/components/hobbies/KpopPlayer";
 
 export const metadata: Metadata = {
   title: "K-pop | Christian Valdez",
-  description: "A home for Christian Valdez's K-pop interests.",
+  description: "The K-pop groups and songs I keep coming back to.",
 };
 
-const collections = [
-  {
-    id: "artists",
-    title: "Favourite artists",
-    description: "A place to share the artists I keep coming back to.",
-  },
-  {
-    id: "songs",
-    title: "Favourite songs",
-    description: "Songs I want to highlight will live here.",
-  },
-  {
-    id: "playlists",
-    title: "Playlists",
-    description: "Playlists I want to share will live here.",
-  },
-];
+export default async function KpopPage() {
+  await connection();
+  const groups = await fetchQuery(api.kpop.listGroups, {}).catch(
+    (error: unknown) => {
+      console.error("Could not load K-pop songs", error);
+      return null;
+    },
+  );
+  const featured = groups?.filter(({ songs }) => songs.length > 0);
 
-export default function KpopPage() {
   return (
-    <>
-      <HobbyHero
-        title="K-pop"
-        eyebrow="Hobbies / Music"
-        description="A home for the music, performances, and creativity I enjoy in K-pop."
-        imageSrc="/images/kpop-image.jpg"
-        imageAlt="A K-pop display in a city street"
-        sectionHref="#collections"
-        sectionLinkText="Explore the collections"
-      />
-
-      <section
-        id="collections"
-        aria-labelledby="collections-heading"
-        className="scroll-mt-20 bg-white py-24 sm:py-32"
-      >
-        <div className="home-container">
-          <p className="text-xs font-bold tracking-[0.22em] text-orange-700 uppercase">
-            K-pop
+    <div className="min-h-screen bg-[#fff9f3] pb-20 pt-28 sm:pb-28 sm:pt-32">
+      <div className="home-container">
+        <Link
+          href="/#hobbies"
+          className="rounded-sm text-sm font-semibold text-pink-800 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4"
+        >
+          ← Back to hobbies
+        </Link>
+        <header className="mb-8 mt-6 sm:mb-10">
+          <h1 className="text-6xl font-black tracking-[-0.085em] text-[#261729] sm:text-8xl">
+            K-pop<span className="text-[#ae245c]">.</span>
+          </h1>
+          <p className="mt-4 max-w-md text-base leading-relaxed text-[#594251] sm:text-lg">
+            The groups and songs I keep coming back to.
           </p>
+        </header>
+        <section
+          id="songs"
+          aria-labelledby="songs-heading"
+          className="scroll-mt-24"
+        >
           <h2
-            id="collections-heading"
-            className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl"
+            id="songs-heading"
+            className="mb-4 text-xl font-bold tracking-tight text-[#261729]"
           >
-            What I&apos;m listening to
+            Favourite songs
           </h2>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-gray-700">
-            I&apos;ll add my favourites here as I go.
-          </p>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {collections.map((collection) => (
-              <section
-                key={collection.id}
-                id={collection.id}
-                aria-labelledby={`${collection.id}-heading`}
-                className="rounded-2xl border border-orange-200 bg-(--brand-secondary-100) p-6 shadow-sm sm:p-8"
-              >
-                <h3
-                  id={`${collection.id}-heading`}
-                  className="text-xl font-bold text-gray-900"
-                >
-                  {collection.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-gray-700 sm:text-base">
-                  {collection.description}
-                </p>
-              </section>
-            ))}
-          </div>
-        </div>
-      </section>
-    </>
+          {!featured ? (
+            <p className="text-sm text-gray-700">
+              Song previews are temporarily unavailable.
+            </p>
+          ) : featured.length === 0 ? (
+            <p className="text-sm text-gray-700">
+              Songs I want to highlight will live here.
+            </p>
+          ) : (
+            <KpopPlayer groups={featured} />
+          )}
+        </section>
+      </div>
+    </div>
   );
 }

@@ -7,6 +7,7 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { Button } from "@/components/ui/buttons/button";
 import PaginatedListFooter from "@/components/ui/PaginatedListFooter";
+import DashboardSessionStatus from "./DashboardSessionStatus";
 
 export default function SavedWorkoutManager() {
   const { isLoading, isAuthenticated } = useConvexAuth();
@@ -37,17 +38,8 @@ export default function SavedWorkoutManager() {
     }
   }
 
-  if (isLoading) return <p>Connecting to your dashboard…</p>;
-  if (!isAuthenticated)
-    return (
-      <p>
-        Your dashboard session is unavailable.{" "}
-        <Link href="/login" className="underline">
-          Sign in again
-        </Link>
-        .
-      </p>
-    );
+  if (isLoading || !isAuthenticated)
+    return <DashboardSessionStatus loading={isLoading} />;
 
   return (
     <div>

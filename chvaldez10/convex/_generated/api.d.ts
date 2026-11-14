@@ -16,6 +16,7 @@ import type * as featureFlags from "../featureFlags.js";
 import type * as http from "../http.js";
 import type * as imageRecords from "../imageRecords.js";
 import type * as images from "../images.js";
+import type * as kpop from "../kpop.js";
 import type * as migrations from "../migrations.js";
 import type * as permissions from "../permissions.js";
 import type * as projects from "../projects.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   imageRecords: typeof imageRecords;
   images: typeof images;
+  kpop: typeof kpop;
   migrations: typeof migrations;
   permissions: typeof permissions;
   projects: typeof projects;
