@@ -34,7 +34,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "convex": "^1.46.0",
+    "convex": "^1.50.0",
     "jose": "^6.2.12",
     "kokoro-js": "1.2.1",
     "lucide-react": "^1.33.0",

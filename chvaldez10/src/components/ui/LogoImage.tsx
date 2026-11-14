@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { ImageOff } from "lucide-react";
 
 function imageSource(source: string | null | undefined): string | null {
@@ -43,7 +42,8 @@ function ImageAttempt({
     /* eslint-enable jsx-a11y/prefer-tag-over-role */
   }
   return (
-    <Image
+    // oxlint-disable-next-line next/no-img-element -- Logos are already served directly by the image host and can have an unknown aspect ratio.
+    <img
       src={src}
       alt={alt}
       width={size}
@@ -51,7 +51,8 @@ function ImageAttempt({
       style={{ width: size, height: naturalHeight ? "auto" : size }}
       className="shrink-0 object-contain"
       draggable={false}
-      unoptimized
+      loading="lazy"
+      decoding="async"
       onError={() => setFailed(true)}
     />
   );

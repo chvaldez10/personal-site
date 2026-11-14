@@ -8,7 +8,8 @@ import {
   type NextRequest,
   type NextFetchEvent,
 } from "next/server";
-import { api } from "./convex/_generated/api";
+import { api } from "../convex/_generated/api";
+
 function protectedRoute(path: string) {
   return ["/dashboard", "/admin"].some(
     (base) => path === base || path.startsWith(base + "/"),
@@ -24,7 +25,7 @@ const authenticate = convexAuthNextjsMiddleware(
   },
   { shouldHandleCode: false },
 );
-export async function middleware(request: NextRequest, event: NextFetchEvent) {
+export async function proxy(request: NextRequest, event: NextFetchEvent) {
   try {
     return await authenticate(request, event);
   } catch {

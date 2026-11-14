@@ -58,6 +58,7 @@ export default function HobbyHero({
             src={imageSrc}
             alt={imageAlt}
             fill
+            loading="eager"
             sizes="(max-width: 1024px) 100vw, 50vw"
             className={imageClassName}
           />
