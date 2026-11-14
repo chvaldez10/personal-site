@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/buttons";
 import ScenePreview, { type ScenePreviewProps } from "./ScenePreview";
 import styles from "./showcase.module.css";
@@ -25,12 +25,17 @@ const props = [
   },
 ] as const;
 
-export default function WorkbenchPreview() {
+export default function WorkbenchPreview({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [selected, setSelected] = useState<Prop>("sketch");
   const note = props.find((item) => item.id === selected)?.note;
 
   return (
     <div className={styles.workbench}>
+      {children}
       <ScenePreview kind="workbench" selected={selected} />
       <div className={styles.workbenchControls}>
         <fieldset className={styles.propChoices}>

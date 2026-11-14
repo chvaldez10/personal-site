@@ -56,6 +56,20 @@ The dashboard uploads images directly to Cloudflare using a short-lived upload U
 
 Résumé links use /api/resume, which serves the PDF from Convex and falls back to /docs/resume.pdf if it is unavailable. Keep public/docs/resume.pdf current. Logo failures show an icon while keeping their text and details usable.
 
+## Three.js scenes
+
+The workbench, Showpass box office, and MMA octagon use Three.js with React Three Fiber 9. The models use geometry and materials defined in code. Next.js renders the page and its HTML controls, and the browser loads each canvas as it approaches the viewport.
+
+| Scene | Where to make changes |
+| --- | --- |
+| First-person workbench and box office | [`showcase/`](src/components/core/hero/showcase/) contains `ShowcaseModels.tsx` for geometry, `ShowcaseCanvas.tsx` for cameras and lighting, and `showcase.module.css` for layout and still images. `WorkbenchPreview.tsx` passes the selected prop to the scene. `BoxOfficeExperience.tsx` passes the selected show and print count. |
+| MMA octagon | [`OctagonCanvas.tsx`](src/components/mma/OctagonCanvas.tsx) contains the cage model and Three.js `OrbitControls`. [`OctagonPreview.tsx`](src/components/mma/OctagonPreview.tsx) layers the canvas and HTML corner timer over the existing photo. `SessionPlayer.tsx` supplies the timer with the current round, remaining time, and playback state. |
+
+- **Rendering.** Each canvas uses `frameloop="demand"`. When a prop selection, ticket print, or camera movement changes a target, call `invalidate()` to request a frame. Request additional frames only while an animation is still settling.
+- **Input.** Drag the workbench or octagon directly. On phones, swipe sideways to rotate and vertically to scroll the page. With a scene focused, use the arrow keys to rotate and Home to reset the view.
+- **Fallbacks.** [`WebGLPreview.tsx`](src/components/ui/WebGLPreview.tsx) checks for WebGL 2 and catches canvas errors. The homepage uses stills in [`public/images/showcase/`](public/images/showcase/). When changing the starting pose or camera, refresh the corresponding stills from the isolated canvas with a transparent background. Capture only the scene geometry and keep the desktop and mobile workbench framing aligned with `showcase.module.css`.
+- **Local check.** Run `pnpm dev:web` and open `/` and `/hobbies/mma`. Reload at desktop and phone widths to check the still-to-canvas transition. Try Sketch, Build, and Test with the pointer left over the button, print a sample ticket, and check scene dragging and keyboard controls. Repeat with reduced motion and WebGL disabled. To check the corner timer, start and pause a prepared session as the signed-in owner and compare it with the player.
+
 ## AI shadowboxing
 
 The manual builder at `/hobbies/mma` remains public. Workout generation appears only for the signed-in owner. Add `GEMINI_API_KEY` to `.env.local` and restart Next; set the same server-only variable in Vercel if you want generation on the hosted site. Never use a `NEXT_PUBLIC_` key. The model selector lists only configured Gemini models that the key reports as available. Gemini 3.5 Flash-Lite is the default, with Gemini 3.1 Flash-Lite as another free-tier option. The API route validates requests and generated workouts with Zod, and each regeneration makes another API call. Google sets the actual quota for your project; check [AI Studio rate limits](https://ai.google.dev/gemini-api/docs/rate-limits) if you receive a limit message.

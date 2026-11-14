@@ -11,7 +11,7 @@ import styles from "./showcase.module.css";
 export default function AboutMeJumbotron3D() {
   return (
     <section className={styles.about} aria-labelledby="about-heading">
-      <div className={`home-container ${styles.aboutLayout}`}>
+      <WorkbenchPreview>
         <div className={styles.intro}>
           <p className={styles.eyebrow}>
             <TriangleAlert size={16} aria-hidden="true" />
@@ -42,8 +42,7 @@ export default function AboutMeJumbotron3D() {
             />
           </div>
         </div>
-        <WorkbenchPreview />
-      </div>
+      </WorkbenchPreview>
     </section>
   );
 }

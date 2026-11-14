@@ -212,6 +212,7 @@ function BenchProp({
   lift: number;
 }) {
   const group = useRef<Group>(null);
+  const positioned = useRef(false);
   const reducedMotion = useRef(false);
   const invalidate = useThree((state) => state.invalidate);
 
@@ -226,6 +227,11 @@ function BenchProp({
     return () => media.removeEventListener("change", update);
   }, [invalidate]);
 
+  useEffect(() => {
+    // A lift change needs a first frame even when the canvas is idle.
+    invalidate();
+  }, [invalidate, lift]);
+
   useFrame((_, delta) => {
     if (!group.current) return;
     const height = MathUtils.damp(
@@ -234,7 +240,9 @@ function BenchProp({
       13,
       Math.min(delta, 0.035),
     );
-    group.current.position.y = reducedMotion.current ? lift : height;
+    group.current.position.y =
+      reducedMotion.current || !positioned.current ? lift : height;
+    positioned.current = true;
     if (Math.abs(group.current.position.y - lift) > 0.001) invalidate();
   });
 
@@ -250,26 +258,36 @@ export function WorkbenchModel({
 }: Pick<Extract<ScenePreviewProps, { kind: "workbench" }>, "selected">) {
   return (
     <>
-      <Block size={[5.7, 0.22, 2.7]} color="#c68960" at={[0, -0.14, 0]} />
-      <Block size={[5.62, 0.055, 2.61]} color="#e7b481" at={[0, -0.015, 0]} />
-      <Block size={[5.35, 0.11, 0.035]} color="#ae624a" at={[0, -0.15, 1.36]} />
-      <Block size={[0.4, 0.62, 2.22]} color="#aa634a" at={[-2.35, -0.53, 0]} />
-      <Block size={[0.4, 0.62, 2.22]} color="#aa634a" at={[2.35, -0.53, 0]} />
-      <Block
-        size={[1.4, 0.26, 1.42]}
-        color="#9f5b44"
-        at={[-1.38, -0.37, 0.47]}
-      />
-      <Block
-        size={[1.24, 0.19, 0.075]}
-        color="#c78860"
-        at={[-1.38, -0.37, 1.19]}
-      />
-      <Block
-        size={[0.36, 0.052, 0.082]}
-        color={ink}
-        at={[-1.38, -0.37, 1.254]}
-      />
+      <Block size={[30, 0.18, 6.3]} color="#d6a576" at={[0, -0.078, 1.45]} />
+      <Block size={[30, 0.12, 0.12]} color="#c18a61" at={[0, 0.045, -1.68]} />
+      {[-1.16, -0.53, 0.13, 0.82, 1.51, 2.22, 3].map((depth) => (
+        <mesh
+          key={depth}
+          rotation-x={-Math.PI / 2}
+          position={[0, 0.013, depth]}
+        >
+          <planeGeometry args={[30, 0.009]} />
+          <meshStandardMaterial color="#c18d62" />
+        </mesh>
+      ))}
+      <group position={[-2.75, 0, -1.1]}>
+        <mesh position-y={0.065} castShadow receiveShadow>
+          <cylinderGeometry args={[0.33, 0.37, 0.11, 24]} />
+          <meshStandardMaterial color="#60574c" />
+        </mesh>
+        <group rotation-z={-0.19}>
+          <Block size={[0.08, 1.03, 0.08]} at={[0, 0.6, 0]} color="#60574c" />
+        </group>
+        <Block size={[0.57, 0.075, 0.08]} at={[0.48, 1.1, 0]} color="#60574c" />
+        <mesh position={[0.76, 1.05, 0]} castShadow>
+          <cylinderGeometry args={[0.13, 0.29, 0.22, 24]} />
+          <meshStandardMaterial color="#718074" />
+        </mesh>
+        <mesh position={[0.76, 0.936, 0]} rotation-x={Math.PI / 2}>
+          <circleGeometry args={[0.235, 24]} />
+          <meshBasicMaterial color="#fff0ce" />
+        </mesh>
+      </group>
       <Block
         size={[2.31, 0.021, 1.84]}
         color="#4e665d"
@@ -281,27 +299,27 @@ export function WorkbenchModel({
         position={[0.04, 0.038, 0.01]}
       />
       <BenchProp
-        position={[-1.67, 0, 0.31]}
+        position={[-1.52, 0, 0.19]}
         rotation={0.23}
         lift={selected === "sketch" ? 0.14 : 0}
       >
         <Notebook />
       </BenchProp>
       <BenchProp
-        position={[-0.14, 0, -0.34]}
+        position={[-0.12, 0, -0.45]}
         rotation={-0.05}
         lift={selected === "build" ? 0.13 : 0}
       >
         <Laptop />
       </BenchProp>
       <BenchProp
-        position={[1.36, 0, 0.51]}
+        position={[1.18, 0, 0.36]}
         rotation={-0.12}
         lift={selected === "test" ? 0.12 : 0}
       >
         <Phone />
       </BenchProp>
-      <group position={[1.96, 0.02, -0.54]}>
+      <group position={[1.79, 0.02, -0.69]}>
         <mesh position-y={0.29} castShadow receiveShadow>
           <cylinderGeometry args={[0.31, 0.25, 0.56, 24]} />
           <meshStandardMaterial color={coral} />

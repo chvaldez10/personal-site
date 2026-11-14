@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, type RefObject } from "react";
-import { MathUtils, type PerspectiveCamera } from "three";
+import { MathUtils, PerspectiveCamera } from "three";
 import { BoxOfficeModel, WorkbenchModel } from "./ShowcaseModels";
 import type { ScenePreviewProps } from "./ScenePreview";
 
@@ -26,6 +26,7 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
     reduced: false,
   });
   const firstFrame = useRef(true);
+  const revealFrame = useRef<number | null>(null);
 
   useEffect(() => {
     const element = frame.current;
@@ -119,7 +120,9 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
       if (!element || state.reduced) return;
       const bounds = element.getBoundingClientRect();
       state.scroll = MathUtils.clamp(
-        (bounds.top + bounds.height / 2) / window.innerHeight - 0.5,
+        workbench
+          ? bounds.top / window.innerHeight
+          : (bounds.top + bounds.height / 2) / window.innerHeight - 0.5,
         -0.65,
         0.65,
       );
@@ -163,7 +166,14 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
   }, [frame, invalidate, kind, nearby]);
 
   useEffect(() => {
+    function cancelReveal() {
+      if (revealFrame.current === null) return;
+      cancelAnimationFrame(revealFrame.current);
+      revealFrame.current = null;
+    }
+
     function hide() {
+      cancelReveal();
       onReady(false);
     }
     function reveal() {
@@ -173,6 +183,7 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
     canvas.addEventListener("webglcontextlost", hide);
     canvas.addEventListener("webglcontextrestored", reveal);
     return () => {
+      cancelReveal();
       canvas.removeEventListener("webglcontextlost", hide);
       canvas.removeEventListener("webglcontextrestored", reveal);
     };
@@ -198,23 +209,43 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
       : MathUtils.damp(state.lift, lift, 8, step);
 
     const aspect = size.width / size.height;
-    const restingDistance = Math.max(
-      workbench ? 8.65 : 9.15,
-      (workbench ? 9.3 : 8.3) / aspect,
-    );
-    const distance =
-      restingDistance + Math.abs(state.lift) * (workbench ? 0.4 : 0.75);
-    const orbit = (workbench ? 0.43 : 0.38) + state.angle;
-    camera.position.set(
-      Math.sin(orbit) * distance,
-      (workbench ? 4.05 : 2.85) + state.lift,
-      Math.cos(orbit) * distance,
-    );
-    camera.lookAt(0, workbench ? 0.33 : 0.82, 0);
+    if (
+      workbench &&
+      camera instanceof PerspectiveCamera &&
+      (camera.view?.width !== size.width || camera.view?.height !== size.height)
+    ) {
+      camera.fov = 48;
+      camera.zoom = Math.min(0.76, aspect / 1.1);
+      camera.setViewOffset(
+        size.width,
+        size.height,
+        0,
+        -0.15 * size.height,
+        size.width,
+        size.height,
+      );
+    }
+    if (workbench) {
+      camera.position.set(state.angle * 0.6, 2.45, 3.65);
+      camera.lookAt(state.angle * 1.45, 0.72 + state.lift * 0.24, -0.35);
+    } else {
+      const distance =
+        Math.max(9.15, 8.3 / aspect) + Math.abs(state.lift) * 0.75;
+      const orbit = 0.38 + state.angle;
+      camera.position.set(
+        Math.sin(orbit) * distance,
+        2.85 + state.lift,
+        Math.cos(orbit) * distance,
+      );
+      camera.lookAt(0, 0.82, 0);
+    }
 
     if (firstFrame.current) {
       firstFrame.current = false;
-      onReady(true);
+      revealFrame.current = requestAnimationFrame(() => {
+        revealFrame.current = null;
+        onReady(true);
+      });
       invalidate();
     }
 
