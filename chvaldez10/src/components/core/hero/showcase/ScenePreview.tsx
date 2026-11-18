@@ -1,8 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
-import { canRenderScene, CanvasBoundary } from "@/components/ui/WebGLPreview";
+import { CanvasBoundary, useWebGLPreview } from "@/components/ui/WebGLPreview";
 import styles from "./showcase.module.css";
 
 export type ScenePreviewProps =
@@ -14,27 +13,9 @@ const ShowcaseCanvas = dynamic(() => import("./ShowcaseCanvas"), {
 });
 
 export default function ScenePreview(props: ScenePreviewProps) {
-  const frame = useRef<HTMLDivElement>(null);
-  const [nearby, setNearby] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const interactive = props.kind === "workbench" && ready && !failed;
-
-  useEffect(() => {
-    const element = frame.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setNearby(entry.isIntersecting);
-        if (entry.isIntersecting && canRenderScene()) setLoaded(true);
-      },
-      { rootMargin: "240px 0px" },
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
+  const { frame, nearby, shouldRender, ready, onReady, onFailure } =
+    useWebGLPreview({ rootMargin: "240px 0px", trackVisibility: true });
+  const interactive = props.kind === "workbench" && ready;
 
   return (
     <div
@@ -49,17 +30,17 @@ export default function ScenePreview(props: ScenePreviewProps) {
       }
       className={styles.preview}
       data-scene={props.kind}
-      data-ready={ready && !failed}
+      data-ready={ready}
     >
       <div className={styles.poster} aria-hidden="true" />
-      {loaded && !failed && (
+      {shouldRender && (
         <div className={styles.canvas} aria-hidden="true">
-          <CanvasBoundary onFailure={() => setFailed(true)}>
+          <CanvasBoundary onFailure={onFailure}>
             <ShowcaseCanvas
               {...props}
               frame={frame}
               nearby={nearby}
-              onReady={setReady}
+              onReady={onReady}
             />
           </CanvasBoundary>
         </div>

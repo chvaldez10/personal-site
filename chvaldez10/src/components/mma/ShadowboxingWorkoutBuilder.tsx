@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   useConvex,
@@ -18,7 +18,7 @@ import PaginatedListFooter from "@/components/ui/PaginatedListFooter";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import CoachingAudioBuilder from "@/components/mma/CoachingAudioBuilder";
-import RoundEditor from "@/components/mma/RoundEditor";
+import WorkoutRounds from "./WorkoutRounds";
 import WorkoutPreviewDialog from "@/components/mma/WorkoutPreviewDialog";
 import { workoutInputClass } from "@/components/mma/fieldStyles";
 import type {
@@ -32,64 +32,20 @@ import {
   type WorkoutModelOption,
 } from "@/lib/workouts/schema";
 import { savedWorkoutSchema } from "@/lib/workouts/saved";
-import { minutes, type WorkoutRound } from "@/lib/workouts/draft";
+import {
+  hydrateWorkoutDraft,
+  initialWorkoutDraft,
+  minutes,
+  moveWorkoutRound,
+  serializeWorkoutDraft,
+  workoutDraftKey,
+  workoutDraftSchema,
+  type WorkoutDraft,
+  type WorkoutRound,
+} from "@/lib/workouts/draft";
 
 const generationResponseSchema = z.object({ workout: workoutSchema });
 const generationErrorSchema = z.object({ error: z.string() });
-const draftKey = "shadowboxing-session-draft-v1";
-const draftSchema = z.object({
-  title: z.string().max(80),
-  targetMinutes: z.string().max(4),
-  roundLengthMinutes: z.string().max(3),
-  discipline: z.string().max(40),
-  focus: z.string().max(40),
-  rounds: z
-    .array(
-      z.object({
-        name: z.string().max(80),
-        lengthMinutes: z.string().max(3),
-        objective: z.string().max(240),
-        coachingCue: z.string().max(180),
-        techniqueReminder: z.string().max(160),
-      }),
-    )
-    .max(12),
-});
-
-interface RoundDrag {
-  pointerId: number;
-  sourceId: number;
-  targetId: number | null;
-}
-
-const sampleRounds: WorkoutRound[] = [
-  {
-    id: 1,
-    name: "Movement",
-    lengthMinutes: "3",
-    objective: "Keep a balanced stance while moving in and out of range.",
-    coachingCue: "Stay light and let your feet set the distance.",
-    techniqueReminder: "Keep your stance under you as you step.",
-  },
-];
-
-function planSnapshot(
-  title: string,
-  targetMinutes: string,
-  roundLengthMinutes: string,
-  discipline: string,
-  focus: string,
-  rounds: WorkoutRound[],
-) {
-  return JSON.stringify({
-    title,
-    targetMinutes,
-    roundLengthMinutes,
-    discipline,
-    focus,
-    rounds: rounds.map(({ id: _id, ...round }) => round),
-  });
-}
 
 export default function ShadowboxingWorkoutBuilder({
   isOwner,
@@ -102,24 +58,27 @@ export default function ShadowboxingWorkoutBuilder({
   voiceModels: VoiceModelOption[];
   voices: VoiceOption[];
 }) {
-  const [targetMinutes, setTargetMinutes] = useState("3");
-  const [roundLengthMinutes, setRoundLengthMinutes] = useState("3");
-  const [discipline, setDiscipline] = useState("MMA");
-  const [focus, setFocus] = useState("Technique");
-  const [rounds, setRounds] = useState<WorkoutRound[]>(sampleRounds);
-  const [workoutName, setWorkoutName] = useState("Movement reset");
+  const [draft, setDraft] = useState(initialWorkoutDraft);
+  const {
+    title: workoutName,
+    targetMinutes,
+    roundLengthMinutes,
+    discipline,
+    focus,
+    rounds,
+  } = draft;
   const [savedWorkoutId, setSavedWorkoutId] =
     useState<Id<"shadowboxingWorkouts"> | null>(null);
   const [selectedSavedId, setSelectedSavedId] = useState("");
   const [savedSnapshot, setSavedSnapshot] = useState(() =>
-    planSnapshot("Movement reset", "3", "3", "MMA", "Technique", sampleRounds),
+    serializeWorkoutDraft(initialWorkoutDraft),
   );
   const [saving, setSaving] = useState(false);
   const [loadingSaved, setLoadingSaved] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saveNotice, setSaveNotice] = useState("");
-  const [audioSession, setAudioSession] = useState(0);
+  const [workoutSession, setWorkoutSession] = useState(0);
   const loadedFromUrl = useRef(false);
   const { isAuthenticated } = useConvexAuth();
   const convex = useConvex();
@@ -141,23 +100,18 @@ export default function ShadowboxingWorkoutBuilder({
   const [generating, setGenerating] = useState(false);
   const [generationError, setGenerationError] = useState("");
   const [generationNotice, setGenerationNotice] = useState("");
-  const [hasGenerated, setHasGenerated] = useState(false);
   const [lastGeneratedRounds, setLastGeneratedRounds] = useState<
     WorkoutRound[]
   >([]);
-  const previousObjectives = useRef<string[]>([]);
-  const [draggedRoundId, setDraggedRoundId] = useState<number | null>(null);
-  const [dropRoundId, setDropRoundId] = useState<number | null>(null);
-  const nextRoundId = useRef(2);
-  const activeDrag = useRef<RoundDrag | null>(null);
+  const nextRoundId = useRef(initialWorkoutDraft.rounds.length + 1);
 
+  const requestPending = saving || loadingSaved || generating;
   const target = minutes(targetMinutes, 180);
   const roundLength = minutes(roundLengthMinutes, 30);
-  const roundLengthsValid = rounds.every(
-    (round) => minutes(round.lengthMinutes, 30) !== null,
-  );
-  const plannedMinutes = rounds.reduce(
-    (total, round) => total + (minutes(round.lengthMinutes, 30) ?? 0),
+  const roundMinutes = rounds.map((round) => minutes(round.lengthMinutes, 30));
+  const roundLengthsValid = roundMinutes.every((length) => length !== null);
+  const plannedMinutes = roundMinutes.reduce<number>(
+    (total, length) => total + (length ?? 0),
     0,
   );
   const roundsComplete =
@@ -165,14 +119,7 @@ export default function ShadowboxingWorkoutBuilder({
     roundLengthsValid &&
     rounds.every((round) => round.name.trim() && round.objective.trim());
   const canPreview = target !== null && roundsComplete;
-  const currentSnapshot = planSnapshot(
-    workoutName,
-    targetMinutes,
-    roundLengthMinutes,
-    discipline,
-    focus,
-    rounds,
-  );
+  const currentSnapshot = serializeWorkoutDraft(draft);
   const hasUnsavedChanges = currentSnapshot !== savedSnapshot;
   const availableModelId = models.some((model) => model.id === modelId)
     ? modelId
@@ -181,39 +128,29 @@ export default function ShadowboxingWorkoutBuilder({
   function applySavedWorkout(workout: Doc<"shadowboxingWorkouts">) {
     setDraftReady(false);
     try {
-      window.localStorage.removeItem(draftKey);
+      window.localStorage.removeItem(workoutDraftKey);
     } catch {
       /* Browser storage is optional. */
     }
-    const loadedRounds = workout.rounds.map((round, index) => ({
-      ...round,
-      id: index + 1,
-      lengthMinutes: String(round.lengthMinutes),
-    }));
-    setWorkoutName(workout.title);
-    setTargetMinutes(String(workout.targetMinutes));
-    setRoundLengthMinutes(String(workout.roundLengthMinutes));
-    setDiscipline(workout.discipline);
-    setFocus(workout.focus);
-    setRounds(loadedRounds);
+    const loaded = hydrateWorkoutDraft({
+      title: workout.title,
+      targetMinutes: String(workout.targetMinutes),
+      roundLengthMinutes: String(workout.roundLengthMinutes),
+      discipline: workout.discipline,
+      focus: workout.focus,
+      rounds: workout.rounds.map((round) => ({
+        ...round,
+        lengthMinutes: String(round.lengthMinutes),
+      })),
+    });
+    setDraft(loaded);
     setSavedWorkoutId(workout._id);
     setSelectedSavedId(workout._id);
-    setSavedSnapshot(
-      planSnapshot(
-        workout.title,
-        String(workout.targetMinutes),
-        String(workout.roundLengthMinutes),
-        workout.discipline,
-        workout.focus,
-        loadedRounds,
-      ),
-    );
-    nextRoundId.current = loadedRounds.length + 1;
-    previousObjectives.current = [];
+    setSavedSnapshot(serializeWorkoutDraft(loaded));
+    nextRoundId.current = loaded.rounds.length + 1;
     setLastGeneratedRounds([]);
-    setHasGenerated(false);
     setGenerationNotice("");
-    setAudioSession((current) => current + 1);
+    setWorkoutSession((current) => current + 1);
     setSaveError("");
     setSaveNotice(`Loaded ${workout.title}.`);
     const url = new URL(window.location.href);
@@ -256,20 +193,13 @@ export default function ShadowboxingWorkoutBuilder({
     const timer = window.setTimeout(() => {
       if (new URLSearchParams(window.location.search).has("workout")) return;
       try {
-        const raw = window.localStorage.getItem(draftKey);
+        const raw = window.localStorage.getItem(workoutDraftKey);
         if (raw) {
-          const parsed = draftSchema.safeParse(JSON.parse(raw));
+          const parsed = workoutDraftSchema.safeParse(JSON.parse(raw));
           if (parsed.success) {
-            const draft = parsed.data;
-            setWorkoutName(draft.title);
-            setTargetMinutes(draft.targetMinutes);
-            setRoundLengthMinutes(draft.roundLengthMinutes);
-            setDiscipline(draft.discipline);
-            setFocus(draft.focus);
-            setRounds(
-              draft.rounds.map((round, index) => ({ ...round, id: index + 1 })),
-            );
-            nextRoundId.current = draft.rounds.length + 1;
+            const restored = hydrateWorkoutDraft(parsed.data);
+            setDraft(restored);
+            nextRoundId.current = restored.rounds.length + 1;
             setSaveNotice(
               "Restored your unsaved session draft from this browser.",
             );
@@ -289,7 +219,7 @@ export default function ShadowboxingWorkoutBuilder({
     if (!draftReady || !isOwner) return;
     if (!hasUnsavedChanges) {
       try {
-        window.localStorage.removeItem(draftKey);
+        window.localStorage.removeItem(workoutDraftKey);
       } catch {
         /* Browser storage is optional. */
       }
@@ -297,7 +227,7 @@ export default function ShadowboxingWorkoutBuilder({
     }
     const timer = window.setTimeout(() => {
       try {
-        window.localStorage.setItem(draftKey, currentSnapshot);
+        window.localStorage.setItem(workoutDraftKey, currentSnapshot);
       } catch {
         setSaveError(
           "Browser storage is unavailable. Use Save session to keep your plan.",
@@ -308,7 +238,7 @@ export default function ShadowboxingWorkoutBuilder({
   }, [draftReady, hasUnsavedChanges, isOwner, currentSnapshot]);
 
   async function saveWorkout(asNew = false) {
-    if (saving || loadingSaved || !isOwner || !isAuthenticated) return;
+    if (requestPending || !isOwner || !isAuthenticated) return;
     setSaveError("");
     setSaveNotice("");
     const parsed = savedWorkoutSchema.safeParse({
@@ -339,7 +269,7 @@ export default function ShadowboxingWorkoutBuilder({
       setSavedSnapshot(currentSnapshot);
       setDraftReady(false);
       try {
-        window.localStorage.removeItem(draftKey);
+        window.localStorage.removeItem(workoutDraftKey);
       } catch {
         /* Browser storage is optional. */
       }
@@ -361,7 +291,7 @@ export default function ShadowboxingWorkoutBuilder({
   }
 
   async function loadSelectedWorkout() {
-    if (!selectedSavedId || loadingSaved || saving || generating) return;
+    if (!selectedSavedId || requestPending) return;
     if (
       hasUnsavedChanges &&
       !window.confirm("Replace your unsaved session changes?")
@@ -387,8 +317,16 @@ export default function ShadowboxingWorkoutBuilder({
     }
   }
 
+  function updateDraft(changes: Partial<WorkoutDraft>) {
+    setDraft((current) => ({ ...current, ...changes }));
+  }
+
+  function updateRounds(update: (current: WorkoutRound[]) => WorkoutRound[]) {
+    setDraft((current) => ({ ...current, rounds: update(current.rounds) }));
+  }
+
   function updateRound(id: number, changes: Partial<Omit<WorkoutRound, "id">>) {
-    setRounds((current) =>
+    updateRounds((current) =>
       current.map((round) =>
         round.id === id ? { ...round, ...changes } : round,
       ),
@@ -396,22 +334,24 @@ export default function ShadowboxingWorkoutBuilder({
   }
 
   function changeRoundLength(value: string) {
-    setRoundLengthMinutes(value);
     const length = minutes(value, 30);
-    if (length !== null) {
-      setRounds((current) =>
-        current.map((round) => ({
-          ...round,
-          lengthMinutes: String(length),
-        })),
-      );
-    }
+    setDraft((current) => ({
+      ...current,
+      roundLengthMinutes: value,
+      rounds:
+        length === null
+          ? current.rounds
+          : current.rounds.map((round) => ({
+              ...round,
+              lengthMinutes: String(length),
+            })),
+    }));
   }
 
   function addRound() {
     if (roundLength === null || rounds.length >= 12) return;
     const id = nextRoundId.current++;
-    setRounds((current) => [
+    updateRounds((current) => [
       ...current,
       {
         id,
@@ -426,7 +366,7 @@ export default function ShadowboxingWorkoutBuilder({
 
   async function generateWorkout() {
     if (
-      generating ||
+      requestPending ||
       target === null ||
       roundLength === null ||
       !availableModelId
@@ -463,7 +403,9 @@ export default function ShadowboxingWorkoutBuilder({
                   techniqueReminder: round.techniqueReminder,
                 }))
               : [],
-          previousObjectives: previousObjectives.current,
+          previousObjectives: lastGeneratedRounds.map(
+            (round) => round.objective,
+          ),
         }),
       });
       const payload: unknown = await response.json();
@@ -489,10 +431,8 @@ export default function ShadowboxingWorkoutBuilder({
         id: nextRoundId.current++,
         lengthMinutes: String(round.lengthMinutes),
       }));
-      setRounds(nextRounds);
+      updateDraft({ rounds: nextRounds });
       setLastGeneratedRounds(nextRounds);
-      previousObjectives.current = generated.map((round) => round.objective);
-      setHasGenerated(true);
       setGenerationNotice(
         "Session generated. Edit any round or regenerate it.",
       );
@@ -503,73 +443,6 @@ export default function ShadowboxingWorkoutBuilder({
     } finally {
       setGenerating(false);
     }
-  }
-
-  function moveRound(index: number, direction: -1 | 1) {
-    setRounds((current) => {
-      const nextIndex = index + direction;
-      if (nextIndex < 0 || nextIndex >= current.length) return current;
-      const next = [...current];
-      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
-      return next;
-    });
-  }
-
-  function moveRoundTo(sourceId: number, targetId: number) {
-    setRounds((current) => {
-      const sourceIndex = current.findIndex((round) => round.id === sourceId);
-      const targetIndex = current.findIndex((round) => round.id === targetId);
-      if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex)
-        return current;
-      const next = [...current];
-      const [moved] = next.splice(sourceIndex, 1);
-      next.splice(targetIndex, 0, moved);
-      return next;
-    });
-  }
-
-  function startDrag(event: PointerEvent<HTMLButtonElement>, sourceId: number) {
-    if (
-      activeDrag.current ||
-      (event.pointerType === "mouse" && event.button !== 0)
-    )
-      return;
-    activeDrag.current = {
-      pointerId: event.pointerId,
-      sourceId,
-      targetId: null,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setDraggedRoundId(sourceId);
-    setDropRoundId(null);
-  }
-
-  function updateDrag(event: PointerEvent<HTMLButtonElement>) {
-    const drag = activeDrag.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    const target = document
-      .elementFromPoint(event.clientX, event.clientY)
-      ?.closest<HTMLElement>("[data-round-id]");
-    const targetId = target ? Number(target.dataset.roundId) : null;
-    drag.targetId = targetId === drag.sourceId ? null : targetId;
-    setDropRoundId(drag.targetId);
-  }
-
-  function endDrag(event: PointerEvent<HTMLButtonElement>) {
-    const drag = activeDrag.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    updateDrag(event);
-    activeDrag.current = null;
-    setDraggedRoundId(null);
-    setDropRoundId(null);
-    if (drag.targetId !== null) moveRoundTo(drag.sourceId, drag.targetId);
-  }
-
-  function cancelDrag(event: PointerEvent<HTMLButtonElement>) {
-    if (activeDrag.current?.pointerId !== event.pointerId) return;
-    activeDrag.current = null;
-    setDraggedRoundId(null);
-    setDropRoundId(null);
   }
 
   return (
@@ -588,7 +461,9 @@ export default function ShadowboxingWorkoutBuilder({
               max={180}
               step={1}
               value={targetMinutes}
-              onChange={(event) => setTargetMinutes(event.target.value)}
+              onChange={(event) =>
+                updateDraft({ targetMinutes: event.target.value })
+              }
               aria-invalid={target === null}
               aria-describedby="workout-duration-help"
               className={workoutInputClass}
@@ -631,7 +506,7 @@ export default function ShadowboxingWorkoutBuilder({
             <Select
               id="workout-discipline"
               value={discipline}
-              onValueChange={setDiscipline}
+              onValueChange={(value) => updateDraft({ discipline: value })}
               options={disciplines.map((option) => ({
                 value: option,
                 label: option,
@@ -651,7 +526,7 @@ export default function ShadowboxingWorkoutBuilder({
             <Select
               id="training-focus"
               value={focus}
-              onValueChange={setFocus}
+              onValueChange={(value) => updateDraft({ focus: value })}
               options={focuses.map((option) => ({
                 value: option,
                 label: option,
@@ -689,7 +564,7 @@ export default function ShadowboxingWorkoutBuilder({
                     id="saved-workout-list"
                     value={selectedSavedId}
                     onValueChange={setSelectedSavedId}
-                    disabled={saving || loadingSaved || generating}
+                    disabled={requestPending}
                     options={[
                       ...savedWorkouts.map((workout) => ({
                         value: workout._id,
@@ -709,9 +584,7 @@ export default function ShadowboxingWorkoutBuilder({
                     type="button"
                     variant="outline"
                     onClick={loadSelectedWorkout}
-                    disabled={
-                      !selectedSavedId || saving || loadingSaved || generating
-                    }
+                    disabled={!selectedSavedId || requestPending}
                     className="mt-3"
                   >
                     {loadingSaved ? "Loading…" : "Load session"}
@@ -819,7 +692,7 @@ export default function ShadowboxingWorkoutBuilder({
                     type="button"
                     onClick={generateWorkout}
                     disabled={
-                      generating ||
+                      requestPending ||
                       target === null ||
                       roundLength === null ||
                       (generationMode === "customize" && !roundLengthsValid)
@@ -828,7 +701,7 @@ export default function ShadowboxingWorkoutBuilder({
                   >
                     {generating
                       ? "Generating…"
-                      : hasGenerated
+                      : lastGeneratedRounds.length > 0
                         ? "Regenerate session"
                         : "Generate session"}
                   </Button>
@@ -856,54 +729,23 @@ export default function ShadowboxingWorkoutBuilder({
       </div>
 
       <div>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900">Rounds</h3>
-            <p className="mt-1 text-sm text-gray-600">
-              Drag a round by its handle or use Up and Down. Set a name, length,
-              and technical objective for each round. Sessions support up to 12
-              rounds.
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={addRound}
-            disabled={roundLength === null || rounds.length >= 12}
-          >
-            Add round
-          </Button>
-        </div>
-
-        {rounds.length === 0 ? (
-          <p className="mt-5 rounded-2xl border border-dashed border-orange-300 p-8 text-center text-gray-700">
-            No rounds yet. Add one to build your session.
-          </p>
-        ) : (
-          <ol className="mt-5 space-y-4">
-            {rounds.map((round, index) => (
-              <RoundEditor
-                key={round.id}
-                round={round}
-                index={index}
-                count={rounds.length}
-                dragging={draggedRoundId === round.id}
-                dropTarget={dropRoundId === round.id}
-                onUpdate={updateRound}
-                onMove={moveRound}
-                onRemove={(id) =>
-                  setRounds((current) =>
-                    current.filter((item) => item.id !== id),
-                  )
-                }
-                onDragStart={startDrag}
-                onDragMove={updateDrag}
-                onDragEnd={endDrag}
-                onDragCancel={cancelDrag}
-              />
-            ))}
-          </ol>
-        )}
+        <WorkoutRounds
+          key={workoutSession}
+          rounds={rounds}
+          canAdd={roundLength !== null && rounds.length < 12}
+          onAdd={addRound}
+          onUpdate={updateRound}
+          onMove={(sourceId, targetId) =>
+            updateRounds((current) =>
+              moveWorkoutRound(current, sourceId, targetId),
+            )
+          }
+          onRemove={(id) =>
+            updateRounds((current) =>
+              current.filter((round) => round.id !== id),
+            )
+          }
+        />
 
         <WorkoutPreviewDialog
           rounds={rounds}
@@ -918,12 +760,12 @@ export default function ShadowboxingWorkoutBuilder({
             isOwner
               ? {
                   title: workoutName,
-                  onTitleChange: setWorkoutName,
+                  onTitleChange: (title) => updateDraft({ title }),
                   onSave: (asNew) => void saveWorkout(asNew),
                   saved: savedWorkoutId !== null,
                   hasUnsavedChanges,
                   saving,
-                  disabled: saving || !isAuthenticated,
+                  disabled: requestPending || !isAuthenticated,
                   error: saveError,
                   notice: saveNotice,
                 }
@@ -934,7 +776,7 @@ export default function ShadowboxingWorkoutBuilder({
       {isOwner && (
         <div className="lg:col-span-2">
           <CoachingAudioBuilder
-            key={audioSession}
+            key={workoutSession}
             rounds={rounds}
             generatedRounds={lastGeneratedRounds}
             models={voiceModels}

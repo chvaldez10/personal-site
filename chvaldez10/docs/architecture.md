@@ -39,6 +39,13 @@ Next.js owns URLs, layouts, rendering, and HTTP-specific responses. Convex owns 
 
 Route groups organize layouts without adding `(main)` or `(admin)` to URLs. Keep `"use client"` at interaction boundaries instead of marking whole pages client-side. Passing server-rendered children through the client provider does not turn every child into a Client Component.
 
+## Feature composition
+
+- `ShadowboxingWorkoutBuilder` owns the draft and composes `WorkoutRounds` with the preview and owner controls. `WorkoutRounds` owns pointer interactions and reports edit and reorder intents through typed callbacks. `src/lib/workouts/draft.ts` owns the draft format and pure transformations.
+- The home, MMA, and K-pop previews share `useWebGLPreview` and `CanvasBoundary`. Each scene imports its renderer lazily and supplies its own poster, controls, and visibility needs.
+- The logo and project editors share file validation and direct upload transport in `src/lib/images/upload.client.ts`. Each editor owns its Convex calls, retry state, and feedback.
+- Use these boundaries when adding features. Start with the existing primitives and keep feature state and helpers local until another caller needs the same contract.
+
 ## Packages and what each contributes
 
 Version families below describe [package.json](../package.json). The committed `pnpm-lock.yaml` records exact resolutions for this repository; the manifest alone does not reproduce them.
@@ -135,7 +142,7 @@ To reuse this site's **single-owner password policy**, adapt these files togethe
    ```
 
 5. Adapt the login page, `Login.tsx`, its Zod schemas, signout control, and dashboard layout. Set a fresh owner email and setup key, create that owner through the login UI, then remove the setup key from deployment settings. Existing owners sign in without it.
-6. Adapt the request guard in root `middleware.ts` and the framework entry beside `src/app`. This site currently uses `src/middleware.ts`; Next.js 16 deprecates that convention in favor of `src/proxy.ts`. For a new Next.js 16 app, expose the adapted handler as `proxy` and keep the matcher literal in that entry. Use one framework entry. See the installed Next.js `proxy` guide before adapting it.
+6. Adapt the request guard in `src/proxy.ts`. Export the handler as `proxy` and keep the matcher literal in that file. See the installed Next.js `proxy` guide before adapting it.
 
 The client provider creates one `ConvexReactClient` per mounted provider with a lazy `useState` initializer. Recreating it on every render would recreate connection state. `shouldHandleCode={false}` is this site's password-only choice; revisit it if adding OAuth or emailed auth links.
 
@@ -439,7 +446,7 @@ Use this brief when asking an agent to build with this architecture:
 
 Logo upload is a useful multi-step pattern: owner authorization → short-lived Cloudflare URL and owner-bound ticket → browser upload → backend verification → transactional logo/ticket completion. The API token stays in Convex. `useLogoUpload` retains a completed upload ID briefly so a failed metadata save can retry without uploading another image. An hourly cron removes expired tickets. Database mutations are transactional; the entire external upload workflow is not one transaction.
 
-Project images reuse the upload ticket flow, but save the project URL afterward. Do not assume every external workflow is automatically idempotent; use a saved completion ID for retry-sensitive actions. Files are checked for type/size in the browser and verified by the backend before records are saved.
+Project images use the same upload ticket flow and save the verified image URL with the project. The editor retains that URL for a retry if the project save fails and clears it when the selected file changes. Files are checked for type and size in the browser and verified by the backend before records are saved.
 
 `LogoImage.tsx` renders small logos directly with `unoptimized` and displays an accessible fallback icon on failure. If adding optimized remote Next images, configure the appropriate host/path in `next.config.mjs` instead of allowing arbitrary hosts.
 

@@ -5,10 +5,11 @@ import { useAction } from "convex/react";
 import { ConvexError } from "convex/values";
 import { api } from "@convex/_generated/api";
 import {
-  IMAGE_TYPES,
-  MAX_IMAGE_BYTES,
-  logoUploadSchema,
-} from "@/lib/validation/logoUpload";
+  isSupportedImage,
+  unsupportedImageMessage,
+  uploadImageFile,
+} from "@/lib/images/upload.client";
+import { logoUploadSchema } from "@/lib/validation/logoUpload";
 
 export function useLogoUpload() {
   const requestUpload = useAction(api.images.requestUpload);
@@ -36,11 +37,8 @@ export function useLogoUpload() {
       setFeedback({ text: "Choose an image.", error: true });
       return;
     }
-    if (!IMAGE_TYPES.includes(file.type) || file.size > MAX_IMAGE_BYTES) {
-      setFeedback({
-        text: "Choose a PNG, JPEG, GIF, WebP, or SVG up to 10 MB.",
-        error: true,
-      });
+    if (!isSupportedImage(file)) {
+      setFeedback({ text: unsupportedImageMessage, error: true });
       return;
     }
     const parsed = logoUploadSchema.safeParse(Object.fromEntries(values));
@@ -52,21 +50,14 @@ export function useLogoUpload() {
     try {
       // A failed save can be retried without uploading a second image.
       // Use a conservative local expiry within the backend's 15-minute limit.
-      let imageId =
-        uploaded.current && uploaded.current.expiresAt > Date.now()
-          ? uploaded.current.imageId
-          : null;
+      if (uploaded.current && uploaded.current.expiresAt <= Date.now()) {
+        uploaded.current = null;
+      }
+      let imageId = uploaded.current?.imageId;
       if (!imageId) {
         const issuedAt = Date.now();
         const ticket = await requestUpload({ filename: file.name });
-        const payload = new FormData();
-        payload.set("file", file);
-        const response = await fetch(ticket.uploadURL, {
-          method: "POST",
-          body: payload,
-          signal: AbortSignal.timeout(60000),
-        });
-        if (!response.ok) throw new Error("Image upload failed.");
+        await uploadImageFile(file, ticket.uploadURL);
         imageId = ticket.imageId;
         uploaded.current = { imageId, expiresAt: issuedAt + 14 * 60 * 1000 };
       }

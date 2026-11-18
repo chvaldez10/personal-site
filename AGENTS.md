@@ -25,6 +25,14 @@ This is a small personal site maintained by one person. Keep the code, workflow,
 - Cloudflare Images hosts logos. Convex hosts the résumé, with public/docs/resume.pdf as the fallback.
 - Use clear TypeScript contracts. Avoid any, unsafe assertions, silent failures, unrelated formatting, and unnecessary generated-file or lockfile changes.
 
+## Compose features
+
+- Compose routes from feature components. Keep routes server-rendered by default and put browser state and events in the client components that need them.
+- Keep feature-specific UI with its feature and compose it from existing `src/components/ui/` primitives. Give components typed values and callbacks. Extract a shared component or hook when independent callers need the same behavior.
+- Keep domain parsing and transformations in `src/lib/<feature>/`. Use pure functions for calculations and derived values, and give browser or server I/O helpers explicit inputs and runtime boundaries.
+- Give each piece of state one owner. Derive labels, totals, order, and availability from that state. Use effects for external systems and clean up listeners, observers, and timers.
+- For growing lists, keep queries bounded or paginated and compute per-group metadata in one pass. Lazy-load heavy interactive UI and provide a fallback that works on its own.
+
 ## Frontend writing
 
 - For new pages, substantial component changes, or visual fixes, use `.agents/skills/frontend-writing/SKILL.md`. Routine copy edits can follow the rules here directly.

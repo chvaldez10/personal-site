@@ -1,24 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import dynamic from "next/dynamic";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Expand,
-  Music2,
-  Shrink,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Music2 } from "lucide-react";
+import { useState } from "react";
 import type { Doc } from "@convex/_generated/dataModel";
 import { Button } from "@/components/ui/buttons/button";
-import { CanvasBoundary, canRenderScene } from "@/components/ui/WebGLPreview";
 import { itunesStoreUrl } from "@/lib/itunes/track";
 import { cn } from "@/lib/utils";
 import KpopSongPreview from "./KpopSongPreview";
-import styles from "./kpop-player.module.css";
-
-const DiscCanvas = dynamic(() => import("./KpopDiscCanvas"), { ssr: false });
+import KpopRecordScene from "./KpopRecordScene";
 
 const palettes = [
   { shell: "#f7c9dc", accent: "#9c2759", disc: "#ffb4da" },
@@ -42,39 +32,7 @@ export default function KpopPlayer({ groups }: { groups: Group[] }) {
   const storeUrl = itunesStoreUrl(song.storeUrl, song.trackId);
   const playerKey = `${activeGroup._id}-${song.trackId}-${song.previewUrl}`;
   const [playingKey, setPlayingKey] = useState<string | null>(null);
-  const art = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  const [webgl, setWebgl] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(true);
-  const [orbit, setOrbit] = useState({ yaw: 0.12, pitch: 0.17 });
   const [expanded, setExpanded] = useState(false);
-  const drag = useRef<{ x: number; y: number } | null>(null);
-
-  function rotate(yaw: number, pitch = 0) {
-    setOrbit((current) => ({
-      yaw: current.yaw + yaw,
-      pitch: Math.max(-0.62, Math.min(0.62, current.pitch + pitch)),
-    }));
-  }
-
-  useEffect(() => {
-    const element = art.current;
-    if (!element) return;
-    const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    const updateMotion = () => setReducedMotion(motion.matches);
-    updateMotion();
-    motion.addEventListener("change", updateMotion);
-    const observer = new IntersectionObserver(([entry]) => {
-      setVisible(entry.isIntersecting);
-      if (entry.isIntersecting) setWebgl(canRenderScene());
-    });
-    observer.observe(element);
-    return () => {
-      observer.disconnect();
-      motion.removeEventListener("change", updateMotion);
-    };
-  }, []);
 
   return (
     <div
@@ -87,99 +45,14 @@ export default function KpopPlayer({ groups }: { groups: Group[] }) {
         className="min-w-0 p-3 sm:p-4"
         style={{ backgroundColor: palette.shell }}
       >
-        <div
-          ref={art}
-          className={cn(styles.art, expanded && styles.expanded)}
-          style={{ color: palette.accent }}
-        >
-          <div
-            className={cn(styles.disc, ready && "invisible")}
-            style={{ backgroundColor: palette.disc }}
-          />
-          {webgl && (
-            <div
-              aria-hidden="true"
-              className={cn(
-                "absolute inset-0 touch-pan-y motion-safe:transition-opacity",
-                ready
-                  ? "cursor-grab opacity-100 active:cursor-grabbing"
-                  : "pointer-events-none opacity-0",
-              )}
-              onPointerDown={(event) => {
-                if (!event.isPrimary || event.button !== 0) return;
-                event.currentTarget.setPointerCapture(event.pointerId);
-                drag.current = { x: event.clientX, y: event.clientY };
-              }}
-              onPointerMove={(event) => {
-                if (!event.isPrimary || !drag.current) return;
-                rotate(
-                  (event.clientX - drag.current.x) * 0.012,
-                  (event.clientY - drag.current.y) * 0.009,
-                );
-                drag.current = { x: event.clientX, y: event.clientY };
-              }}
-              onLostPointerCapture={() => {
-                drag.current = null;
-              }}
-            >
-              <CanvasBoundary onFailure={() => setReady(false)}>
-                <DiscCanvas
-                  color={palette.disc}
-                  name={activeGroup.name}
-                  orbit={orbit}
-                  spinning={
-                    visible && !reducedMotion && playingKey === playerKey
-                  }
-                  onReady={setReady}
-                />
-              </CanvasBoundary>
-            </div>
-          )}
-          {ready && (
-            <div className="absolute inset-x-3 top-3 flex justify-between gap-2">
-              <div className="flex gap-1">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="outline"
-                  aria-label="Rotate left"
-                  onClick={() => rotate(-0.38)}
-                >
-                  <ChevronLeft aria-hidden="true" />
-                </Button>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="outline"
-                  aria-label="Rotate right"
-                  onClick={() => rotate(0.38)}
-                >
-                  <ChevronRight aria-hidden="true" />
-                </Button>
-              </div>
-              <Button
-                type="button"
-                size="icon"
-                variant="outline"
-                aria-label={expanded ? "Shrink 3D scene" : "Expand 3D scene"}
-                onClick={() => setExpanded(!expanded)}
-              >
-                {expanded ? (
-                  <Shrink aria-hidden="true" />
-                ) : (
-                  <Expand aria-hidden="true" />
-                )}
-              </Button>
-            </div>
-          )}
-          {ready && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-3 text-center sm:pb-4">
-              <span className="inline-block rounded-full border border-white/90 bg-[#fff9ff]/90 px-4 py-1.5 text-xs font-semibold">
-                Drag to rotate
-              </span>
-            </div>
-          )}
-        </div>
+        <KpopRecordScene
+          name={activeGroup.name}
+          color={palette.disc}
+          accent={palette.accent}
+          playing={playingKey === playerKey}
+          expanded={expanded}
+          onToggleExpanded={() => setExpanded((current) => !current)}
+        />
         <div className="rounded-[1.35rem] bg-white/80 px-4 py-5 sm:px-6">
           <p className="text-xs font-semibold text-[#6d425d]">Selected track</p>
           <h3 className="mt-1 text-2xl font-black leading-tight tracking-tight text-[#261729] wrap-break-word sm:text-3xl">

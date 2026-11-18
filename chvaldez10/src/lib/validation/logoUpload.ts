@@ -1,14 +1,5 @@
 import { z } from "zod";
 
-export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-export const IMAGE_TYPES = [
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-  "image/svg+xml",
-];
-
 export const logoUploadSchema = z.object({
   label: z
     .string()

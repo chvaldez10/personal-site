@@ -1,4 +1,4 @@
-import type { PointerEvent } from "react";
+import { useId, type PointerEvent } from "react";
 import { GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/buttons/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,8 @@ export default function RoundEditor({
   onDragEnd,
   onDragCancel,
 }: RoundEditorProps) {
+  const fieldId = useId();
+
   return (
     <li
       data-round-id={round.id}
@@ -110,11 +112,11 @@ export default function RoundEditor({
       </div>
       <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_8rem]">
         <div>
-          <Label htmlFor={`round-${round.id}-name`} className="text-gray-800">
+          <Label htmlFor={`${fieldId}-name`} className="text-gray-800">
             Round name
           </Label>
           <Input
-            id={`round-${round.id}-name`}
+            id={`${fieldId}-name`}
             value={round.name}
             onChange={(event) =>
               onUpdate(round.id, { name: event.target.value })
@@ -126,11 +128,11 @@ export default function RoundEditor({
           />
         </div>
         <div>
-          <Label htmlFor={`round-${round.id}-length`} className="text-gray-800">
+          <Label htmlFor={`${fieldId}-length`} className="text-gray-800">
             Minutes
           </Label>
           <Input
-            id={`round-${round.id}-length`}
+            id={`${fieldId}-length`}
             type="number"
             min={1}
             max={30}
@@ -146,13 +148,13 @@ export default function RoundEditor({
         </div>
         <div className="sm:col-span-2">
           <Label
-            htmlFor={`round-${round.id}-objective`}
+            htmlFor={`${fieldId}-objective`}
             className="text-gray-800"
           >
             Technical objective
           </Label>
           <Textarea
-            id={`round-${round.id}-objective`}
+            id={`${fieldId}-objective`}
             value={round.objective}
             onChange={(event) =>
               onUpdate(round.id, { objective: event.target.value })
@@ -165,11 +167,11 @@ export default function RoundEditor({
           />
         </div>
         <div className="sm:col-span-2">
-          <Label htmlFor={`round-${round.id}-cue`} className="text-gray-800">
+          <Label htmlFor={`${fieldId}-cue`} className="text-gray-800">
             Coaching cue (optional)
           </Label>
           <Textarea
-            id={`round-${round.id}-cue`}
+            id={`${fieldId}-cue`}
             value={round.coachingCue}
             onChange={(event) =>
               onUpdate(round.id, { coachingCue: event.target.value })
@@ -182,13 +184,13 @@ export default function RoundEditor({
         </div>
         <div className="sm:col-span-2">
           <Label
-            htmlFor={`round-${round.id}-reminder`}
+            htmlFor={`${fieldId}-reminder`}
             className="text-gray-800"
           >
             Technique reminder (optional)
           </Label>
           <Input
-            id={`round-${round.id}-reminder`}
+            id={`${fieldId}-reminder`}
             value={round.techniqueReminder}
             onChange={(event) =>
               onUpdate(round.id, { techniqueReminder: event.target.value })

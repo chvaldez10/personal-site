@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/buttons/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { IMAGE_TYPES } from "@/lib/validation/logoUpload";
+import { IMAGE_TYPES } from "@/lib/images/upload.client";
 import { dashboardFieldClass as fieldClass } from "./formStyles";
 import DashboardField from "./DashboardField";
 import { useLogoUpload } from "./useLogoUpload";
