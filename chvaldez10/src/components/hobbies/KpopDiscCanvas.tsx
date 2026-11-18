@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import {
   CanvasTexture,
@@ -68,7 +68,7 @@ function Disc({
     >
       <group ref={disc}>
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, -0.017]}>
-          <cylinderGeometry args={[1.47, 1.47, 0.055, 96, 1, true]} />
+          <cylinderGeometry args={[1.47, 1.47, 0.055, 64, 1, true]} />
           <meshStandardMaterial
             color="#b2a1c4"
             metalness={0.55}
@@ -77,7 +77,7 @@ function Disc({
           />
         </mesh>
         <mesh position={[0, 0, -0.035]}>
-          <ringGeometry args={[0.17, 1.47, 96]} />
+          <ringGeometry args={[0.17, 1.47, 64]} />
           <meshStandardMaterial
             color="#86708e"
             metalness={0.35}
@@ -86,7 +86,7 @@ function Disc({
           />
         </mesh>
         <mesh>
-          <ringGeometry args={[0.38, 1.45, 96]} />
+          <ringGeometry args={[0.38, 1.45, 64]} />
           <shaderMaterial
             vertexShader={vertexShader}
             fragmentShader={fragmentShader}
@@ -164,7 +164,7 @@ function JewelCase({ color, name }: { color: string; name: string }) {
           scale={[1, 0.62, 1]}
           rotation={[0, 0, Math.PI / 7]}
         >
-          <torusGeometry args={[radius, 0.022, 12, 64]} />
+          <torusGeometry args={[radius, 0.022, 8, 40]} />
           <meshStandardMaterial color="#fff0fd" roughness={0.27} />
         </mesh>
       ))}
@@ -184,8 +184,11 @@ function Stage({
   name: string;
   orbit: { yaw: number; pitch: number };
 }) {
+  const scale = useThree(({ size }) =>
+    Math.min(1, size.width / (1.3 * Math.max(1, size.height))),
+  );
   return (
-    <group rotation={[orbit.pitch, orbit.yaw, -0.035]}>
+    <group rotation={[orbit.pitch, orbit.yaw, -0.035]} scale={scale}>
       <JewelCase color={props.color} name={name} />
       <Disc {...props} />
     </group>
@@ -196,7 +199,7 @@ export default function KpopDiscCanvas(props: Parameters<typeof Stage>[0]) {
   return (
     <Canvas
       camera={{ position: [0, 0, 7.9], fov: 33 }}
-      dpr={[1, 1.5]}
+      dpr={1}
       frameloop={props.spinning ? "always" : "demand"}
     >
       <ambientLight intensity={1.45} />

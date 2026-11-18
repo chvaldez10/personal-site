@@ -19,6 +19,7 @@ function canRenderScene() {
 export function useWebGLPreview({
   rootMargin = "0px",
   trackVisibility = false,
+  enabled = true,
 } = {}) {
   const frame = useRef<HTMLDivElement>(null);
   const [nearby, setNearby] = useState(false);
@@ -28,11 +29,16 @@ export function useWebGLPreview({
 
   useEffect(() => {
     const element = frame.current;
-    if (!element) return;
+    if (!enabled || !element) return;
+    function loadScene() {
+      if (canRenderScene()) setLoaded(true);
+      else setFailed(true);
+    }
+
     if (typeof IntersectionObserver === "undefined") {
       const frameId = requestAnimationFrame(() => {
         setNearby(true);
-        setLoaded(canRenderScene());
+        loadScene();
       });
       return () => cancelAnimationFrame(frameId);
     }
@@ -41,7 +47,7 @@ export function useWebGLPreview({
       ([entry]) => {
         setNearby(entry.isIntersecting);
         if (entry.isIntersecting) {
-          setLoaded(canRenderScene());
+          loadScene();
           if (!trackVisibility) observer.disconnect();
         }
       },
@@ -49,13 +55,14 @@ export function useWebGLPreview({
     );
     observer.observe(element);
     return () => observer.disconnect();
-  }, [rootMargin, trackVisibility]);
+  }, [enabled, rootMargin, trackVisibility]);
 
   return {
     frame,
     nearby,
-    shouldRender: loaded && !failed,
-    ready: ready && !failed,
+    shouldRender: enabled && loaded && !failed,
+    ready: enabled && ready && !failed,
+    failed,
     onReady: setReady,
     onFailure: () => setFailed(true),
   };
