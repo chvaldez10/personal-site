@@ -1,6 +1,7 @@
-import { useContext, useEffect, type RefObject } from "react";
+import { useContext, useEffect, useMemo, type RefObject } from "react";
 import { Button } from "@/components/ui/buttons/button";
 import { UpdateOctagonClock } from "./OctagonClock";
+import { captionTrackSource } from "@/lib/workouts/audio/captions";
 import type { TimelineCaption } from "@/lib/workouts/audio/timeline";
 import type { WorkoutRound } from "@/lib/workouts/draft";
 
@@ -35,20 +36,6 @@ function clock(seconds: number) {
   return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
 }
 
-function timedCaptions(items: TimelineCaption[]) {
-  const time = (seconds: number) => {
-    const milliseconds = Math.round(seconds * 1000);
-    const hours = Math.floor(milliseconds / 3_600_000);
-    const minutes = Math.floor((milliseconds % 3_600_000) / 60_000);
-    const remainder = Math.floor((milliseconds % 60_000) / 1000);
-    const fraction = milliseconds % 1000;
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}.${String(fraction).padStart(3, "0")}`;
-  };
-  return `data:text/vtt;charset=utf-8,${encodeURIComponent(
-    `WEBVTT\n\n${items.map((item) => `${time(item.start)} --> ${time(item.end)}\n${item.text.replaceAll(/\s+/g, " ").replaceAll("-->", "→")}\n`).join("\n")}`,
-  )}`;
-}
-
 export default function SessionPlayer({
   track,
   currentTrack,
@@ -71,18 +58,22 @@ export default function SessionPlayer({
   const displayedElapsed = displayedTrack ? elapsed : 0;
   let roundStart = 0;
   let activeIndex = 0;
+  let roundRemaining = 0;
   for (const [index, round] of displayRounds.entries()) {
     const end = roundStart + Number(round.lengthMinutes) * 60;
     if (displayedElapsed < end || index === displayRounds.length - 1) {
       activeIndex = index;
+      roundRemaining = end - displayedElapsed;
       break;
     }
     roundStart = end;
   }
   const activeRound = displayRounds[activeIndex];
-  const roundRemaining = activeRound
-    ? Number(activeRound.lengthMinutes) * 60 - (displayedElapsed - roundStart)
-    : 0;
+  const trackCaptions = track?.captions;
+  const captionsSrc = useMemo(
+    () => (trackCaptions ? captionTrackSource(trackCaptions) : undefined),
+    [trackCaptions],
+  );
   const nextInstruction = displayedTrack?.captions.find(
     (item) => item.start > displayedElapsed + 0.5,
   );
@@ -238,7 +229,7 @@ export default function SessionPlayer({
         >
           <track
             kind="captions"
-            src={timedCaptions(track.captions)}
+            src={captionsSrc}
             srcLang="en"
             label="English"
           />

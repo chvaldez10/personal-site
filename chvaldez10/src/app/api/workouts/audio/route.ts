@@ -10,41 +10,22 @@ import {
   audioRequestSchema,
   audioRequestText,
 } from "@/lib/workouts/audio/schema";
-import { workoutOwnerAccess } from "@/lib/workouts/owner.server";
+import {
+  parseOwnerWorkoutRequest,
+  workoutErrorResponse,
+} from "@/lib/workouts/request.server";
 import { reserveWorkoutRequest } from "@/lib/workouts/usage.server";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const access = await workoutOwnerAccess();
-  if (access === "signedOut")
-    return Response.json(
-      { error: "Sign in to generate coaching audio." },
-      { status: 401 },
-    );
-  if (access === "forbidden")
-    return Response.json(
-      { error: "Only the site owner can generate coaching audio." },
-      { status: 403 },
-    );
-  if (access === "unavailable")
-    return Response.json(
-      { error: "Sign-in could not be verified. Try again." },
-      { status: 503 },
-    );
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json({ error: "Invalid request body." }, { status: 400 });
-  }
-  const parsed = audioRequestSchema.safeParse(body);
-  if (!parsed.success)
-    return Response.json(
-      { error: "Check the audio settings and try again." },
-      { status: 400 },
-    );
+  const parsed = await parseOwnerWorkoutRequest(request, audioRequestSchema, {
+    signedOut: "Sign in to generate coaching audio.",
+    forbidden: "Only the site owner can generate coaching audio.",
+    unavailable: "Sign-in could not be verified. Try again.",
+    invalid: "Check the audio settings and try again.",
+  });
+  if ("response" in parsed) return parsed.response;
 
   const model = resolveVoiceModel(parsed.data.modelId);
   const voice = resolveVoice(parsed.data.voiceId);
@@ -59,7 +40,7 @@ export async function POST(request: Request) {
 
   const text = audioRequestText(parsed.data);
 
-  const limited = await reserveWorkoutRequest("coachingAudio");
+  const limited = await reserveWorkoutRequest("coachingAudio", parsed.token);
   if (limited) return limited;
 
   try {
@@ -73,15 +54,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     if (error instanceof AudioGenerationError)
-      return Response.json(
-        { error: error.message },
-        {
-          status: error.status,
-          headers:
-            error.retryAfter && /^\d+$/.test(error.retryAfter)
-              ? { "Retry-After": error.retryAfter }
-              : undefined,
-        },
+      return workoutErrorResponse(
+        error.message,
+        error.status,
+        error.retryAfter,
       );
     console.error("Coaching audio generation failed unexpectedly.");
     return Response.json(

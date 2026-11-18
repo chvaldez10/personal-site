@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { minutes, type WorkoutRound } from "@/lib/workouts/draft";
+import { MAX_ROUND_MINUTES } from "@/lib/workouts/limits.mjs";
 import { workoutInputClass } from "./fieldStyles";
 
 type RoundEditorProps = {
@@ -135,22 +136,21 @@ export default function RoundEditor({
             id={`${fieldId}-length`}
             type="number"
             min={1}
-            max={30}
+            max={MAX_ROUND_MINUTES}
             step={1}
             value={round.lengthMinutes}
             onChange={(event) =>
               onUpdate(round.id, { lengthMinutes: event.target.value })
             }
             aria-label={`Round ${index + 1} length in minutes`}
-            aria-invalid={minutes(round.lengthMinutes, 30) === null}
+            aria-invalid={
+              minutes(round.lengthMinutes, MAX_ROUND_MINUTES) === null
+            }
             className={workoutInputClass}
           />
         </div>
         <div className="sm:col-span-2">
-          <Label
-            htmlFor={`${fieldId}-objective`}
-            className="text-gray-800"
-          >
+          <Label htmlFor={`${fieldId}-objective`} className="text-gray-800">
             Technical objective
           </Label>
           <Textarea
@@ -183,10 +183,7 @@ export default function RoundEditor({
           />
         </div>
         <div className="sm:col-span-2">
-          <Label
-            htmlFor={`${fieldId}-reminder`}
-            className="text-gray-800"
-          >
+          <Label htmlFor={`${fieldId}-reminder`} className="text-gray-800">
             Technique reminder (optional)
           </Label>
           <Input

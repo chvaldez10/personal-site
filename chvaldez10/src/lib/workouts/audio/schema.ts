@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_WORKOUT_ROUNDS } from "../limits.mjs";
 
 export const voicePreviewText =
   "Stay balanced. Let your feet set the distance, then bring your hands back to guard.";
@@ -19,7 +20,7 @@ export const audioRequestSchema = z.discriminatedUnion("kind", [
   z.object({
     kind: z.literal("transition"),
     ...selection,
-    roundNumber: z.number().int().min(1).max(12),
+    roundNumber: z.number().int().min(1).max(MAX_WORKOUT_ROUNDS),
     name: z.string().trim().min(1).max(80),
     objective: z.string().trim().min(1).max(240),
     coachingCue: z.string().trim().max(180),

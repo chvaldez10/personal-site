@@ -5,7 +5,10 @@ import {
 } from "@/lib/workouts/schema";
 import { roundSchedule, workoutPrompt } from "@/lib/workouts/generation";
 import { resolveWorkoutModel } from "@/lib/workouts/models.server";
-import { workoutOwnerAccess } from "@/lib/workouts/owner.server";
+import {
+  parseOwnerWorkoutRequest,
+  workoutErrorResponse,
+} from "@/lib/workouts/request.server";
 import { reserveWorkoutRequest } from "@/lib/workouts/usage.server";
 import {
   generateStructuredWorkout,
@@ -13,35 +16,17 @@ import {
 } from "@/lib/workouts/providers/index.server";
 
 export async function POST(request: Request) {
-  const access = await workoutOwnerAccess();
-  if (access === "signedOut")
-    return Response.json(
-      { error: "Sign in to generate a workout." },
-      { status: 401 },
-    );
-  if (access === "forbidden")
-    return Response.json(
-      { error: "Only the site owner can generate workouts." },
-      { status: 403 },
-    );
-  if (access === "unavailable")
-    return Response.json(
-      { error: "Sign-in could not be verified. Please try again." },
-      { status: 503 },
-    );
-
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json({ error: "Invalid request body." }, { status: 400 });
-  }
-  const parsed = generationRequestSchema.safeParse(body);
-  if (!parsed.success)
-    return Response.json(
-      { error: "Check the workout settings and try again." },
-      { status: 400 },
-    );
+  const parsed = await parseOwnerWorkoutRequest(
+    request,
+    generationRequestSchema,
+    {
+      signedOut: "Sign in to generate a workout.",
+      forbidden: "Only the site owner can generate workouts.",
+      unavailable: "Sign-in could not be verified. Please try again.",
+      invalid: "Check the workout settings and try again.",
+    },
+  );
+  if ("response" in parsed) return parsed.response;
 
   const model = await resolveWorkoutModel(parsed.data.modelId);
   if (!model)
@@ -58,7 +43,10 @@ export async function POST(request: Request) {
   );
   const prompt = workoutPrompt(parsed.data, schedule);
 
-  const limited = await reserveWorkoutRequest("workoutGeneration");
+  const limited = await reserveWorkoutRequest(
+    "workoutGeneration",
+    parsed.token,
+  );
   if (limited) return limited;
 
   try {
@@ -79,15 +67,10 @@ export async function POST(request: Request) {
     return Response.json({ workout });
   } catch (error) {
     if (error instanceof WorkoutGenerationError)
-      return Response.json(
-        { error: error.message },
-        {
-          status: error.status,
-          headers:
-            error.retryAfter && /^\d+$/.test(error.retryAfter)
-              ? { "Retry-After": error.retryAfter }
-              : undefined,
-        },
+      return workoutErrorResponse(
+        error.message,
+        error.status,
+        error.retryAfter,
       );
     console.error("Workout generation failed unexpectedly.");
     return Response.json(

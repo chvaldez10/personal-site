@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MmaPage() {
-  const isOwner = (await workoutOwnerAccess()) === "owner";
+  const isOwner = (await workoutOwnerAccess()).status === "owner";
   const [models, audioOptions] = isOwner
     ? await Promise.all([availableWorkoutModels(), availableAudioOptions()])
     : [[], { models: [], voices: [] }];

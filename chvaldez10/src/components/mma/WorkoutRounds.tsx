@@ -3,6 +3,7 @@
 import { useRef, useState, type PointerEvent } from "react";
 import { Button } from "@/components/ui/buttons/button";
 import type { WorkoutRound } from "@/lib/workouts/draft";
+import { MAX_WORKOUT_ROUNDS } from "@/lib/workouts/limits.mjs";
 import RoundEditor from "./RoundEditor";
 
 interface RoundDrag {
@@ -90,8 +91,8 @@ export default function WorkoutRounds({
           <h3 className="text-xl font-bold text-gray-900">Rounds</h3>
           <p className="mt-1 text-sm text-gray-600">
             Drag a round by its handle or use Up and Down. Set a name, length,
-            and technical objective for each round. Sessions support up to 12
-            rounds.
+            and technical objective for each round. Sessions support up to{" "}
+            {MAX_WORKOUT_ROUNDS} rounds.
           </p>
         </div>
         <Button

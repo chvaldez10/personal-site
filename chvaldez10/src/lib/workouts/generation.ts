@@ -1,10 +1,20 @@
+import { MAX_WORKOUT_ROUNDS } from "./limits.mjs";
 import type { GenerationRequest } from "./schema";
 
-export function roundSchedule(targetMinutes: number, preferredRoundMinutes: number) {
-  const count = Math.min(12, Math.ceil(targetMinutes / preferredRoundMinutes));
+export function roundSchedule(
+  targetMinutes: number,
+  preferredRoundMinutes: number,
+) {
+  const count = Math.min(
+    MAX_WORKOUT_ROUNDS,
+    Math.ceil(targetMinutes / preferredRoundMinutes),
+  );
   const base = Math.floor(targetMinutes / count);
   const extra = targetMinutes % count;
-  return Array.from({ length: count }, (_, index) => base + (index < extra ? 1 : 0));
+  return Array.from(
+    { length: count },
+    (_, index) => base + (index < extra ? 1 : 0),
+  );
 }
 
 export function workoutPrompt(request: GenerationRequest, schedule: number[]) {

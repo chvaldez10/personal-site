@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_ROUND_MINUTES, MAX_WORKOUT_ROUNDS } from "./limits.mjs";
 
 export const workoutDraftKey = "shadowboxing-session-draft-v1";
 
@@ -18,7 +19,7 @@ export const workoutDraftSchema = z.object({
         techniqueReminder: z.string().max(160),
       }),
     )
-    .max(12),
+    .max(MAX_WORKOUT_ROUNDS),
 });
 
 type StoredDraft = z.infer<typeof workoutDraftSchema>;
@@ -94,4 +95,23 @@ export function minutes(value: string, maximum: number): number | null {
   return Number.isInteger(parsed) && parsed >= 1 && parsed <= maximum
     ? parsed
     : null;
+}
+
+export function summarizeWorkoutRounds(rounds: WorkoutRound[]) {
+  const lengths: number[] = [];
+  let plannedMinutes = 0;
+  let hasRequiredText = rounds.length > 0;
+  for (const round of rounds) {
+    const length = minutes(round.lengthMinutes, MAX_ROUND_MINUTES);
+    if (length !== null) {
+      lengths.push(length);
+      plannedMinutes += length;
+    }
+    if (!round.name.trim() || !round.objective.trim()) hasRequiredText = false;
+  }
+  return {
+    lengths: lengths.length === rounds.length ? lengths : null,
+    plannedMinutes,
+    hasRequiredText,
+  };
 }

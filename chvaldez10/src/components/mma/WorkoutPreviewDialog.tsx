@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { WorkoutRound } from "@/lib/workouts/draft";
+import { MAX_PRACTICE_MINUTES, MAX_ROUND_MINUTES } from "@/lib/workouts/limits.mjs";
 import { workoutInputClass } from "./fieldStyles";
 
 type SaveControls = {
@@ -57,9 +58,9 @@ export default function WorkoutPreviewDialog({
           </p>
           <output className="mt-1 block text-sm text-gray-700">
             {target === null
-              ? "Enter a practice time from 1 to 180 minutes."
+              ? `Enter a practice time from 1 to ${MAX_PRACTICE_MINUTES} minutes.`
               : !roundLengthsValid
-                ? "Set every round length from 1 to 30 minutes."
+                ? `Set every round length from 1 to ${MAX_ROUND_MINUTES} minutes.`
                 : plannedMinutes === target
                   ? "Your rounds match the practice time."
                   : plannedMinutes < target

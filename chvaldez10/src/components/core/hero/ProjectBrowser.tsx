@@ -1,18 +1,16 @@
 "use client";
 
-import { Fragment, useState } from "react";
-import { Slash } from "lucide-react";
-import ProjectGallery from "./molecules/ProjectGallery";
+import { useState } from "react";
+import { Button } from "@/components/ui/buttons/button";
 import {
   ProjectStatus,
   type ProjectDataCollection,
 } from "@/constants/projectData";
+import ProjectGallery from "./molecules/ProjectGallery";
+import styles from "./studio.module.css";
 
-const statuses = [
-  ProjectStatus.InProgress,
-  ProjectStatus.Ideation,
-  ProjectStatus.Maintenance,
-];
+const statuses = Object.values(ProjectStatus);
+const batchSize = 6;
 
 export default function ProjectBrowser({
   heading,
@@ -23,61 +21,65 @@ export default function ProjectBrowser({
   description: string;
   projects: ProjectDataCollection;
 }) {
-  const [activeStatus, setActiveStatus] = useState(statuses[0]);
+  const [activeStatus, setActiveStatus] = useState(ProjectStatus.InProgress);
+  const [limit, setLimit] = useState(batchSize);
+  const activeProjects = projects[activeStatus] ?? [];
+
   return (
     <section
-      className="min-h-screen flex-items-center bg-(--brand-secondary-100) py-24 sm:py-32"
       id="projects"
       aria-labelledby="projects-heading"
+      className={`${styles.section} ${styles.projectSection}`}
     >
-      <div className="home-container">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2
-            id="projects-heading"
-            className="text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl"
-          >
-            {heading}
-          </h2>
-          <p className="mt-4 text-base leading-7 text-gray-700">
-            {description}
-          </p>
-        </div>
-        <fieldset
-          aria-label="Filter projects by status"
-          className="mt-6 flex flex-wrap items-center justify-center gap-1.5 py-4 text-sm text-muted-foreground"
-        >
-          {statuses.map((status, index) => (
-            <Fragment key={status}>
-              <button
+      <div className={styles.inner}>
+        <div className={styles.splitHeading}>
+          <div>
+            <h2 id="projects-heading" className={styles.sectionTitle}>
+              {heading}
+            </h2>
+            <p className={styles.sectionCopy}>{description}</p>
+          </div>
+          <fieldset className={styles.projectFilters}>
+            <legend className="sr-only">Filter projects by status</legend>
+            {statuses.map((status) => (
+              <Button
                 type="button"
-                aria-pressed={status === activeStatus}
-                onClick={() => setActiveStatus(status)}
+                key={status}
+                variant="outline"
+                aria-pressed={activeStatus === status}
                 aria-controls="project-results"
-                className={
-                  "rounded-md px-2 py-1 transition-transform duration-300 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 " +
-                  (status === activeStatus
-                    ? "bg-yellow-500 text-white hover:bg-yellow-400"
-                    : "hover:bg-gray-200")
-                }
+                onClick={() => {
+                  if (activeStatus === status) return;
+                  setActiveStatus(status);
+                  setLimit(batchSize);
+                }}
               >
-                {status}
-              </button>
-              {index < statuses.length - 1 && (
-                <Slash
-                  aria-hidden="true"
-                  className="h-3.5 w-3.5 text-gray-500"
-                />
-              )}
-            </Fragment>
-          ))}
-        </fieldset>
-        <div id="project-results" className="mt-4" aria-live="polite">
-          {projects[activeStatus]?.length ? (
-            <ProjectGallery projects={projects[activeStatus]} />
+                {status}{" "}
+                <span aria-hidden="true">{projects[status]?.length ?? 0}</span>
+              </Button>
+            ))}
+          </fieldset>
+        </div>
+        <div id="project-results" className={styles.projectResults}>
+          <output className="sr-only">
+            {activeProjects.length}{" "}
+            {activeProjects.length === 1 ? "project" : "projects"} in{" "}
+            {activeStatus}.
+          </output>
+          {activeProjects.length ? (
+            <ProjectGallery projects={activeProjects.slice(0, limit)} />
           ) : (
-            <p className="text-center text-gray-700">
-              No projects in this status yet.
-            </p>
+            <p className={styles.empty}>No projects in this status yet.</p>
+          )}
+          {activeProjects.length > limit && (
+            <Button
+              type="button"
+              variant="outline"
+              className={styles.moreProjects}
+              onClick={() => setLimit((current) => current + batchSize)}
+            >
+              Show more projects
+            </Button>
           )}
         </div>
       </div>

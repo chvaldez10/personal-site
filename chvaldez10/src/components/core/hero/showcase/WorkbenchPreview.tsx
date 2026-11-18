@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/buttons";
 import ScenePreview, { type ScenePreviewProps } from "./ScenePreview";
 import styles from "./showcase.module.css";
 
-type Prop = Extract<ScenePreviewProps, { kind: "workbench" }>["selected"];
+type Step = Extract<ScenePreviewProps, { kind: "workbench" }>["selected"];
 
-const props = [
+const steps = [
   {
     id: "sketch",
     label: "Sketch",
@@ -27,36 +27,41 @@ const props = [
 
 export default function WorkbenchPreview({
   children,
+  intro,
 }: {
   children: ReactNode;
+  intro: ReactNode;
 }) {
-  const [selected, setSelected] = useState<Prop>("sketch");
-  const note = props.find((item) => item.id === selected)?.note;
+  const [selected, setSelected] = useState<Step>("sketch");
+  const note = steps.find((item) => item.id === selected)?.note;
 
   return (
-    <div className={styles.workbench}>
-      {children}
-      <ScenePreview kind="workbench" selected={selected} />
-      <div className={styles.workbenchControls}>
-        <fieldset className={styles.propChoices}>
-          <legend className="sr-only">Explore the workbench</legend>
-          {props.map((item) => (
-            <Button
-              key={item.id}
-              type="button"
-              variant="ghost"
-              size="sm"
-              aria-pressed={item.id === selected}
-              onClick={() => setSelected(item.id)}
-            >
-              {item.label}
-            </Button>
-          ))}
-        </fieldset>
-        <p aria-live="polite" className={styles.note}>
-          {note}
-        </p>
-      </div>
+    <div className={styles.station} data-step={selected}>
+      <ScenePreview kind="workbench" selected={selected} intro={intro}>
+        <div className={styles.workbenchControls}>
+          <div className={styles.workbenchSteps}>
+            <fieldset className={styles.propChoices}>
+              <legend className="sr-only">Explore the workbench</legend>
+              {steps.map((item) => (
+                <Button
+                  key={item.id}
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-pressed={item.id === selected}
+                  onClick={() => setSelected(item.id)}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </fieldset>
+            <p aria-live="polite" className={styles.note}>
+              {note}
+            </p>
+          </div>
+          {children}
+        </div>
+      </ScenePreview>
     </div>
   );
 }

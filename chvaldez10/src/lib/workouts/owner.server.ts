@@ -2,22 +2,24 @@ import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 import { api } from "@convex/_generated/api";
 import { fetchQuery } from "convex/nextjs";
 
-export async function workoutOwnerAccess(): Promise<
-  "owner" | "signedOut" | "forbidden" | "unavailable"
-> {
+export type WorkoutOwnerAccess =
+  | { status: "owner"; token: string }
+  | { status: "signedOut" | "forbidden" | "unavailable" };
+
+export async function workoutOwnerAccess(): Promise<WorkoutOwnerAccess> {
   let token: string | undefined;
   try {
     token = await convexAuthNextjsToken();
   } catch {
-    return "unavailable";
+    return { status: "unavailable" };
   }
-  if (!token) return "signedOut";
+  if (!token) return { status: "signedOut" };
 
   try {
     return (await fetchQuery(api.admin.current, {}, { token }))
-      ? "owner"
-      : "forbidden";
+      ? { status: "owner", token }
+      : { status: "forbidden" };
   } catch {
-    return "unavailable";
+    return { status: "unavailable" };
   }
 }

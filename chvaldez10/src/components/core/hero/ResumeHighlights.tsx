@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ArrowUpRight, Plus } from "lucide-react";
+import styles from "./studio.module.css";
 
 const skillGroups = [
   {
@@ -45,123 +47,71 @@ export default function ResumeHighlights() {
     <section
       id="background"
       aria-labelledby="background-heading"
-      className="min-h-screen bg-white py-24 sm:py-32"
+      className={`${styles.section} ${styles.background}`}
     >
-      <div className="home-container">
-        <div className="max-w-2xl">
-          <p className="flex items-center gap-3 text-sm font-semibold tracking-widest text-orange-700 uppercase">
-            <span className="h-1 w-6 bg-orange-500" aria-hidden="true" />
-            How I got here
-          </p>
-          <h2
-            id="background-heading"
-            className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl"
-          >
-            I learned by building and testing.
-          </h2>
-          <p className="mt-5 text-base leading-7 text-gray-700">
+      <div className={styles.inner}>
+        <div className={styles.splitHeading}>
+          <div>
+            <p className={styles.kicker}>How I got here</p>
+            <h2 id="background-heading" className={styles.sectionTitle}>
+              I learned by building and testing.
+            </h2>
+          </div>
+          <p className={styles.sectionCopy}>
             My background in engineering, research, and QA shapes how I work:
             make something useful, check it carefully, and keep improving it.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
-          <div className="grid gap-6">
-            <article className="relative overflow-hidden rounded-2xl border border-orange-200 bg-white p-6 shadow-sm sm:p-8">
-              <span
-                className="absolute top-0 right-0 h-24 w-24 translate-x-1/2 -translate-y-1/2 rounded-full bg-(--brand-secondary-200)"
-                aria-hidden="true"
-              />
-              <p className="relative text-xs font-bold tracking-widest text-orange-700 uppercase">
-                01 / Education
-              </p>
-              <h3 className="relative mt-5 text-xl font-bold text-gray-900">
-                Schulich School of Engineering
-              </h3>
-              <p className="relative mt-1 text-sm text-gray-600">
-                University of Calgary
-              </p>
-              <ul className="relative mt-6 space-y-3 border-l-2 border-orange-300 pl-5 text-sm leading-6 text-gray-800 sm:text-base">
-                <li>Master of Engineering in Software</li>
-                <li>Bachelor of Science in Electrical Engineering</li>
-              </ul>
-            </article>
-
-            <article className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm sm:p-8">
-              <p className="text-xs font-bold tracking-widest text-orange-700 uppercase">
-                02 / Skills
-              </p>
-              <h3 className="mt-5 text-xl font-bold text-gray-900">
-                Tools I work with
-              </h3>
-              <dl className="mt-5 divide-y divide-orange-100">
-                {skillGroups.map(({ label, items }) => (
-                  <div key={label} className="py-3 first:pt-0 last:pb-0">
-                    <dt className="text-xs font-bold tracking-wide text-gray-600 uppercase">
-                      {label}
-                    </dt>
-                    <dd className="mt-1 text-sm leading-6 text-gray-800">
-                      {items}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </article>
-          </div>
-
-          <article className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm sm:p-8">
-            <p className="text-xs font-bold tracking-widest text-orange-700 uppercase">
-              03 / Experience
-            </p>
-            <h3 className="mt-5 text-xl font-bold text-gray-900">
-              Before Showpass
-            </h3>
-            <ol className="mt-7 border-l-2 border-orange-300 pl-6">
+        <div className={styles.notebook}>
+          <div className={styles.timelinePage}>
+            <h3>Before Showpass</h3>
+            <ol className={styles.timeline}>
               {earlierRoles.map(
                 ({ role, organization, dates, description }) => (
-                  <li key={role} className="relative pb-10 last:pb-0">
-                    <span
-                      className="absolute top-1 -left-[31px] h-3.5 w-3.5 rounded-full border-2 border-orange-500 bg-white"
-                      aria-hidden="true"
-                    />
-                    <p className="text-xs font-semibold tracking-wide text-orange-700 uppercase">
-                      {dates}
-                    </p>
-                    <h4 className="mt-2 text-lg font-bold text-gray-900">
-                      {role}
-                    </h4>
-                    <p className="mt-1 text-sm font-medium text-gray-600">
-                      {organization}
-                    </p>
-                    <p className="mt-4 text-sm leading-7 text-gray-700 sm:text-base">
-                      {description}
-                    </p>
+                  <li key={role}>
+                    <p className={styles.kicker}>{dates}</p>
+                    <h4>{role}</h4>
+                    <p className={styles.organization}>{organization}</p>
+                    <p>{description}</p>
                   </li>
                 ),
               )}
             </ol>
-          </article>
+          </div>
+          <div className={styles.skillsPage}>
+            <h3>Schulich School of Engineering</h3>
+            <p className={styles.organization}>University of Calgary</p>
+            <ul className={styles.degrees}>
+              <li>Master of Engineering in Software</li>
+              <li>Bachelor of Science in Electrical Engineering</li>
+            </ul>
+            <h3 className={styles.skillsHeading}>Skills</h3>
+            <div className={styles.skillGroups}>
+              {skillGroups.map(({ label, items }) => (
+                <details key={label}>
+                  <summary>
+                    {label}
+                    <Plus size={16} aria-hidden="true" />
+                  </summary>
+                  <p>{items}</p>
+                </details>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <Link
-          href="/tutoring"
-          className="group mt-6 flex flex-col gap-5 rounded-2xl border border-orange-200 bg-white p-6 text-gray-900 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-600 sm:flex-row sm:items-center sm:justify-between sm:p-8"
-          style={{ textDecoration: "none" }}
-        >
+        <Link href="/tutoring" className={styles.tutoring} prefetch={false}>
           <div>
-            <p className="text-xs font-bold tracking-widest text-orange-700 uppercase">
-              Math and science / Grades 7–12
-            </p>
-            <h3 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-              I help students make sense of math and science
-            </h3>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-gray-700 sm:text-base">
-              For grades 7–12, I work through what they’re learning in class
-              with clear explanations and practice.
+            <p className={styles.kicker}>Math and science · Grades 7–12</p>
+            <h3>I help students make sense of math and science.</h3>
+            <p>
+              We work through what they’re learning in class with clear
+              explanations and practice.
             </p>
           </div>
-          <span className="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-orange-100 px-4 py-3 text-sm font-semibold text-orange-900 transition-transform group-hover:translate-x-1 sm:self-auto">
-            View tutoring <span aria-hidden="true">↗</span>
+          <span>
+            View tutoring <ArrowUpRight size={18} aria-hidden="true" />
           </span>
         </Link>
       </div>

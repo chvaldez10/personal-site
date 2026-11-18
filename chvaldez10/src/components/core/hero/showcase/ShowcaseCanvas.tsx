@@ -4,25 +4,33 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, type RefObject } from "react";
 import { MathUtils, PerspectiveCamera } from "three";
 import { BoxOfficeModel, WorkbenchModel } from "./ShowcaseModels";
-import type { ScenePreviewProps } from "./ScenePreview";
+import type {
+  ScenePreviewProps,
+  WorkbenchLook,
+  WorkbenchViewAction,
+} from "./ScenePreview";
 
 type SceneProps = ScenePreviewProps & {
   frame: RefObject<HTMLDivElement | null>;
+  registerLook: (handler: WorkbenchLook | null) => void;
   nearby: boolean;
   onReady: (ready: boolean) => void;
 };
 
-function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
+function CameraMotion({
+  kind,
+  frame,
+  registerLook,
+  nearby,
+  onReady,
+}: SceneProps) {
   const invalidate = useThree((state) => state.invalidate);
   const canvas = useThree((state) => state.gl.domElement);
   const motion = useRef({
-    pointer: 0,
-    pointerY: 0,
-    orbit: 0,
-    elevation: 0,
-    scroll: 0,
-    angle: 0,
-    lift: 0,
+    targetYaw: 0,
+    targetPitch: 0,
+    yaw: 0,
+    pitch: 0,
     reduced: false,
   });
   const firstFrame = useRef(true);
@@ -30,17 +38,34 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
 
   useEffect(() => {
     const element = frame.current;
-    if (!element || !nearby) return;
+    if (!element || !nearby || kind !== "workbench") return;
 
     const state = motion.current;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const workbench = kind === "workbench";
-    let drag: { id: number; x: number; y: number } | undefined;
+    let drag: { id: number; x: number; y: number; scale: number } | undefined;
 
     function adjustView(horizontal: number, vertical: number) {
-      state.orbit = MathUtils.clamp(state.orbit + horizontal, -1.05, 0.48);
-      state.elevation = MathUtils.clamp(state.elevation + vertical, -2.8, 2.2);
+      state.targetYaw = MathUtils.clamp(
+        state.targetYaw + horizontal,
+        -0.48,
+        0.48,
+      );
+      state.targetPitch = MathUtils.clamp(
+        state.targetPitch + vertical,
+        -0.22,
+        0.18,
+      );
       invalidate();
+    }
+
+    function lookAround(action: WorkbenchViewAction) {
+      if (action === "center") {
+        state.targetYaw = 0;
+        state.targetPitch = 0;
+        invalidate();
+      } else {
+        adjustView(action === "left" ? -0.15 : 0.15, 0);
+      }
     }
 
     function start(event: PointerEvent) {
@@ -50,40 +75,29 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
         drag ||
         !event.isPrimary ||
         event.button !== 0
-      )
+      ) {
         return;
+      }
 
-      drag = { id: event.pointerId, x: event.clientX, y: event.clientY };
-      state.pointer = 0;
-      state.pointerY = 0;
+      drag = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        scale: 240 / Math.max(1, element.clientHeight),
+      };
       element.setPointerCapture(event.pointerId);
-      invalidate();
     }
 
     function move(event: PointerEvent) {
-      if (drag?.id === event.pointerId && element) {
-        const scale = 240 / element.clientHeight;
-        adjustView(
-          (drag.x - event.clientX) * scale * 0.006,
-          event.pointerType === "touch"
-            ? 0
-            : (event.clientY - drag.y) * scale * 0.025,
-        );
-        drag.x = event.clientX;
-        drag.y = event.clientY;
-        return;
-      }
-      if (event.pointerType !== "mouse" || state.reduced || !element) return;
-      const bounds = element.getBoundingClientRect();
-      state.pointer = (event.clientX - bounds.left) / bounds.width - 0.5;
-      state.pointerY = (bounds.top - event.clientY) / bounds.height + 0.5;
-      invalidate();
-    }
-
-    function resetPointer() {
-      state.pointer = 0;
-      state.pointerY = 0;
-      invalidate();
+      if (drag?.id !== event.pointerId) return;
+      adjustView(
+        (drag.x - event.clientX) * drag.scale * 0.006,
+        event.pointerType === "touch"
+          ? 0
+          : (event.clientY - drag.y) * drag.scale * 0.004,
+      );
+      drag.x = event.clientX;
+      drag.y = event.clientY;
     }
 
     function end(event: PointerEvent) {
@@ -94,21 +108,19 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
       if (element?.dataset.ready !== "true") return;
       switch (event.key) {
         case "ArrowLeft":
-          adjustView(-0.12, 0);
+          lookAround("left");
           break;
         case "ArrowRight":
-          adjustView(0.12, 0);
+          lookAround("right");
           break;
         case "ArrowUp":
-          adjustView(0, 0.35);
+          adjustView(0, 0.08);
           break;
         case "ArrowDown":
-          adjustView(0, -0.35);
+          adjustView(0, -0.08);
           break;
         case "Home":
-          state.orbit = 0;
-          state.elevation = 0;
-          invalidate();
+          lookAround("center");
           break;
         default:
           return;
@@ -116,54 +128,30 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
       event.preventDefault();
     }
 
-    function scroll() {
-      if (!element || state.reduced) return;
-      const bounds = element.getBoundingClientRect();
-      state.scroll = MathUtils.clamp(
-        workbench
-          ? bounds.top / window.innerHeight
-          : (bounds.top + bounds.height / 2) / window.innerHeight - 0.5,
-        -0.65,
-        0.65,
-      );
+    function updatePreference() {
+      state.reduced = media.matches;
       invalidate();
     }
 
-    function updatePreference() {
-      state.reduced = media.matches;
-      state.pointer = 0;
-      state.pointerY = 0;
-      if (state.reduced) invalidate();
-      else scroll();
-    }
-
     updatePreference();
+    registerLook(lookAround);
     media.addEventListener("change", updatePreference);
+    element.addEventListener("pointerdown", start);
     element.addEventListener("pointermove", move);
-    element.addEventListener("pointerleave", resetPointer);
-    if (workbench) {
-      element.addEventListener("pointerdown", start);
-      element.addEventListener("lostpointercapture", end);
-      element.addEventListener("keydown", useKeys);
-    }
-    window.addEventListener("scroll", scroll, { passive: true });
-    window.addEventListener("resize", scroll);
+    element.addEventListener("lostpointercapture", end);
+    element.addEventListener("keydown", useKeys);
     return () => {
-      state.pointer = 0;
-      state.pointerY = 0;
+      registerLook(null);
       media.removeEventListener("change", updatePreference);
-      element.removeEventListener("pointermove", move);
-      element.removeEventListener("pointerleave", resetPointer);
       element.removeEventListener("pointerdown", start);
+      element.removeEventListener("pointermove", move);
       element.removeEventListener("lostpointercapture", end);
       element.removeEventListener("keydown", useKeys);
       if (drag && element.hasPointerCapture(drag.id)) {
         element.releasePointerCapture(drag.id);
       }
-      window.removeEventListener("scroll", scroll);
-      window.removeEventListener("resize", scroll);
     };
-  }, [frame, invalidate, kind, nearby]);
+  }, [frame, invalidate, kind, registerLook, nearby]);
 
   useEffect(() => {
     function cancelReveal() {
@@ -192,50 +180,50 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
   useFrame(({ camera, size }, delta) => {
     const state = motion.current;
     const workbench = kind === "workbench";
-    const offset = state.scroll;
     const still = firstFrame.current || state.reduced || !nearby;
-    const angle =
-      state.orbit + (still ? 0 : state.pointer * 0.3 + offset * 0.36);
-    const lift =
-      state.elevation +
-      (still ? 0 : offset * 0.95 + (workbench ? state.pointerY * 0.7 : 0));
-
     const step = Math.min(delta, 0.035);
-    state.angle = state.reduced
-      ? angle
-      : MathUtils.damp(state.angle, angle, 8, step);
-    state.lift = state.reduced
-      ? lift
-      : MathUtils.damp(state.lift, lift, 8, step);
+    state.yaw = still
+      ? state.targetYaw
+      : MathUtils.damp(state.yaw, state.targetYaw, 11, step);
+    state.pitch = still
+      ? state.targetPitch
+      : MathUtils.damp(state.pitch, state.targetPitch, 11, step);
 
     const aspect = size.width / size.height;
+    const zoom = Math.min(1.04, aspect / 1.62);
+    // Lift the desk above the stacked controls in a tall viewport.
+    const offsetY = Math.round(
+      Math.max(0, size.height - size.width / 1.35) * 0.54,
+    );
     if (
       workbench &&
       camera instanceof PerspectiveCamera &&
-      (camera.view?.width !== size.width || camera.view?.height !== size.height)
+      (camera.fov !== 43 ||
+        camera.zoom !== zoom ||
+        camera.view?.width !== size.width ||
+        camera.view?.height !== size.height ||
+        camera.view?.offsetY !== offsetY)
     ) {
-      camera.fov = 48;
-      camera.zoom = Math.min(0.76, aspect / 1.1);
+      camera.fov = 43;
+      camera.zoom = zoom;
       camera.setViewOffset(
         size.width,
         size.height,
         0,
-        -0.15 * size.height,
+        offsetY,
         size.width,
         size.height,
       );
     }
     if (workbench) {
-      camera.position.set(state.angle * 0.6, 2.45, 3.65);
-      camera.lookAt(state.angle * 1.45, 0.72 + state.lift * 0.24, -0.35);
+      camera.position.set(0, 2.15, 3.45);
+      camera.rotation.set(-0.43 + state.pitch, -state.yaw, 0, "YXZ");
     } else {
-      const distance =
-        Math.max(9.15, 8.3 / aspect) + Math.abs(state.lift) * 0.75;
-      const orbit = 0.38 + state.angle;
+      const distance = Math.max(9.15, 8.3 / aspect);
       camera.position.set(
-        Math.sin(orbit) * distance,
-        2.85 + state.lift,
-        Math.cos(orbit) * distance,
+        Math.sin(0.38) * distance,
+        2.85,
+        Math.cos(0.38) * distance,
       );
       camera.lookAt(0, 0.82, 0);
     }
@@ -249,7 +237,12 @@ function CameraMotion({ kind, frame, nearby, onReady }: SceneProps) {
       invalidate();
     }
 
-    if (Math.abs(state.angle - angle) + Math.abs(state.lift - lift) > 0.001) {
+    if (
+      nearby &&
+      Math.abs(state.yaw - state.targetYaw) +
+        Math.abs(state.pitch - state.targetPitch) >
+        0.001
+    ) {
       invalidate();
     }
   });
@@ -267,7 +260,7 @@ export default function ShowcaseCanvas(props: SceneProps) {
   return (
     <Canvas
       frameloop="demand"
-      dpr={[1, 1.5]}
+      dpr={1}
       camera={camera}
       gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
       resize={{ scroll: false }}
@@ -279,7 +272,7 @@ export default function ShowcaseCanvas(props: SceneProps) {
         intensity={2.2}
         color="#fff2da"
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[512, 512]}
         shadow-radius={3}
         shadow-normalBias={0.026}
         shadow-camera-left={-5}

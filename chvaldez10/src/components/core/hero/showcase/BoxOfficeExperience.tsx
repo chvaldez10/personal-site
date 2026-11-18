@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Ticket } from "lucide-react";
+import { ScanLine, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/buttons";
 import { sampleShows } from "../sampleShows";
 import ScenePreview from "./ScenePreview";
@@ -10,11 +10,20 @@ import styles from "./showcase.module.css";
 export default function BoxOfficeExperience() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [printCount, setPrintCount] = useState(0);
+  const [ticketState, setTicketState] = useState<
+    "preview" | "printed" | "admitted" | "duplicate"
+  >("preview");
   const show = sampleShows[selectedIndex];
 
   function selectShow(index: number) {
+    if (index === selectedIndex) return;
     setSelectedIndex(index);
+    setTicketState("preview");
+  }
+
+  function printTicket() {
     setPrintCount((count) => count + 1);
+    setTicketState("printed");
   }
 
   return (
@@ -59,15 +68,33 @@ export default function BoxOfficeExperience() {
             </span>
           </div>
         </div>
-        <Button
-          type="button"
-          onClick={() => setPrintCount((count) => count + 1)}
-        >
-          <Ticket aria-hidden="true" />
-          Print a sample ticket
-        </Button>
-        <output className="sr-only">
-          Sample ticket for {show.name} ready. Copy {printCount + 1}.
+        <div className={styles.ticketActions}>
+          <Button type="button" onClick={printTicket}>
+            <Ticket aria-hidden="true" />
+            Print a sample ticket
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={ticketState === "preview"}
+            onClick={() =>
+              setTicketState(
+                ticketState === "printed" ? "admitted" : "duplicate",
+              )
+            }
+          >
+            <ScanLine aria-hidden="true" />
+            Scan ticket
+          </Button>
+        </div>
+        <output className={styles.ticketStatus} data-state={ticketState}>
+          {ticketState === "duplicate"
+            ? "Already scanned. Print a fresh ticket to try again."
+            : ticketState === "admitted"
+              ? "Admitted. The ticket has been checked in."
+              : ticketState === "printed"
+                ? `Ticket ${printCount} for ${show.name} is ready to scan.`
+                : "Print a ticket to try the check-in."}
         </output>
       </div>
     </div>

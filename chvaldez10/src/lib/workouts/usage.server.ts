@@ -1,17 +1,11 @@
-import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 import { fetchMutation } from "convex/nextjs";
 import { api } from "@convex/_generated/api";
 
 export async function reserveWorkoutRequest(
   kind: "workoutGeneration" | "coachingAudio",
+  token: string,
 ): Promise<Response | null> {
   try {
-    const token = await convexAuthNextjsToken();
-    if (!token)
-      return Response.json(
-        { error: "Sign in again to continue." },
-        { status: 401 },
-      );
     const usage = await fetchMutation(
       api.admin.consumeExternalRequest,
       { kind },

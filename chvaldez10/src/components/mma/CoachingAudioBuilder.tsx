@@ -1,85 +1,52 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/buttons/button";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import WorkoutSelectField from "./WorkoutSelectField";
 import SessionPlayer, {
   type PreparedTrack,
 } from "@/components/mma/SessionPlayer";
 import {
-  voicePreviewText,
+  audioRequestText,
   type AudioRequest,
   type VoiceModelOption,
   type VoiceOption,
 } from "@/lib/workouts/audio/schema";
-import { buildWorkoutTimeline } from "@/lib/workouts/audio/timeline";
+import { clipCaptionSource } from "@/lib/workouts/audio/captions";
+import {
+  buildWorkoutTimeline,
+  type TimelineRound,
+} from "@/lib/workouts/audio/timeline";
 import {
   cachedAudio,
   compactAudioSource,
   signature,
 } from "@/lib/workouts/audio/clips.client";
-import type { WorkoutRound } from "@/lib/workouts/draft";
+import {
+  summarizeWorkoutRounds,
+  type WorkoutRound,
+} from "@/lib/workouts/draft";
+import { MAX_SESSION_MINUTES, MAX_WORKOUT_ROUNDS } from "@/lib/workouts/limits.mjs";
 
 type Clip = { signature: string; src: string };
 
-type CoachingPrompt = {
-  text: string;
-  coachingCue: string;
-  techniqueReminder: string;
-  at: number;
-};
-
-function promptRequest(
-  prompt: CoachingPrompt,
-  modelId: string,
-  voiceId: string,
-): AudioRequest {
-  return {
-    kind: "round",
-    modelId,
-    voiceId,
-    coachingCue: prompt.coachingCue,
-    techniqueReminder: prompt.techniqueReminder,
-  };
-}
-
-const sharedPrompts: CoachingPrompt[] = [
+const sharedPrompts = [
   {
     text: "Check your balance. Let your feet reset before the next exchange.",
-    coachingCue:
-      "Check your balance. Let your feet reset before the next exchange.",
-    techniqueReminder: "",
-    at: 0.16,
+    positions: [0.16, 0.5],
   },
   {
     text: "Finish this round with clean footwork. Stay balanced as you exit.",
-    coachingCue:
-      "Finish this round with clean footwork. Stay balanced as you exit.",
-    techniqueReminder: "",
-    at: 0.82,
+    positions: [0.82],
   },
 ];
-
-function transitionText(round: WorkoutRound, index: number) {
-  const firstCue = round.coachingCue.trim();
-  const reminder = round.techniqueReminder.trim();
-  return [
-    `Round ${index + 1}. ${round.name.trim()}.`,
-    round.objective.trim(),
-    firstCue,
-    reminder,
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
 
 function transitionRequest(
   round: WorkoutRound,
   index: number,
   modelId: string,
   voiceId: string,
-): AudioRequest {
+): Extract<AudioRequest, { kind: "transition" }> {
   return {
     kind: "transition",
     modelId,
@@ -90,13 +57,6 @@ function transitionRequest(
     coachingCue: round.coachingCue.trim(),
     techniqueReminder: round.techniqueReminder.trim(),
   };
-}
-
-function captions(text: string) {
-  const transcript = text.replaceAll(/\s+/g, " ").trim();
-  return `data:text/vtt;charset=utf-8,${encodeURIComponent(
-    `WEBVTT\n\n00:00:00.000 --> 00:05:00.000\n${transcript}\n`,
-  )}`;
 }
 
 export default function CoachingAudioBuilder({
@@ -113,29 +73,29 @@ export default function CoachingAudioBuilder({
   const [modelId, setModelId] = useState(models[0]?.id ?? "");
   const [voiceId, setVoiceId] = useState(voices[0]?.id ?? "");
   const [preview, setPreview] = useState<Clip | null>(null);
-  const [clips, setClips] = useState<Record<string, Clip>>({});
+  const [clips, setClips] = useState<Record<string, string>>({});
   const [source, setSource] = useState<"edited" | "generated">("edited");
   const [track, setTrack] = useState<PreparedTrack | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [started, setStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [busy, setBusy] = useState<"preview" | "rounds" | null>(null);
   const [progress, setProgress] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
-  const selectedModel = models.some((model) => model.id === modelId)
-    ? modelId
-    : (models[0]?.id ?? "");
-  const selectedProvider =
-    models.find((model) => model.id === selectedModel)?.provider ?? "";
+  const model = models.find((option) => option.id === modelId) ?? models[0];
+  const selectedModel = model?.id ?? "";
+  const selectedProvider = model?.provider ?? "";
   const availableVoices = voices.filter(
     (voice) => voice.provider === selectedProvider,
   );
-  const selectedVoice = availableVoices.some((voice) => voice.id === voiceId)
-    ? voiceId
-    : (availableVoices[0]?.id ?? "");
+  const voice =
+    availableVoices.find((option) => option.id === voiceId) ??
+    availableVoices[0];
+  const selectedVoice = voice?.id ?? "";
   const previewRequest: AudioRequest = {
     kind: "preview",
     modelId: selectedModel,
@@ -150,36 +110,35 @@ export default function CoachingAudioBuilder({
     selectedModel,
     selectedVoice,
   });
-  const readyCount = activeRounds.filter((round, index) => {
-    if (!round.name.trim() || !round.objective.trim()) return false;
-    const announcement = transitionRequest(
-      round,
-      index,
-      selectedModel,
-      selectedVoice,
-    );
-    return Boolean(
-      clips[signature(announcement)] &&
-      sharedPrompts.every((prompt) =>
-        Boolean(
-          clips[signature(promptRequest(prompt, selectedModel, selectedVoice))],
-        ),
-      ),
-    );
-  }).length;
+  const transitions = activeRounds.map((round, index) =>
+    transitionRequest(round, index, selectedModel, selectedVoice),
+  );
+  const cueRequests = sharedPrompts.map(({ text, positions }) => ({
+    positions,
+    request: {
+      kind: "round",
+      modelId: selectedModel,
+      voiceId: selectedVoice,
+      coachingCue: text,
+      techniqueReminder: "",
+    } satisfies AudioRequest,
+  }));
+  const sharedCuesReady = cueRequests.every(
+    ({ request }) => clips[signature(request)],
+  );
+  const readyCount = sharedCuesReady
+    ? transitions.filter(
+        (request) =>
+          request.name && request.objective && clips[signature(request)],
+      ).length
+    : 0;
+  const { lengths, plannedMinutes, hasRequiredText } =
+    summarizeWorkoutRounds(activeRounds);
   const validRounds =
-    activeRounds.length > 0 &&
-    activeRounds.length <= 12 &&
-    activeRounds.every(
-      (round) =>
-        round.name.trim() &&
-        round.objective.trim() &&
-        Number.isInteger(Number(round.lengthMinutes)) &&
-        Number(round.lengthMinutes) >= 1 &&
-        Number(round.lengthMinutes) <= 30,
-    ) &&
-    activeRounds.reduce((sum, round) => sum + Number(round.lengthMinutes), 0) <=
-      45;
+    lengths !== null &&
+    hasRequiredText &&
+    activeRounds.length <= MAX_WORKOUT_ROUNDS &&
+    plannedMinutes <= MAX_SESSION_MINUTES;
   const currentTrack = track?.signature === planSignature ? track : null;
 
   useEffect(() => {
@@ -187,6 +146,15 @@ export default function CoachingAudioBuilder({
       if (track) URL.revokeObjectURL(track.src);
     };
   }, [track]);
+
+  const stop = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+    setElapsed(0);
+    setStarted(false);
+  }, []);
 
   useEffect(() => {
     if (!track || !("mediaSession" in navigator)) return;
@@ -206,14 +174,6 @@ export default function CoachingAudioBuilder({
         );
     };
     const pause = () => audioRef.current?.pause();
-    const stop = () => {
-      const audio = audioRef.current;
-      if (!audio) return;
-      audio.pause();
-      audio.currentTime = 0;
-      setElapsed(0);
-      setStarted(false);
-    };
     for (const [action, handler] of [
       ["play", play],
       ["pause", pause],
@@ -235,7 +195,7 @@ export default function CoachingAudioBuilder({
       }
       session.metadata = null;
     };
-  }, [track]);
+  }, [track, stop]);
 
   useEffect(() => {
     const sync = () => setElapsed(audioRef.current?.currentTime ?? 0);
@@ -267,62 +227,53 @@ export default function CoachingAudioBuilder({
   }
 
   async function prepareAudio() {
-    if (busy || !selectedModel || !selectedVoice || !validRounds || playing)
+    if (
+      busy ||
+      !selectedModel ||
+      !selectedVoice ||
+      !validRounds ||
+      !lengths ||
+      playing
+    )
       return;
     setBusy("rounds");
     setError("");
     setNotice("");
     const prepared = { ...clips };
+    async function prepareClip(request: AudioRequest) {
+      const key = signature(request);
+      const cached = prepared[key];
+      const src = cached
+        ? await compactAudioSource(cached)
+        : await cachedAudio(request, selectedProvider, setProgress);
+      if (src !== cached) {
+        prepared[key] = src;
+        setClips({ ...prepared });
+      }
+      return src;
+    }
+
     try {
       const snapshot = activeRounds.map((round) => ({ ...round }));
-      const timelineRounds: {
-        lengthMinutes: number;
-        transitionSrc: string;
-        transitionText: string;
-        cues: { src: string; text: string; at: number }[];
-      }[] = [];
-      for (const [index, round] of snapshot.entries()) {
+      const timelineRounds: TimelineRound[] = [];
+      const cues: TimelineRound["cues"] = [];
+
+      for (const [index, announcement] of transitions.entries()) {
         setProgress(`Preparing round ${index + 1} of ${snapshot.length}…`);
-        const announcement = transitionRequest(
-          round,
-          index,
-          selectedModel,
-          selectedVoice,
-        );
-        const requests = sharedPrompts.map((prompt) =>
-          promptRequest(prompt, selectedModel, selectedVoice),
-        );
-        for (const request of [announcement, ...requests]) {
-          const key = signature(request);
-          if (prepared[key]) {
-            const src = await compactAudioSource(prepared[key].src);
-            if (src !== prepared[key].src) {
-              prepared[key] = { signature: key, src };
-              setClips({ ...prepared });
-            }
-            continue;
+        const transitionSrc = await prepareClip(announcement);
+        if (index === 0) {
+          // The timed reminders are identical across rounds, including their clips.
+          for (const { request, positions } of cueRequests) {
+            const src = await prepareClip(request);
+            const text = audioRequestText(request);
+            for (const at of positions) cues.push({ src, text, at });
           }
-          prepared[key] = {
-            signature: key,
-            src: await cachedAudio(request, selectedProvider, setProgress),
-          };
-          setClips({ ...prepared });
         }
         timelineRounds.push({
-          lengthMinutes: Number(round.lengthMinutes),
-          transitionSrc: prepared[signature(announcement)].src,
-          transitionText: transitionText(round, index),
-          cues: [
-            sharedPrompts[0],
-            { ...sharedPrompts[0], at: 0.5 },
-            sharedPrompts[1],
-          ].map((prompt) => ({
-            src: prepared[
-              signature(promptRequest(prompt, selectedModel, selectedVoice))
-            ].src,
-            text: prompt.text,
-            at: prompt.at,
-          })),
+          lengthMinutes: lengths[index],
+          transitionSrc,
+          transitionText: audioRequestText(announcement),
+          cues,
         });
       }
       setProgress("Assembling one continuous practice track…");
@@ -336,10 +287,7 @@ export default function CoachingAudioBuilder({
         src: URL.createObjectURL(timeline.audio),
         rounds: snapshot,
         captions: timeline.captions,
-        totalSeconds: timelineRounds.reduce(
-          (sum, round) => sum + round.lengthMinutes * 60,
-          0,
-        ),
+        totalSeconds: plannedMinutes * 60,
       });
       setNotice(
         "Session audio is ready. Put on your headphones, then tap Start.",
@@ -363,8 +311,8 @@ export default function CoachingAudioBuilder({
       audio.currentTime = 0;
       setElapsed(0);
     }
-    document
-      .querySelectorAll<HTMLAudioElement>("#coaching-audio audio")
+    sectionRef.current
+      ?.querySelectorAll<HTMLAudioElement>("audio")
       .forEach((sample) => {
         if (sample !== audio) sample.pause();
       });
@@ -379,17 +327,9 @@ export default function CoachingAudioBuilder({
     }
   }
 
-  function stop() {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.pause();
-    audio.currentTime = 0;
-    setElapsed(0);
-    setStarted(false);
-  }
-
   return (
     <section
+      ref={sectionRef}
       id="coaching-audio"
       aria-labelledby="coaching-audio-heading"
       className="scroll-mt-24 rounded-2xl border border-orange-200 bg-(--brand-secondary-100) p-6 shadow-sm sm:p-8"
@@ -415,74 +355,54 @@ export default function CoachingAudioBuilder({
       {models.length && voices.length ? (
         <>
           <div className="mt-6 grid gap-5 sm:grid-cols-3">
-            <div>
-              <Label htmlFor="workout-source" className="text-gray-800">
-                Session
-              </Label>
-              <Select
-                id="workout-source"
-                value={source}
-                onValueChange={(value) => {
-                  if (value === "edited" || value === "generated")
-                    setSource(value);
-                }}
-                disabled={busy !== null || playing}
-                options={[
-                  { value: "edited", label: "Current edited session" },
-                  ...(generatedRounds.length
-                    ? [{ value: "generated", label: "Last AI session" }]
-                    : []),
-                ]}
-                wrapperClassName="mt-2"
-              />
-            </div>
-            <div>
-              <Label htmlFor="voice-model" className="text-gray-800">
-                Voice model
-              </Label>
-              <Select
-                id="voice-model"
-                value={selectedModel}
-                onValueChange={(value) => {
-                  setModelId(value);
-                  const provider = models.find(
-                    (model) => model.id === value,
-                  )?.provider;
-                  setVoiceId(
-                    voices.find((voice) => voice.provider === provider)?.id ??
-                      "",
-                  );
-                }}
-                disabled={busy !== null || playing}
-                options={models.map((model) => ({
-                  value: model.id,
-                  label: model.label,
-                }))}
-                wrapperClassName="mt-2"
-              />
-            </div>
-            <div>
-              <Label htmlFor="coach-voice" className="text-gray-800">
-                Coach voice
-              </Label>
-              <Select
-                id="coach-voice"
-                value={selectedVoice}
-                onValueChange={setVoiceId}
-                disabled={busy !== null || playing}
-                options={availableVoices.map((voice) => ({
-                  value: voice.id,
-                  label: voice.label,
-                }))}
-                wrapperClassName="mt-2"
-              />
-              <p className="mt-2 text-sm text-gray-600">
-                {
-                  availableVoices.find((voice) => voice.id === selectedVoice)
-                    ?.description
-                }
-              </p>
-            </div>
+            <WorkoutSelectField
+              label="Session"
+              id="workout-source"
+              value={source}
+              onValueChange={(value) => {
+                if (value === "edited" || value === "generated")
+                  setSource(value);
+              }}
+              disabled={busy !== null || playing}
+              options={[
+                { value: "edited", label: "Current edited session" },
+                ...(generatedRounds.length
+                  ? [{ value: "generated", label: "Last AI session" }]
+                  : []),
+              ]}
+            />
+            <WorkoutSelectField
+              label="Voice model"
+              id="voice-model"
+              value={selectedModel}
+              onValueChange={(value) => {
+                setModelId(value);
+                const provider = models.find(
+                  (model) => model.id === value,
+                )?.provider;
+                setVoiceId(
+                  voices.find((voice) => voice.provider === provider)?.id ?? "",
+                );
+              }}
+              disabled={busy !== null || playing}
+              options={models.map((model) => ({
+                value: model.id,
+                label: model.label,
+              }))}
+            />
+            <WorkoutSelectField
+              label="Coach voice"
+              id="coach-voice"
+              value={selectedVoice}
+              onValueChange={setVoiceId}
+              disabled={busy !== null || playing}
+              options={availableVoices.map((voice) => ({
+                value: voice.id,
+                label: voice.label,
+              }))}
+            >
+              <p className="mt-2 text-sm text-gray-600">{voice?.description}</p>
+            </WorkoutSelectField>
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <Button
@@ -526,7 +446,7 @@ export default function CoachingAudioBuilder({
               >
                 <track
                   kind="captions"
-                  src={captions(voicePreviewText)}
+                  src={clipCaptionSource(audioRequestText(previewRequest))}
                   srcLang="en"
                   label="English"
                 />
@@ -536,7 +456,8 @@ export default function CoachingAudioBuilder({
           {!validRounds && (
             <p className="mt-3 text-sm text-orange-900">
               Complete each round name, objective, and duration first. Audio
-              sessions support 1–12 rounds and up to 45 minutes total.
+              sessions support 1–{MAX_WORKOUT_ROUNDS} rounds and up to{" "}
+              {MAX_SESSION_MINUTES} minutes total.
             </p>
           )}
           <output className="mt-3 block text-sm text-gray-700">
@@ -571,12 +492,7 @@ export default function CoachingAudioBuilder({
           {readyCount > 0 && (
             <ol className="mt-6 grid gap-3 sm:grid-cols-2">
               {activeRounds.map((round, index) => {
-                const request = transitionRequest(
-                  round,
-                  index,
-                  selectedModel,
-                  selectedVoice,
-                );
+                const request = transitions[index];
                 const clip = clips[signature(request)];
                 if (!clip) return null;
                 return (
@@ -589,13 +505,13 @@ export default function CoachingAudioBuilder({
                     </p>
                     <audio
                       controls
-                      src={clip.src}
+                      src={clip}
                       aria-label={`Round ${index + 1} coaching introduction`}
                       className="mt-3 w-full"
                     >
                       <track
                         kind="captions"
-                        src={captions(transitionText(round, index))}
+                        src={clipCaptionSource(audioRequestText(request))}
                         srcLang="en"
                         label="English"
                       />

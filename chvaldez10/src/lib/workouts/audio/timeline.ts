@@ -1,4 +1,10 @@
-type TimelineRound = {
+import {
+  MAX_ROUND_MINUTES,
+  MAX_SESSION_MINUTES,
+  MAX_WORKOUT_ROUNDS,
+} from "../limits.mjs";
+
+export type TimelineRound = {
   lengthMinutes: number;
   transitionSrc: string;
   transitionText: string;
@@ -157,24 +163,35 @@ export async function buildWorkoutTimeline(
   );
   if (
     rounds.length === 0 ||
-    rounds.length > 12 ||
+    rounds.length > MAX_WORKOUT_ROUNDS ||
     rounds.some(
       (round) =>
         !Number.isInteger(round.lengthMinutes) ||
         round.lengthMinutes < 1 ||
-        round.lengthMinutes > 30,
+        round.lengthMinutes > MAX_ROUND_MINUTES,
     ) ||
-    totalSeconds > 45 * 60
+    totalSeconds > MAX_SESSION_MINUTES * 60
   ) {
     throw new Error(
-      "Audio workouts support 1–12 rounds and up to 45 minutes total.",
+      `Audio workouts support 1–${MAX_WORKOUT_ROUNDS} rounds and up to ${MAX_SESSION_MINUTES} minutes total.`,
     );
+  }
+
+  const decoded = new Map<string, Promise<PcmClip>>();
+  function decodeClip(src: string) {
+    const cached = decoded.get(src);
+    if (cached) return cached;
+    const clip = fetch(src)
+      .then((response) => response.arrayBuffer())
+      .then(readPcmWav);
+    decoded.set(src, clip);
+    return clip;
   }
 
   const clips = await Promise.all(
     rounds.flatMap((round) =>
       [round.transitionSrc, ...round.cues.map((cue) => cue.src)].map(
-        async (src) => readPcmWav(await (await fetch(src)).arrayBuffer()),
+        decodeClip,
       ),
     ),
   );

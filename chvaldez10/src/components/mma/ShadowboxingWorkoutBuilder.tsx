@@ -15,10 +15,10 @@ import { Button } from "@/components/ui/buttons/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import PaginatedListFooter from "@/components/ui/PaginatedListFooter";
-import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import CoachingAudioBuilder from "@/components/mma/CoachingAudioBuilder";
 import WorkoutRounds from "./WorkoutRounds";
+import WorkoutSelectField from "./WorkoutSelectField";
 import WorkoutPreviewDialog from "@/components/mma/WorkoutPreviewDialog";
 import { workoutInputClass } from "@/components/mma/fieldStyles";
 import type {
@@ -28,16 +28,24 @@ import type {
 import {
   disciplines,
   focuses,
+  workoutErrorMessage,
   workoutSchema,
   type WorkoutModelOption,
 } from "@/lib/workouts/schema";
 import { savedWorkoutSchema } from "@/lib/workouts/saved";
+import {
+  MAX_PRACTICE_MINUTES,
+  MAX_ROUND_MINUTES,
+  MAX_SESSION_MINUTES,
+  MAX_WORKOUT_ROUNDS,
+} from "@/lib/workouts/limits.mjs";
 import {
   hydrateWorkoutDraft,
   initialWorkoutDraft,
   minutes,
   moveWorkoutRound,
   serializeWorkoutDraft,
+  summarizeWorkoutRounds,
   workoutDraftKey,
   workoutDraftSchema,
   type WorkoutDraft,
@@ -45,7 +53,20 @@ import {
 } from "@/lib/workouts/draft";
 
 const generationResponseSchema = z.object({ workout: workoutSchema });
-const generationErrorSchema = z.object({ error: z.string() });
+
+function clearLocalWorkoutDraft() {
+  try {
+    window.localStorage.removeItem(workoutDraftKey);
+  } catch {
+    /* Browser storage is optional. */
+  }
+}
+
+function replaceWorkoutInUrl(id: Id<"shadowboxingWorkouts">) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("workout", id);
+  window.history.replaceState(window.history.state, "", url);
+}
 
 export default function ShadowboxingWorkoutBuilder({
   isOwner,
@@ -106,19 +127,12 @@ export default function ShadowboxingWorkoutBuilder({
   const nextRoundId = useRef(initialWorkoutDraft.rounds.length + 1);
 
   const requestPending = saving || loadingSaved || generating;
-  const target = minutes(targetMinutes, 180);
-  const roundLength = minutes(roundLengthMinutes, 30);
-  const roundMinutes = rounds.map((round) => minutes(round.lengthMinutes, 30));
-  const roundLengthsValid = roundMinutes.every((length) => length !== null);
-  const plannedMinutes = roundMinutes.reduce<number>(
-    (total, length) => total + (length ?? 0),
-    0,
-  );
-  const roundsComplete =
-    rounds.length > 0 &&
-    roundLengthsValid &&
-    rounds.every((round) => round.name.trim() && round.objective.trim());
-  const canPreview = target !== null && roundsComplete;
+  const target = minutes(targetMinutes, MAX_PRACTICE_MINUTES);
+  const roundLength = minutes(roundLengthMinutes, MAX_ROUND_MINUTES);
+  const { lengths, plannedMinutes, hasRequiredText } =
+    summarizeWorkoutRounds(rounds);
+  const roundLengthsValid = lengths !== null;
+  const canPreview = target !== null && roundLengthsValid && hasRequiredText;
   const currentSnapshot = serializeWorkoutDraft(draft);
   const hasUnsavedChanges = currentSnapshot !== savedSnapshot;
   const availableModelId = models.some((model) => model.id === modelId)
@@ -127,11 +141,7 @@ export default function ShadowboxingWorkoutBuilder({
 
   function applySavedWorkout(workout: Doc<"shadowboxingWorkouts">) {
     setDraftReady(false);
-    try {
-      window.localStorage.removeItem(workoutDraftKey);
-    } catch {
-      /* Browser storage is optional. */
-    }
+    clearLocalWorkoutDraft();
     const loaded = hydrateWorkoutDraft({
       title: workout.title,
       targetMinutes: String(workout.targetMinutes),
@@ -153,9 +163,7 @@ export default function ShadowboxingWorkoutBuilder({
     setWorkoutSession((current) => current + 1);
     setSaveError("");
     setSaveNotice(`Loaded ${workout.title}.`);
-    const url = new URL(window.location.href);
-    url.searchParams.set("workout", workout._id);
-    window.history.replaceState(window.history.state, "", url);
+    replaceWorkoutInUrl(workout._id);
   }
 
   useEffect(() => {
@@ -218,11 +226,7 @@ export default function ShadowboxingWorkoutBuilder({
   useEffect(() => {
     if (!draftReady || !isOwner) return;
     if (!hasUnsavedChanges) {
-      try {
-        window.localStorage.removeItem(workoutDraftKey);
-      } catch {
-        /* Browser storage is optional. */
-      }
+      clearLocalWorkoutDraft();
       return;
     }
     const timer = window.setTimeout(() => {
@@ -254,7 +258,7 @@ export default function ShadowboxingWorkoutBuilder({
     });
     if (!parsed.success) {
       setSaveError(
-        "Add a name and complete 1–12 rounds with coaching cues. Workouts can be up to 45 minutes.",
+        `Add a name and complete 1–${MAX_WORKOUT_ROUNDS} rounds with coaching cues. Workouts can be up to ${MAX_SESSION_MINUTES} minutes.`,
       );
       return;
     }
@@ -268,19 +272,13 @@ export default function ShadowboxingWorkoutBuilder({
       setSelectedSavedId(id);
       setSavedSnapshot(currentSnapshot);
       setDraftReady(false);
-      try {
-        window.localStorage.removeItem(workoutDraftKey);
-      } catch {
-        /* Browser storage is optional. */
-      }
+      clearLocalWorkoutDraft();
       setSaveNotice(
         asNew || !savedWorkoutId
           ? "Session saved. Keep tuning it anytime."
           : "Session changes saved.",
       );
-      const url = new URL(window.location.href);
-      url.searchParams.set("workout", id);
-      window.history.replaceState(window.history.state, "", url);
+      replaceWorkoutInUrl(id);
     } catch {
       setSaveError(
         "Could not save the session. Check your connection and try again.",
@@ -334,7 +332,7 @@ export default function ShadowboxingWorkoutBuilder({
   }
 
   function changeRoundLength(value: string) {
-    const length = minutes(value, 30);
+    const length = minutes(value, MAX_ROUND_MINUTES);
     setDraft((current) => ({
       ...current,
       roundLengthMinutes: value,
@@ -349,7 +347,7 @@ export default function ShadowboxingWorkoutBuilder({
   }
 
   function addRound() {
-    if (roundLength === null || rounds.length >= 12) return;
+    if (roundLength === null || rounds.length >= MAX_WORKOUT_ROUNDS) return;
     const id = nextRoundId.current++;
     updateRounds((current) => [
       ...current,
@@ -373,7 +371,9 @@ export default function ShadowboxingWorkoutBuilder({
     )
       return;
     if (generationMode === "customize" && !roundLengthsValid) {
-      setGenerationError("Set every round length from 1 to 30 minutes first.");
+      setGenerationError(
+        `Set every round length from 1 to ${MAX_ROUND_MINUTES} minutes first.`,
+      );
       return;
     }
 
@@ -394,10 +394,11 @@ export default function ShadowboxingWorkoutBuilder({
           notes: generationMode === "customize" ? generationNotes : "",
           currentRounds:
             generationMode === "customize"
-              ? rounds.slice(0, 12).map((round) => ({
+              ? rounds.slice(0, MAX_WORKOUT_ROUNDS).map((round) => ({
                   name: round.name,
                   lengthMinutes:
-                    minutes(round.lengthMinutes, 30) ?? roundLength,
+                    minutes(round.lengthMinutes, MAX_ROUND_MINUTES) ??
+                    roundLength,
                   objective: round.objective,
                   coachingCue: round.coachingCue,
                   techniqueReminder: round.techniqueReminder,
@@ -410,11 +411,11 @@ export default function ShadowboxingWorkoutBuilder({
       });
       const payload: unknown = await response.json();
       if (!response.ok) {
-        const parsed = generationErrorSchema.safeParse(payload);
         setGenerationError(
-          parsed.success
-            ? parsed.data.error
-            : "The session could not be generated. Please try again.",
+          workoutErrorMessage(
+            payload,
+            "The session could not be generated. Please try again.",
+          ),
         );
         return;
       }
@@ -458,7 +459,7 @@ export default function ShadowboxingWorkoutBuilder({
               id="workout-duration"
               type="number"
               min={1}
-              max={180}
+              max={MAX_PRACTICE_MINUTES}
               step={1}
               value={targetMinutes}
               onChange={(event) =>
@@ -483,7 +484,7 @@ export default function ShadowboxingWorkoutBuilder({
               id="round-length"
               type="number"
               min={1}
-              max={30}
+              max={MAX_ROUND_MINUTES}
               step={1}
               value={roundLengthMinutes}
               onChange={(event) => changeRoundLength(event.target.value)}
@@ -495,46 +496,26 @@ export default function ShadowboxingWorkoutBuilder({
               Updates every round. You can still edit each round&apos;s minutes.
             </p>
           </div>
-          <div>
-            <Label
-              id="workout-discipline-label"
-              htmlFor="workout-discipline"
-              className="text-gray-800"
-            >
-              Style
-            </Label>
-            <Select
-              id="workout-discipline"
-              value={discipline}
-              onValueChange={(value) => updateDraft({ discipline: value })}
-              options={disciplines.map((option) => ({
-                value: option,
-                label: option,
-              }))}
-              aria-labelledby="workout-discipline-label"
-              wrapperClassName="mt-2"
-            />
-          </div>
-          <div>
-            <Label
-              id="training-focus-label"
-              htmlFor="training-focus"
-              className="text-gray-800"
-            >
-              Training focus
-            </Label>
-            <Select
-              id="training-focus"
-              value={focus}
-              onValueChange={(value) => updateDraft({ focus: value })}
-              options={focuses.map((option) => ({
-                value: option,
-                label: option,
-              }))}
-              aria-labelledby="training-focus-label"
-              wrapperClassName="mt-2"
-            />
-          </div>
+          <WorkoutSelectField
+            label="Style"
+            id="workout-discipline"
+            value={discipline}
+            onValueChange={(value) => updateDraft({ discipline: value })}
+            options={disciplines.map((option) => ({
+              value: option,
+              label: option,
+            }))}
+          />
+          <WorkoutSelectField
+            label="Training focus"
+            id="training-focus"
+            value={focus}
+            onValueChange={(value) => updateDraft({ focus: value })}
+            options={focuses.map((option) => ({
+              value: option,
+              label: option,
+            }))}
+          />
           {isOwner && (
             <div className="border-t border-orange-200 pt-6">
               <div className="flex items-center justify-between gap-3">
@@ -557,10 +538,8 @@ export default function ShadowboxingWorkoutBuilder({
               )}
               {savedWorkouts.length > 0 && (
                 <div className="mt-5 border-t border-orange-200 pt-5">
-                  <Label htmlFor="saved-workout-list" className="text-gray-800">
-                    Open a saved session
-                  </Label>
-                  <Select
+                  <WorkoutSelectField
+                    label="Open a saved session"
                     id="saved-workout-list"
                     value={selectedSavedId}
                     onValueChange={setSelectedSavedId}
@@ -578,7 +557,6 @@ export default function ShadowboxingWorkoutBuilder({
                         : []),
                     ]}
                     placeholder="Choose a session"
-                    wrapperClassName="mt-2"
                   />
                   <Button
                     type="button"
@@ -626,50 +604,30 @@ export default function ShadowboxingWorkoutBuilder({
               </a>
               {models.length ? (
                 <div className="mt-5 space-y-5">
-                  <div>
-                    <Label
-                      id="ai-model-label"
-                      htmlFor="ai-model"
-                      className="text-gray-800"
-                    >
-                      Model
-                    </Label>
-                    <Select
-                      id="ai-model"
-                      value={availableModelId}
-                      onValueChange={setModelId}
-                      options={models.map((model) => ({
-                        value: model.id,
-                        label: model.label,
-                      }))}
-                      aria-labelledby="ai-model-label"
-                      wrapperClassName="mt-2"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      id="generation-mode-label"
-                      htmlFor="generation-mode"
-                      className="text-gray-800"
-                    >
-                      Starting point
-                    </Label>
-                    <Select
-                      id="generation-mode"
-                      value={generationMode}
-                      onValueChange={(value) =>
-                        setGenerationMode(
-                          value === "fresh" ? "fresh" : "customize",
-                        )
-                      }
-                      options={[
-                        { value: "customize", label: "Use my current rounds" },
-                        { value: "fresh", label: "Create a new session" },
-                      ]}
-                      aria-labelledby="generation-mode-label"
-                      wrapperClassName="mt-2"
-                    />
-                  </div>
+                  <WorkoutSelectField
+                    label="Model"
+                    id="ai-model"
+                    value={availableModelId}
+                    onValueChange={setModelId}
+                    options={models.map((model) => ({
+                      value: model.id,
+                      label: model.label,
+                    }))}
+                  />
+                  <WorkoutSelectField
+                    label="Starting point"
+                    id="generation-mode"
+                    value={generationMode}
+                    onValueChange={(value) =>
+                      setGenerationMode(
+                        value === "fresh" ? "fresh" : "customize",
+                      )
+                    }
+                    options={[
+                      { value: "customize", label: "Use my current rounds" },
+                      { value: "fresh", label: "Create a new session" },
+                    ]}
+                  />
                   {generationMode === "customize" && (
                     <div>
                       <Label htmlFor="ai-notes" className="text-gray-800">
@@ -707,7 +665,8 @@ export default function ShadowboxingWorkoutBuilder({
                   </Button>
                   {generationMode === "customize" && !roundLengthsValid && (
                     <p className="text-sm text-orange-900">
-                      Set every round length from 1 to 30 minutes first.
+                      Set every round length from 1 to {MAX_ROUND_MINUTES}{" "}
+                      minutes first.
                     </p>
                   )}
                   <p role="alert" className="text-sm text-red-700">
@@ -732,7 +691,7 @@ export default function ShadowboxingWorkoutBuilder({
         <WorkoutRounds
           key={workoutSession}
           rounds={rounds}
-          canAdd={roundLength !== null && rounds.length < 12}
+          canAdd={roundLength !== null && rounds.length < MAX_WORKOUT_ROUNDS}
           onAdd={addRound}
           onUpdate={updateRound}
           onMove={(sourceId, targetId) =>

@@ -1,8 +1,7 @@
-import { z } from "zod";
+import { workoutErrorMessage } from "../schema";
 import type { AudioRequest } from "./schema";
 import { compactSpokenWav } from "./timeline";
 
-const errorSchema = z.object({ error: z.string() });
 const audioCacheName = "shadowboxing-coaching-audio-v1";
 
 export function signature(request: AudioRequest) {
@@ -88,13 +87,11 @@ export async function cachedAudio(
       body: signature(request),
     });
     if (!response.ok) {
-      const parsed = errorSchema.safeParse(
-        await response.json().catch(() => null),
-      );
       throw new Error(
-        parsed.success
-          ? parsed.data.error
-          : "Coaching audio could not be generated. Try again.",
+        workoutErrorMessage(
+          await response.json().catch(() => null),
+          "Coaching audio could not be generated. Try again.",
+        ),
       );
     }
     blob = await response.blob();

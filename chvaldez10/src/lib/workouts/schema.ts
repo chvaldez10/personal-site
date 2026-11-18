@@ -1,6 +1,16 @@
 import { z } from "zod";
+import {
+  MAX_PRACTICE_MINUTES,
+  MAX_ROUND_MINUTES,
+  MAX_WORKOUT_ROUNDS,
+} from "./limits.mjs";
 
-export const disciplines = ["MMA", "Muay Thai", "Kickboxing", "Boxing"] as const;
+export const disciplines = [
+  "MMA",
+  "Muay Thai",
+  "Kickboxing",
+  "Boxing",
+] as const;
 export const focuses = [
   "Technique",
   "Footwork",
@@ -17,21 +27,25 @@ const roundContentSchema = z.object({
 });
 
 export const generatedContentSchema = z.object({
-  rounds: z.array(roundContentSchema).min(1).max(12),
+  rounds: z.array(roundContentSchema).min(1).max(MAX_WORKOUT_ROUNDS),
 });
 
 export const workoutSchema = z.object({
   rounds: z
-    .array(roundContentSchema.extend({ lengthMinutes: z.number().int().min(1).max(30) }))
+    .array(
+      roundContentSchema.extend({
+        lengthMinutes: z.number().int().min(1).max(MAX_ROUND_MINUTES),
+      }),
+    )
     .min(1)
-    .max(12),
+    .max(MAX_WORKOUT_ROUNDS),
 });
 
 export const generationRequestSchema = z.object({
   modelId: z.string().min(1).max(80),
   mode: z.enum(["customize", "fresh"]),
-  targetMinutes: z.number().int().min(1).max(180),
-  preferredRoundMinutes: z.number().int().min(1).max(30),
+  targetMinutes: z.number().int().min(1).max(MAX_PRACTICE_MINUTES),
+  preferredRoundMinutes: z.number().int().min(1).max(MAX_ROUND_MINUTES),
   discipline: z.enum(disciplines),
   focus: z.enum(focuses),
   notes: z.string().trim().max(500),
@@ -39,18 +53,27 @@ export const generationRequestSchema = z.object({
     .array(
       z.object({
         name: z.string().trim().max(80),
-        lengthMinutes: z.number().int().min(1).max(30),
+        lengthMinutes: z.number().int().min(1).max(MAX_ROUND_MINUTES),
         objective: z.string().trim().max(240),
         coachingCue: z.string().trim().max(180),
         techniqueReminder: z.string().trim().max(160),
       }),
     )
-    .max(12),
-  previousObjectives: z.array(z.string().trim().max(240)).max(12),
+    .max(MAX_WORKOUT_ROUNDS),
+  previousObjectives: z
+    .array(z.string().trim().max(240))
+    .max(MAX_WORKOUT_ROUNDS),
 });
 
 export type GenerationRequest = z.infer<typeof generationRequestSchema>;
 export type GeneratedWorkout = z.infer<typeof workoutSchema>;
+
+const workoutErrorSchema = z.object({ error: z.string() });
+
+export function workoutErrorMessage(payload: unknown, fallback: string) {
+  const parsed = workoutErrorSchema.safeParse(payload);
+  return parsed.success ? parsed.data.error : fallback;
+}
 
 export type WorkoutModelOption = {
   id: string;
