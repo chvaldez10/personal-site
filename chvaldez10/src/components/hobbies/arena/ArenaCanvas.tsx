@@ -9,6 +9,12 @@ import {
   Vector2,
   type ShaderMaterial,
 } from "three";
+import {
+  arenaAspect,
+  maxPortraitPan,
+  type ArenaFraming,
+  type ArenaScene,
+} from "./arena-config";
 
 class ArenaTextureLoader extends TextureLoader {
   override load(...args: Parameters<TextureLoader["load"]>) {
@@ -18,9 +24,8 @@ class ArenaTextureLoader extends TextureLoader {
   }
 }
 
-export type StageView = { yaw: number; pitch: number };
+export type ArenaView = { yaw: number; pitch: number };
 
-const arenaAspect = 1.5;
 const pixelBudget = 950_000;
 const vertexShader = `
   varying vec2 screenUV;
@@ -31,7 +36,40 @@ const vertexShader = `
   }
 `;
 
-const fragmentShader = `
+const lighting: Record<ArenaScene, string> = {
+  concert: `
+    vec3 pink = mix(vec3(1.0, 0.11, 0.33), tint, 0.34);
+    vec3 violet = vec3(0.33, 0.20, 1.0);
+    float a = beam(p, vec2(0.552, 0.647), 0.03 + sin(cue * 0.53) * 0.70);
+    float b = beam(p, vec2(0.656, 0.676), -0.46 + sin(cue * 0.40 + 2.3) * 0.66);
+    float c = beam(p, vec2(0.760, 0.675), -0.20 + sin(cue * 0.46 + 4.2) * 0.50);
+    float d = beam(p, vec2(0.822, 0.681), -0.38 + sin(cue * 0.37 + 1.3) * 0.42);
+    scene += (pink * (a + d) + violet * (b + c)) * 0.27;
+
+    float mask = smoothstep(0.24, 0.35, p.y)
+      * (1.0 - smoothstep(0.40, 0.51, p.y))
+      * smoothstep(0.41, 0.69, p.x);
+    vec3 fogLight = mix(pink, violet, 0.38 + 0.18 * sin(cue * 0.61));
+    scene = fog(p, scene, fogLight * 0.41, mask * 0.54);
+  `,
+  octagon: `
+    vec3 amber = vec3(1.0, 0.46, 0.14);
+    vec3 cool = vec3(0.47, 0.74, 1.0);
+    float a = beam(p, vec2(0.115, 0.808), 0.32 + sin(cue * 0.44) * 0.58);
+    float b = beam(p, vec2(0.888, 0.809), -0.32 + sin(cue * 0.48 + 1.8) * 0.58);
+    float c = beam(p, vec2(0.305, 0.713), 0.47 + sin(cue * 0.41 + 0.7) * 0.65);
+    float d = beam(p, vec2(0.708, 0.716), -0.44 + sin(cue * 0.51 + 2.5) * 0.62);
+    scene += (amber * (a + b) + cool * (c + d)) * 0.25;
+
+    float mask = smoothstep(0.45, 0.55, p.y)
+      * (1.0 - smoothstep(0.58, 0.72, p.y))
+      * (1.0 - smoothstep(0.17, 0.39, abs(p.x - 0.5)));
+    vec3 fogLight = mix(cool, amber, 0.22 + 0.14 * sin(cue * 0.56));
+    scene = fog(p, scene, fogLight * 0.36, mask * 0.52);
+  `,
+};
+
+const arenaShader = (lightingCue: string) => `
   uniform sampler2D arena;
   uniform vec2 viewCenter;
   uniform vec2 viewSize;
@@ -75,6 +113,14 @@ const fragmentShader = `
       * (1.0 - smoothstep(0.07, 0.35, distanceAlongBeam));
   }
 
+  vec3 fog(vec2 p, vec3 scene, vec3 light, float mask) {
+    if (mask <= 0.0) return scene;
+    float cloud = noise(p * vec2(12.0, 46.0) - vec2(cue * 0.27, cue * 0.08));
+    float detail = noise(p * vec2(27.0, 74.0) - vec2(cue * 0.44, cue * 0.11));
+    float haze = smoothstep(0.22, 0.87, cloud * 0.72 + detail * 0.28);
+    return mix(scene, light, mask * haze);
+  }
+
   void main() {
     vec3 ray = vec3((screenUV - 0.5) * viewSize, 1.0);
     ray.yz = rotate(-angle.y) * ray.yz;
@@ -83,25 +129,7 @@ const fragmentShader = `
     vec3 scene = texture2D(arena, p).rgb;
 
     if (effects) {
-      vec3 pink = mix(vec3(1.0, 0.11, 0.33), tint, 0.34);
-      vec3 violet = vec3(0.33, 0.20, 1.0);
-      float a = beam(p, vec2(0.552, 0.647), 0.03 + sin(cue * 0.53) * 0.70);
-      float b = beam(p, vec2(0.656, 0.676), -0.46 + sin(cue * 0.40 + 2.3) * 0.66);
-      float c = beam(p, vec2(0.760, 0.675), -0.20 + sin(cue * 0.46 + 4.2) * 0.50);
-      float d = beam(p, vec2(0.822, 0.681), -0.38 + sin(cue * 0.37 + 1.3) * 0.42);
-      scene += (pink * (a + d) + violet * (b + c)) * 0.27;
-
-      // Layer broad haze behind finer wisps near the runway.
-      float floorMask = smoothstep(0.24, 0.35, p.y)
-        * (1.0 - smoothstep(0.40, 0.51, p.y))
-        * smoothstep(0.41, 0.69, p.x);
-      if (floorMask > 0.0) {
-        float cloud = noise(p * vec2(12.0, 46.0) - vec2(cue * 0.27, cue * 0.08));
-        float detail = noise(p * vec2(27.0, 74.0) - vec2(cue * 0.44, cue * 0.11));
-        float haze = smoothstep(0.22, 0.87, cloud * 0.72 + detail * 0.28);
-        vec3 fogLight = mix(pink, violet, 0.38 + 0.18 * sin(cue * 0.61));
-        scene = mix(scene, fogLight * 0.41, floorMask * haze * 0.54);
-      }
+      ${lightingCue}
     }
 
     gl_FragColor = vec4(scene, 1.0);
@@ -110,9 +138,11 @@ const fragmentShader = `
 `;
 
 type StageProps = {
+  scene: ArenaScene;
   src: string;
-  color: string;
-  view: RefObject<StageView>;
+  framing: ArenaFraming;
+  color?: string;
+  view: RefObject<ArenaView>;
   onFrameRequest: (invalidate: (() => void) | null) => void;
   effects: boolean;
   animate: boolean;
@@ -120,13 +150,17 @@ type StageProps = {
   onFailure: () => void;
 };
 
-function frameArena(width: number, height: number) {
+function frameArena(framing: ArenaFraming, width: number, height: number) {
   const ratio = Math.max(1, width) / Math.max(1, height);
-  const viewWidth = 0.75 * Math.min(ratio, arenaAspect);
+  const viewWidth = framing.zoom * Math.min(ratio, arenaAspect);
   const viewHeight = viewWidth / ratio;
   const centerX =
-    0.53 + Math.min(0.155, 0.18 * Math.max(0, arenaAspect - ratio));
-  const centerY = 0.47;
+    framing.x +
+    Math.min(
+      maxPortraitPan,
+      framing.portraitPan * Math.max(0, arenaAspect - ratio),
+    );
+  const centerY = 1 - framing.y;
 
   // Leave room for the tilted frustum at the edges of the photograph.
   const yawLimit =
@@ -142,8 +176,10 @@ function frameArena(width: number, height: number) {
 }
 
 function Arena({
+  scene,
   src,
-  color,
+  framing,
+  color = "#ffb4da",
   view,
   onFrameRequest,
   effects,
@@ -156,7 +192,11 @@ function Arena({
   const gl = useThree((state) => state.gl);
   const invalidate = useThree((state) => state.invalidate);
   const { width, height } = useThree((state) => state.size);
-  const framing = useMemo(() => frameArena(width, height), [width, height]);
+  const cameraFrame = useMemo(
+    () => frameArena(framing, width, height),
+    [framing, width, height],
+  );
+  const fragmentShader = useMemo(() => arenaShader(lighting[scene]), [scene]);
   const tint = useMemo(() => new Color(color), [color]);
   const shown = useRef(false);
   const uniforms = useMemo(
@@ -179,8 +219,12 @@ function Arena({
   }, [invalidate, onFrameRequest]);
 
   useEffect(() => {
-    onDprChange(framing.dpr);
-  }, [framing.dpr, onDprChange]);
+    onDprChange(cameraFrame.dpr);
+  }, [cameraFrame.dpr, onDprChange]);
+
+  useEffect(() => {
+    invalidate();
+  }, [cameraFrame, effects, invalidate, tint]);
 
   useEffect(() => {
     const element = gl.domElement;
@@ -191,11 +235,11 @@ function Arena({
   useFrame((_, delta) => {
     const current = material.current?.uniforms;
     if (!current) return;
-    current.viewCenter.value.copy(framing.center);
-    current.viewSize.value.copy(framing.size);
+    current.viewCenter.value.copy(cameraFrame.center);
+    current.viewSize.value.copy(cameraFrame.size);
     current.angle.value.set(
-      view.current.yaw * framing.yaw,
-      view.current.pitch * framing.pitch,
+      view.current.yaw * cameraFrame.yaw,
+      view.current.pitch * cameraFrame.pitch,
     );
     current.tint.value.copy(tint);
     current.effects.value = effects;
@@ -222,7 +266,7 @@ function Arena({
   );
 }
 
-export default function KpopStageCanvas(props: StageProps) {
+export default function ArenaCanvas(props: StageProps) {
   const [dpr, setDpr] = useState(0.85);
 
   return (

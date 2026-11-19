@@ -1,0 +1,352 @@
+.hero {
+  --stage-control-size: 2.75rem;
+  --stage-control-border: #ffe1f280;
+  --arena-accent: #ffabd4;
+  --arena-title-accent: #ff91c6;
+  --arena-panel: #261424eb;
+  --arena-panel-hover: #4b2645;
+  --arena-button: #ffb1d5;
+  --arena-button-hover: #ffd0e6;
+  --arena-button-text: #351126;
+  --arena-top-scrim: #110912;
+  --arena-scrim: #160a18;
+  --arena-opening-light: #f399dc;
+  --arena-opening-focus: 67%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #241121;
+  color: #fff9fb;
+}
+
+.octagon {
+  --stage-control-border: #ffe1ca80;
+  --arena-accent: #ffbf85;
+  --arena-title-accent: #ffbf85;
+  --arena-panel: #241b17ef;
+  --arena-panel-hover: #513523;
+  --arena-button: #ffbf85;
+  --arena-button-hover: #ffdab6;
+  --arena-button-text: #2d170d;
+  --arena-top-scrim: #100c0d;
+  --arena-scrim: #100c0d;
+  --arena-opening-light: #bde7ff;
+  --arena-opening-focus: 50%;
+  background: #1c1512;
+}
+
+.stageViewport,
+.scene,
+.stageViewport::after {
+  position: absolute;
+  inset: 0;
+}
+
+.stageViewport::after {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--arena-top-scrim) 65%, transparent),
+      transparent 19%,
+      transparent 52%,
+      color-mix(in srgb, var(--arena-scrim) 91%, transparent)
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--arena-scrim) 35%, transparent),
+      transparent 47%
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.stageViewport {
+  container-type: size;
+  overflow: hidden;
+}
+
+.arena {
+  /* Use the same center and zoom as the WebGL camera before it mounts. */
+  --photo-width: max(100cqw, 100cqh * var(--arena-photo-aspect));
+  --photo-height: max(100cqh, 100cqw / var(--arena-photo-aspect));
+  --portrait-pan: clamp(
+    0px,
+    (100cqh * var(--arena-photo-aspect) - 100cqw) * var(--arena-photo-aspect) *
+      var(--arena-portrait-pan),
+    var(--photo-width) * var(--arena-max-pan)
+  );
+  object-fit: cover;
+  object-position: calc(
+      50cqw - var(--photo-width) * var(--arena-center-x) - var(--portrait-pan)
+    )
+    calc(50cqh - var(--photo-height) * var(--arena-center-y));
+}
+
+.openingLight {
+  position: absolute;
+  inset: 12% -8% 25%;
+  display: none;
+  background:
+    radial-gradient(
+      ellipse 32% 26% at var(--arena-opening-focus) 64%,
+      color-mix(in srgb, var(--arena-opening-light) 36%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 35% 38% at var(--arena-opening-focus) 38%,
+      color-mix(in srgb, var(--arena-opening-light) 16%, transparent),
+      transparent
+    );
+  pointer-events: none;
+}
+
+.scene {
+  opacity: 0;
+  pointer-events: none;
+  touch-action: pan-y;
+}
+
+.sceneReady {
+  opacity: 1;
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.sceneReady:active {
+  cursor: grabbing;
+}
+
+.heroContent {
+  width: 100%;
+  max-width: 112rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 5vw, 6rem);
+  position: relative;
+  display: flex;
+  min-height: max(31rem, calc(100svh - 5rem));
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 7rem;
+  padding-block: clamp(1rem, 3vw, 2.75rem);
+  pointer-events: none;
+}
+
+.masthead {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.heroContent :is(a, button) {
+  pointer-events: auto;
+}
+
+.stageBar {
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.heroCopy {
+  position: relative;
+  min-width: 0;
+}
+
+.heroCopy h1 {
+  margin-inline-start: -0.045em;
+  color: #fff9fb;
+  font-size: clamp(3.75rem, 8.75vw, 8.25rem);
+  font-weight: 900;
+  letter-spacing: -0.071em;
+  line-height: 0.93;
+}
+
+.heroCopy h1 span {
+  color: var(--arena-title-accent);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.heroCopy .actions {
+  margin-block-start: 0.8rem;
+}
+
+.back {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ffebf7;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.back:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+}
+
+.stageButton,
+.look {
+  height: var(--stage-control-size);
+  border-radius: 999px;
+  background: var(--arena-panel);
+  color: #fff4fa;
+}
+
+.stageButton {
+  padding-inline: 1rem;
+  border: 1px solid var(--stage-control-border);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.stageButton:hover,
+.look > button:hover {
+  background: var(--arena-panel-hover);
+  color: white;
+}
+
+.stageButton[aria-pressed="true"] {
+  border-color: var(--arena-accent);
+}
+
+.stageButton[aria-pressed="true"] svg {
+  color: var(--arena-accent);
+}
+
+.primary {
+  border-color: transparent;
+  background: var(--arena-button);
+  color: var(--arena-button-text);
+}
+
+.primary:hover {
+  background: var(--arena-button-hover);
+  color: var(--arena-button-text);
+}
+
+.back:focus-visible,
+.stageButton:focus-visible {
+  outline: 2px solid #fff9fb;
+  outline-offset: 3px;
+}
+
+.controls {
+  display: grid;
+  flex-shrink: 0;
+  justify-items: end;
+  gap: 0.45rem;
+}
+
+.controlsPending {
+  visibility: hidden;
+}
+
+.hint,
+.status {
+  color: #f6dbea;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status {
+  position: absolute;
+  inset-block-start: calc(100% + 0.25rem);
+  inset-inline-start: 0;
+}
+
+.look {
+  display: flex;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--stage-control-border);
+}
+
+.look > button {
+  width: var(--stage-control-size);
+  height: 100%;
+  border-radius: 0;
+  color: inherit;
+}
+
+.look > button + button {
+  border-inline-start: 1px solid #ffe1f240;
+}
+
+.look > button:focus-visible {
+  outline: 2px solid #fff9fb;
+  outline-offset: -4px;
+  box-shadow: none;
+}
+
+@media (max-width: 639px) {
+  .heroContent {
+    gap: 9rem;
+  }
+
+  .stageBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .controls {
+    align-self: flex-end;
+  }
+
+  .stageViewport::after {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--arena-top-scrim) 68%, transparent),
+      transparent 17%,
+      transparent 32%,
+      color-mix(in srgb, var(--arena-scrim) 96%, transparent)
+    );
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .openingLight {
+    display: block;
+    animation: openingLight 3.8s ease-out both;
+  }
+
+  .openingComplete {
+    animation-play-state: paused;
+  }
+
+  .scene {
+    transition: opacity 280ms ease-out;
+  }
+}
+
+@keyframes openingLight {
+  from {
+    opacity: 0.52;
+    transform: translate3d(-8%, -2%, 0);
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(7%, 2%, 0);
+  }
+}
+
+@media (pointer: coarse) {
+  .hint {
+    display: none;
+  }
+}
