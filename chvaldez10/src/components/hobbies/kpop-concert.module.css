@@ -1,0 +1,277 @@
+.page {
+  --gutter: clamp(1rem, 5vw, 6rem);
+  --content-width: 112rem;
+  padding-block: 5rem clamp(3rem, 6vw, 6rem);
+  background: #fff9f3;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #241121;
+  color: #fff9fb;
+}
+
+.stageViewport,
+.scene,
+.stageViewport::after {
+  position: absolute;
+  inset: 0;
+}
+
+.stageViewport::after {
+  background:
+    linear-gradient(
+      180deg,
+      #110912a6,
+      transparent 19%,
+      transparent 52%,
+      #160a18e8
+    ),
+    linear-gradient(90deg, #160a1859, transparent 47%);
+  content: "";
+  pointer-events: none;
+}
+
+.arena {
+  object-fit: cover;
+  object-position: 56% 58%;
+}
+
+.scene {
+  opacity: 0;
+  pointer-events: none;
+  touch-action: pan-y;
+}
+
+.sceneReady {
+  opacity: 1;
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.sceneReady:active {
+  cursor: grabbing;
+}
+
+.heroContent,
+.setlist {
+  width: 100%;
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.heroContent {
+  position: relative;
+  display: flex;
+  min-height: max(31rem, calc(100svh - 5rem));
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 7rem;
+  padding-block: clamp(1rem, 3vw, 2.75rem);
+  pointer-events: none;
+}
+
+.heroContent :is(a, button) {
+  pointer-events: auto;
+}
+
+.stageBar {
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.heroCopy {
+  position: relative;
+  min-width: 0;
+}
+
+.heroCopy h1 {
+  margin-inline-start: -0.045em;
+  color: #fff9fb;
+  font-size: clamp(3.75rem, 8.75vw, 8.25rem);
+  font-weight: 900;
+  letter-spacing: -0.071em;
+  line-height: 0.93;
+}
+
+.heroCopy h1 span {
+  color: #ff91c6;
+}
+
+.currentTrack {
+  max-width: 32rem;
+  margin-block: 0.9rem;
+  color: #ffeaf6;
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.heroCopy .actions {
+  margin-block-start: 0.8rem;
+}
+
+.back {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ffebf7;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.back:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25rem;
+}
+
+.play,
+.stageButton {
+  min-height: 2.75rem;
+  border-radius: 999px;
+}
+
+.play {
+  min-inline-size: 9.3rem;
+  padding-inline: 1rem;
+  background: #ffb1d5;
+  color: #351126;
+  font-weight: 700;
+}
+
+.play:hover {
+  background: #ffd0e6;
+}
+
+.stageButton,
+.look {
+  border: 1px solid #ffe1f280;
+  border-radius: 999px;
+  background: #261424eb;
+  color: #fff4fa;
+}
+
+.stageButton {
+  padding-inline: 0.85rem;
+}
+
+.stageButton:hover,
+.look button:hover {
+  background: #4b2645;
+  color: white;
+}
+
+.stageButton[aria-pressed="true"] svg {
+  color: #ffabd4;
+}
+
+.back:focus-visible,
+.play:focus-visible,
+.stageButton:focus-visible,
+.look button:focus-visible {
+  outline: 2px solid #fff9fb;
+  outline-offset: 3px;
+}
+
+.controls {
+  display: grid;
+  flex-shrink: 0;
+  justify-items: end;
+  gap: 0.45rem;
+}
+
+.controlsPending {
+  visibility: hidden;
+}
+
+.stageHint,
+.previewStatus {
+  color: #f6dbea;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.previewStatus {
+  position: absolute;
+  inset-block-start: calc(100% + 0.25rem);
+  inset-inline-start: 0;
+}
+
+.look {
+  display: flex;
+}
+
+.look button {
+  width: 2.625rem;
+  height: 2.625rem;
+  border-radius: 999px;
+  color: inherit;
+}
+
+.setlist {
+  padding-block-start: clamp(1.5rem, 4vw, 4rem);
+}
+
+.empty {
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border: 1px solid #ebd5dd;
+  border-radius: 1rem;
+  background: white;
+}
+
+.empty h2 {
+  margin-bottom: 0.5rem;
+  color: #30182c;
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+@media (max-width: 639px) {
+  .heroContent {
+    gap: 9rem;
+  }
+
+  .stageBar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .controls {
+    align-self: flex-end;
+  }
+
+  .arena {
+    object-position: 75% center;
+  }
+
+  .stageViewport::after {
+    background: linear-gradient(
+      180deg,
+      #110912ad,
+      transparent 17%,
+      transparent 32%,
+      #160a18f5
+    );
+  }
+}
+
+@media (pointer: coarse) {
+  .stageHint {
+    display: none;
+  }
+}

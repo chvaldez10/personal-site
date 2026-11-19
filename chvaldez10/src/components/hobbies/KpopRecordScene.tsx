@@ -4,6 +4,7 @@ import { Box, ChevronLeft, ChevronRight, Expand, Shrink } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/buttons/button";
 import { CanvasBoundary, useWebGLPreview } from "@/components/ui/WebGLPreview";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { cn } from "@/lib/utils";
 import styles from "./kpop-player.module.css";
 
@@ -26,7 +27,7 @@ export default function KpopRecordScene({
   const [enabled, setEnabled] = useState(false);
   const { frame, nearby, shouldRender, ready, failed, onReady, onFailure } =
     useWebGLPreview({ enabled, trackVisibility: true });
-  const [reducedMotion, setReducedMotion] = useState(true);
+  const reducedMotion = useReducedMotion();
   const [orbit, setOrbit] = useState(initialOrbit);
   const nextOrbit = useRef(initialOrbit);
   const animationFrame = useRef<number | null>(null);
@@ -46,19 +47,15 @@ export default function KpopRecordScene({
     });
   }
 
-  useEffect(() => {
-    const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    const updateMotion = () => setReducedMotion(motion.matches);
-    updateMotion();
-    motion.addEventListener("change", updateMotion);
-    return () => {
-      motion.removeEventListener("change", updateMotion);
+  useEffect(
+    () => () => {
       if (animationFrame.current !== null) {
         cancelAnimationFrame(animationFrame.current);
         animationFrame.current = null;
       }
-    };
-  }, []);
+    },
+    [],
+  );
 
   return (
     <div

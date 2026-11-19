@@ -1,18 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import type { Ref } from "react";
+
+export type PreviewStatus = "paused" | "loading" | "playing" | "unavailable";
 
 export default function KpopSongPreview({
   src,
   title,
+  audioRef,
+  unavailable,
   onPlaybackChange,
 }: {
   src: string;
   title: string;
-  onPlaybackChange: (playing: boolean) => void;
+  audioRef: Ref<HTMLAudioElement>;
+  unavailable: boolean;
+  onPlaybackChange: (status: PreviewStatus) => void;
 }) {
-  const [unavailable, setUnavailable] = useState(false);
-
   if (unavailable) {
     return (
       <output className="block text-sm text-gray-600">
@@ -24,20 +28,21 @@ export default function KpopSongPreview({
   return (
     // oxlint-disable-next-line jsx-a11y/media-has-caption -- This is an audio-only music preview.
     <audio
+      ref={audioRef}
       aria-label={`Preview ${title}`}
       className="block w-full max-w-80"
       controls
       controlsList="nodownload"
       preload="none"
       src={src}
-      onPlaying={() => onPlaybackChange(true)}
-      onPause={() => onPlaybackChange(false)}
-      onEnded={() => onPlaybackChange(false)}
-      onWaiting={() => onPlaybackChange(false)}
-      onError={() => {
-        onPlaybackChange(false);
-        setUnavailable(true);
+      onPlay={() => onPlaybackChange("loading")}
+      onPlaying={() => onPlaybackChange("playing")}
+      onPause={() => onPlaybackChange("paused")}
+      onEnded={() => onPlaybackChange("paused")}
+      onWaiting={(event) => {
+        if (!event.currentTarget.paused) onPlaybackChange("loading");
       }}
+      onError={() => onPlaybackChange("unavailable")}
     />
   );
 }
