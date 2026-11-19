@@ -11,8 +11,8 @@ export default async function TechFinds() {
       tabIndex={-1}
       className={`${styles.section} ${styles.toolSection}`}
     >
-      <div className={`${styles.inner} ${styles.toolLayout}`}>
-        <div>
+      <div className={styles.inner}>
+        <div className={styles.splitHeading}>
           <h2 id="tools-heading" className={styles.sectionTitle}>
             Tools I use every day
           </h2>

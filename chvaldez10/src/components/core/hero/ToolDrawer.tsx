@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import LogoImage from "@/components/ui/LogoImage";
 import { publicWebUrl } from "@/lib/links";
 import type { BrandLogo } from "@/types/media";
+import ToolShelf from "./ToolShelf";
 import styles from "./studio.module.css";
 
 const batchSize = 12;
@@ -23,6 +24,7 @@ export default function ToolDrawer({ logos }: { logos: BrandLogo[] }) {
   const searchId = useId();
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(batchSize);
+  const [playing, setPlaying] = useState(true);
   const [selected, setSelected] = useState<BrandLogo | null>(null);
   const [open, setOpen] = useState(false);
   const lastTrigger = useRef<HTMLButtonElement | null>(null);
@@ -36,6 +38,47 @@ export default function ToolDrawer({ logos }: { logos: BrandLogo[] }) {
       )
     : logos;
   const referralLink = publicWebUrl(selected?.referral_link);
+
+  const tools = matches.length ? (
+    <ul className={styles.tools}>
+      {matches.slice(0, limit).map((logo) => {
+        const label = logo.label || logo.alt;
+        return (
+          <li key={logo.id}>
+            <Button
+              type="button"
+              variant="ghost"
+              aria-haspopup="dialog"
+              aria-label={`Details about ${label}`}
+              className={styles.tool}
+              onClick={(event) => {
+                lastTrigger.current = event.currentTarget;
+                setSelected(logo);
+                setOpen(true);
+              }}
+            >
+              <span className={styles.toolIcon} aria-hidden="true">
+                <LogoImage src={logo.src} alt={logo.alt} size={40} />
+              </span>
+              <span>{label}</span>
+            </Button>
+          </li>
+        );
+      })}
+    </ul>
+  ) : (
+    <p className={styles.empty}>No tools match your search.</p>
+  );
+  const more = matches.length > limit && (
+    <Button
+      type="button"
+      variant="outline"
+      className={styles.moreTools}
+      onClick={() => setLimit((current) => current + batchSize)}
+    >
+      Show more tools
+    </Button>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -59,45 +102,20 @@ export default function ToolDrawer({ logos }: { logos: BrandLogo[] }) {
             {matches.length} {matches.length === 1 ? "tool" : "tools"}
           </output>
         </div>
-        {matches.length ? (
-          <ul className={styles.tools}>
-            {matches.slice(0, limit).map((logo) => {
-              const label = logo.label || logo.alt;
-              return (
-                <li key={logo.id}>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    aria-haspopup="dialog"
-                    aria-label={`Details about ${label}`}
-                    className={styles.tool}
-                    onClick={(event) => {
-                      lastTrigger.current = event.currentTarget;
-                      setSelected(logo);
-                      setOpen(true);
-                    }}
-                  >
-                    <span className={styles.toolIcon} aria-hidden="true">
-                      <LogoImage src={logo.src} alt={logo.alt} size={34} />
-                    </span>
-                    <span>{label}</span>
-                  </Button>
-                </li>
-              );
-            })}
-          </ul>
+        {query ? (
+          <>
+            {tools}
+            {more}
+          </>
         ) : (
-          <p className={styles.empty}>No tools match your search.</p>
-        )}
-        {matches.length > limit && (
-          <Button
-            type="button"
-            variant="outline"
-            className={styles.moreTools}
-            onClick={() => setLimit((current) => current + batchSize)}
+          <ToolShelf
+            more={more}
+            paused={open}
+            playing={playing}
+            onPlayingChange={setPlaying}
           >
-            Show more tools
-          </Button>
+            {tools}
+          </ToolShelf>
         )}
       </div>
       {selected && (

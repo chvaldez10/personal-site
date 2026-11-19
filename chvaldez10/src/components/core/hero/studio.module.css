@@ -83,13 +83,6 @@
   background: #fffefb;
 }
 
-.toolLayout {
-  display: grid;
-  grid-template-columns: minmax(0, 0.68fr) minmax(0, 1.32fr);
-  align-items: start;
-  gap: clamp(1.4rem, 4vw, 4rem);
-}
-
 .drawer {
   min-width: 0;
   padding: clamp(0.8rem, 2.2vw, 1.65rem);
@@ -147,6 +140,77 @@
   min-width: 0;
 }
 
+.shelfViewport {
+  overflow-x: auto;
+  padding: 0.6rem;
+  border: 1px solid #e0c3ad;
+  border-radius: 0.8rem;
+  background:
+    repeating-linear-gradient(0deg, #e4c7ad55 0 1px, transparent 1px 18px),
+    #f0dfce;
+  overscroll-behavior-inline: contain;
+  scroll-padding-inline: 0.6rem;
+  scrollbar-color: #b17a5b #f0dfce;
+  scrollbar-width: thin;
+}
+
+.shelfViewport[data-moving="true"] {
+  scrollbar-color: transparent transparent;
+}
+
+.shelfTrack {
+  width: max-content;
+  min-width: 100%;
+}
+
+.shelfViewport .tools {
+  display: flex;
+  gap: 0.65rem;
+}
+
+.shelfViewport .tools > li {
+  width: clamp(7rem, 11vw, 9rem);
+  flex: none;
+}
+
+.shelfViewport .tool {
+  min-height: 6.75rem;
+  justify-content: center;
+  border-color: #dcc0ab;
+  box-shadow: 0 2px #dbc0aa;
+}
+
+.shelfFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 0.8rem;
+  margin-top: 0.65rem;
+}
+
+.shelfFooter .moreTools {
+  margin-top: 0;
+}
+
+.shelfControls {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.35rem;
+  margin-inline-start: auto;
+}
+
+.shelfControls button {
+  min-height: 2.75rem;
+  border-color: #dabbab;
+  background: #fffdf8;
+}
+
+.shelfControls button:hover {
+  background: #fff0df;
+}
+
 .tool {
   display: flex;
   width: 100%;
@@ -175,8 +239,8 @@
 
 .toolIcon {
   display: grid;
-  width: 2.45rem;
-  height: 2.45rem;
+  width: 2.5rem;
+  height: 2.5rem;
   place-items: center;
 }
 
@@ -545,9 +609,14 @@
 }
 
 @media (max-width: 860px) {
-  .toolLayout,
   .splitHeading {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelfMotionButton {
+    display: none;
   }
 }
 
