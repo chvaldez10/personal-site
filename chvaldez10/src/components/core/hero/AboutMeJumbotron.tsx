@@ -41,9 +41,7 @@ const AboutDescription = () => {
       />
 
       <div className="mt-8 flex flex-wrap justify-center gap-2">
-        <BrandedLink
-          href="mailto:christianvaldez021@gmail.com"
-        >
+        <BrandedLink href="mailto:christianvaldez021@gmail.com">
           Say hello
         </BrandedLink>
 

@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock("convex/react", () => ({
   useConvexAuth: () => mocks.state,
-  useQuery: mocks.query,
+  usePaginatedQuery: mocks.query,
   useAction: () => vi.fn(),
 }));
 import LogoManager from "../../src/components/dashboard/LogoManager";
@@ -21,7 +21,11 @@ beforeEach(() => {
     isRefreshing: false,
   };
   mocks.query.mockReset();
-  mocks.query.mockReturnValue([]);
+  mocks.query.mockReturnValue({
+    results: [],
+    status: "Exhausted",
+    loadMore: vi.fn(),
+  });
 });
 
 it("waits for server-confirmed browser authentication before reading private logos", () => {

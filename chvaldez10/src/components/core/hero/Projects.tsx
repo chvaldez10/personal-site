@@ -29,7 +29,9 @@ export default async function Projects() {
         projectName: project.projectName,
         projectDescription: project.projectDescription,
         projectImage: project.projectImage,
-        ...(project.projectGithub ? { projectGithub: project.projectGithub } : {}),
+        ...(project.projectGithub
+          ? { projectGithub: project.projectGithub }
+          : {}),
       });
     }
     return (

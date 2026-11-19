@@ -198,7 +198,9 @@ export const completeProjectUpload = action({
   returns: v.string(),
   handler: async (ctx, { imageId }): Promise<string> => {
     await ctx.runQuery(internal.admin.requireAccess, {});
-    const pending = await ctx.runQuery(internal.imageRecords.pending, { imageId });
+    const pending = await ctx.runQuery(internal.imageRecords.pending, {
+      imageId,
+    });
     if (pending.expiresAt < Date.now())
       throw new ConvexError("Upload expired. Please choose the file again.");
     const usage = await ctx.runMutation(api.admin.consumeExternalRequest, {
